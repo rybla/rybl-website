@@ -2,10 +2,18 @@
   "name": "rybl-website",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "serve": "bun --hot run serve.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "esbuild": "^0.24.0",
+    "purescript": "^0.15.16-4",
+    "spago": "^0.93.41"
   }
 }
