@@ -1,6 +1,7 @@
 package:
   name: rybl-website
   dependencies:
+    - aff-promise
     - argonaut
     - argonaut-generic
     - arrays
@@ -9,6 +10,9 @@ package:
     - halogen
     - lists
     - maybe
+    - node-child-process
+    - node-fs
+    - node-process
     - prelude
     - profunctor-lenses
     - transformers

@@ -177,3 +177,4 @@ dist
 .purs-repl
 .spago
 output
+.psc-ide-port

@@ -3,7 +3,9 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "serve": "bun --hot run serve.ts"
+    "serve": "bun --hot run serve.ts",
+    "compile": "spago run -m Rybl.Compile",
+    "bundle": "spago bundle --module Rybl.App --bundle-type app --outfile docs/main.js"
   },
   "devDependencies": {
     "@types/bun": "latest"
