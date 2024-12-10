@@ -1,9 +1,17 @@
 package:
   name: rybl-website
   dependencies:
+    - argonaut
+    - argonaut-generic
+    - arrays
     - console
     - effect
+    - halogen
+    - lists
+    - maybe
     - prelude
+    - profunctor-lenses
+    - transformers
   test:
     main: Test.Main
     dependencies: []
