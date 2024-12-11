@@ -10,6 +10,9 @@
       };
     }
   };
+  var compose = function(dict) {
+    return dict.compose;
+  };
 
   // output/Control.Category/index.js
   var identity = function(dict) {
@@ -73,18 +76,21 @@
     return map(dictFunctor)($$const(unit));
   };
   var voidLeft = function(dictFunctor) {
-    var map111 = map(dictFunctor);
+    var map114 = map(dictFunctor);
     return function(f) {
       return function(x) {
-        return map111($$const(x))(f);
+        return map114($$const(x))(f);
       };
     };
   };
   var voidRight = function(dictFunctor) {
-    var map111 = map(dictFunctor);
+    var map114 = map(dictFunctor);
     return function(x) {
-      return map111($$const(x));
+      return map114($$const(x));
     };
+  };
+  var functorFn = {
+    map: /* @__PURE__ */ compose(semigroupoidFn)
   };
   var functorArray = {
     map: arrayMap
@@ -97,10 +103,10 @@
   };
   var applySecond = function(dictApply) {
     var apply1 = apply(dictApply);
-    var map28 = map(dictApply.Functor0());
+    var map34 = map(dictApply.Functor0());
     return function(a2) {
       return function(b2) {
-        return apply1(map28($$const(identity2))(a2))(b2);
+        return apply1(map34($$const(identity2))(a2))(b2);
       };
     };
   };
@@ -237,26 +243,26 @@
   var unsafeSet = function(label5) {
     return function(value12) {
       return function(rec) {
-        var copy = {};
+        var copy2 = {};
         for (var key in rec) {
           if ({}.hasOwnProperty.call(rec, key)) {
-            copy[key] = rec[key];
+            copy2[key] = rec[key];
           }
         }
-        copy[label5] = value12;
-        return copy;
+        copy2[label5] = value12;
+        return copy2;
       };
     };
   };
   var unsafeDelete = function(label5) {
     return function(rec) {
-      var copy = {};
+      var copy2 = {};
       for (var key in rec) {
         if (key !== label5 && {}.hasOwnProperty.call(rec, key)) {
-          copy[key] = rec[key];
+          copy2[key] = rec[key];
         }
       }
-      return copy;
+      return copy2;
     };
   };
 
@@ -868,10 +874,10 @@
   var $$try = function(dictMonadError) {
     var catchError1 = catchError(dictMonadError);
     var Monad0 = dictMonadError.MonadThrow0().Monad0();
-    var map28 = map(Monad0.Bind1().Apply0().Functor0());
+    var map34 = map(Monad0.Bind1().Apply0().Functor0());
     var pure15 = pure(Monad0.Applicative0());
     return function(a2) {
-      return catchError1(map28(Right.create)(a2))(function($52) {
+      return catchError1(map34(Right.create)(a2))(function($52) {
         return pure15(Left.create($52));
       });
     };
@@ -1694,7 +1700,7 @@
       };
     }
     return function(apply2) {
-      return function(map28) {
+      return function(map34) {
         return function(pure15) {
           return function(f) {
             return function(array) {
@@ -1703,14 +1709,14 @@
                   case 0:
                     return pure15([]);
                   case 1:
-                    return map28(array1)(f(array[bot]));
+                    return map34(array1)(f(array[bot]));
                   case 2:
-                    return apply2(map28(array2)(f(array[bot])))(f(array[bot + 1]));
+                    return apply2(map34(array2)(f(array[bot])))(f(array[bot + 1]));
                   case 3:
-                    return apply2(apply2(map28(array3)(f(array[bot])))(f(array[bot + 1])))(f(array[bot + 2]));
+                    return apply2(apply2(map34(array3)(f(array[bot])))(f(array[bot + 1])))(f(array[bot + 2]));
                   default:
                     var pivot = bot + Math.floor((top2 - bot) / 4) * 2;
-                    return apply2(map28(concat2)(go2(bot, pivot)))(go2(pivot, top2));
+                    return apply2(map34(concat2)(go2(bot, pivot)))(go2(pivot, top2));
                 }
               }
               return go2(0, array.length);
@@ -2932,7 +2938,7 @@
       var pure15 = pure(dictApplicative);
       var Apply0 = dictApplicative.Apply0();
       var apply2 = apply(Apply0);
-      var map111 = map(Apply0.Functor0());
+      var map114 = map(Apply0.Functor0());
       return function(f) {
         var go2 = function(v) {
           if (v instanceof Leaf) {
@@ -2940,7 +2946,7 @@
           }
           ;
           if (v instanceof Node) {
-            return apply2(apply2(map111(function(l$prime) {
+            return apply2(apply2(map114(function(l$prime) {
               return function(v$prime) {
                 return function(r$prime) {
                   return new Node(v.value0, v.value1, v.value2, v$prime, l$prime, r$prime);
@@ -2969,7 +2975,7 @@
       var pure15 = pure(dictApplicative);
       var Apply0 = dictApplicative.Apply0();
       var apply2 = apply(Apply0);
-      var map111 = map(Apply0.Functor0());
+      var map114 = map(Apply0.Functor0());
       return function(f) {
         var go2 = function(v) {
           if (v instanceof Leaf) {
@@ -2977,7 +2983,7 @@
           }
           ;
           if (v instanceof Node) {
-            return apply2(apply2(map111(function(l$prime) {
+            return apply2(apply2(map114(function(l$prime) {
               return function(v$prime) {
                 return function(r$prime) {
                   return new Node(v.value0, v.value1, v.value2, v$prime, l$prime, r$prime);
@@ -3434,30 +3440,30 @@
       fn.tag = tag;
       return fn;
     }
-    function nonCanceler2(error3) {
+    function nonCanceler2(error4) {
       return new Aff2(PURE, void 0);
     }
     function runEff(eff) {
       try {
         eff();
-      } catch (error3) {
+      } catch (error4) {
         setTimeout(function() {
-          throw error3;
+          throw error4;
         }, 0);
       }
     }
     function runSync(left2, right2, eff) {
       try {
         return right2(eff());
-      } catch (error3) {
-        return left2(error3);
+      } catch (error4) {
+        return left2(error4);
       }
     }
     function runAsync(left2, eff, k) {
       try {
         return eff(k)();
-      } catch (error3) {
-        k(left2(error3))();
+      } catch (error4) {
+        k(left2(error4))();
         return nonCanceler2;
       }
     }
@@ -3552,7 +3558,7 @@
             fibers = {};
             fiberId = 0;
             count = 0;
-            return function(error3) {
+            return function(error4) {
               return new Aff2(SYNC, function() {
                 for (var k2 in kills) {
                   if (kills.hasOwnProperty(k2)) {
@@ -3836,7 +3842,7 @@
           };
         };
       }
-      function kill2(error3, cb) {
+      function kill2(error4, cb) {
         return function() {
           if (status2 === COMPLETED) {
             cb(util.right(void 0))();
@@ -3851,18 +3857,18 @@
           })();
           switch (status2) {
             case SUSPENDED:
-              interrupt = util.left(error3);
+              interrupt = util.left(error4);
               status2 = COMPLETED;
               step3 = interrupt;
               run3(runTick);
               break;
             case PENDING:
               if (interrupt === null) {
-                interrupt = util.left(error3);
+                interrupt = util.left(error4);
               }
               if (bracketCount === 0) {
                 if (status2 === PENDING) {
-                  attempts = new Aff2(CONS, new Aff2(FINALIZER, step3(error3)), attempts, interrupt);
+                  attempts = new Aff2(CONS, new Aff2(FINALIZER, step3(error4)), attempts, interrupt);
                 }
                 status2 = RETURN;
                 step3 = null;
@@ -3872,7 +3878,7 @@
               break;
             default:
               if (interrupt === null) {
-                interrupt = util.left(error3);
+                interrupt = util.left(error4);
               }
               if (bracketCount === 0) {
                 status2 = RETURN;
@@ -3923,7 +3929,7 @@
       var early = new Error("[ParAff] Early exit");
       var interrupt = null;
       var root = EMPTY;
-      function kill2(error3, par2, cb2) {
+      function kill2(error4, par2, cb2) {
         var step3 = par2;
         var head3 = null;
         var tail2 = null;
@@ -3936,7 +3942,7 @@
             case FORKED:
               if (step3._3 === EMPTY) {
                 tmp = fibers[step3._1];
-                kills2[count++] = tmp.kill(error3, function(result) {
+                kills2[count++] = tmp.kill(error4, function(result) {
                   return function() {
                     count--;
                     if (count === 0) {
@@ -4168,8 +4174,8 @@
           fibers[fid].run();
         }
       }
-      function cancel(error3, cb2) {
-        interrupt = util.left(error3);
+      function cancel(error4, cb2) {
+        interrupt = util.left(error4);
         var innerKills;
         for (var kid in kills) {
           if (kills.hasOwnProperty(kid)) {
@@ -4182,7 +4188,7 @@
           }
         }
         kills = null;
-        var newKills = kill2(error3, root, cb2);
+        var newKills = kill2(error4, root, cb2);
         return function(killError) {
           return new Aff2(ASYNC, function(killCb) {
             return function() {
@@ -4317,6 +4323,11 @@
     });
   };
 
+  // output/Control.Monad.Trans.Class/index.js
+  var lift = function(dict) {
+    return dict.lift;
+  };
+
   // output/Effect.Class/index.js
   var monadEffectEffect = {
     liftEffect: /* @__PURE__ */ identity(categoryFn),
@@ -4342,10 +4353,10 @@
     };
   };
   var functorExceptT = function(dictFunctor) {
-    var map111 = map(dictFunctor);
+    var map114 = map(dictFunctor);
     return {
       map: function(f) {
-        return mapExceptT(map111(map9(f)));
+        return mapExceptT(map114(map9(f)));
       }
     };
   };
@@ -4426,6 +4437,17 @@
       };
     };
   };
+  var runReaderT = function(v) {
+    return v;
+  };
+  var monadTransReaderT = {
+    lift: function(dictMonad) {
+      return function($153) {
+        return ReaderT($$const($153));
+      };
+    }
+  };
+  var lift3 = /* @__PURE__ */ lift(monadTransReaderT);
   var mapReaderT = function(f) {
     return function(v) {
       return function($154) {
@@ -4519,6 +4541,22 @@
       local: withReaderT,
       MonadAsk0: function() {
         return monadAskReaderT1;
+      }
+    };
+  };
+  var monadStateReaderT = function(dictMonadState) {
+    var Monad0 = dictMonadState.Monad0();
+    var monadReaderT1 = monadReaderT(Monad0);
+    return {
+      state: function() {
+        var $166 = lift3(Monad0);
+        var $167 = state(dictMonadState);
+        return function($168) {
+          return $166($167($168));
+        };
+      }(),
+      Monad0: function() {
+        return monadReaderT1;
       }
     };
   };
@@ -4888,9 +4926,9 @@
   function addEventListener(type) {
     return function(listener) {
       return function(useCapture) {
-        return function(target5) {
+        return function(target6) {
           return function() {
-            return target5.addEventListener(type, listener, useCapture);
+            return target6.addEventListener(type, listener, useCapture);
           };
         };
       };
@@ -4899,9 +4937,9 @@
   function removeEventListener(type) {
     return function(listener) {
       return function(useCapture) {
-        return function(target5) {
+        return function(target6) {
           return function() {
-            return target5.removeEventListener(type, listener, useCapture);
+            return target6.removeEventListener(type, listener, useCapture);
           };
         };
       };
@@ -5229,6 +5267,21 @@
     };
     return Action3;
   }();
+  var functorInput = {
+    map: function(f) {
+      return function(m) {
+        if (m instanceof RefUpdate) {
+          return new RefUpdate(m.value0, m.value1);
+        }
+        ;
+        if (m instanceof Action) {
+          return new Action(f(m.value0));
+        }
+        ;
+        throw new Error("Failed pattern match at Halogen.Query.Input (line 0, column 0 - line 0, column 0): " + [m.constructor.name]);
+      };
+    }
+  };
 
   // output/Halogen.VDom.Machine/index.js
   var Step = /* @__PURE__ */ function() {
@@ -5369,6 +5422,23 @@
     }
   };
   var bimap2 = /* @__PURE__ */ bimap(bifunctorGraft);
+  var bifunctorVDom = {
+    bimap: function(v) {
+      return function(v1) {
+        return function(v2) {
+          if (v2 instanceof Text) {
+            return new Text(v2.value0);
+          }
+          ;
+          if (v2 instanceof Grafted) {
+            return new Grafted(bimap2(v)(v1)(v2.value0));
+          }
+          ;
+          return new Grafted(graft(new Graft(v, v1, v2)));
+        };
+      };
+    }
+  };
   var runGraft = /* @__PURE__ */ unGraft(function(v) {
     var go2 = function(v2) {
       if (v2 instanceof Text) {
@@ -5917,6 +5987,8 @@
       return val;
     };
   };
+  var map16 = /* @__PURE__ */ map(functorFn);
+  var map17 = /* @__PURE__ */ map(functorMaybe);
   var Created = /* @__PURE__ */ function() {
     function Created2(value0) {
       this.value0 = value0;
@@ -6035,6 +6107,21 @@
     ;
     throw new Error("Failed pattern match at Halogen.VDom.DOM.Prop (line 182, column 16 - line 187, column 16): " + [v.constructor.name]);
   };
+  var functorProp = {
+    map: function(v) {
+      return function(v1) {
+        if (v1 instanceof Handler) {
+          return new Handler(v1.value0, map16(map17(v))(v1.value1));
+        }
+        ;
+        if (v1 instanceof Ref) {
+          return new Ref(map16(map17(v))(v1.value0));
+        }
+        ;
+        return v1;
+      };
+    }
+  };
   var buildProp = function(emit) {
     return function(el) {
       var removeProp = function(prevEvents) {
@@ -6048,8 +6135,8 @@
           }
           ;
           if (v1 instanceof Handler) {
-            var handler2 = unsafeLookup(v1.value0, prevEvents);
-            return removeEventListener2(v1.value0, fst(handler2), el);
+            var handler3 = unsafeLookup(v1.value0, prevEvents);
+            return removeEventListener2(v1.value0, fst(handler3), el);
           }
           ;
           if (v1 instanceof Ref) {
@@ -6108,9 +6195,9 @@
           }
           ;
           if (v11 instanceof Handler && v2 instanceof Handler) {
-            var handler2 = unsafeLookup(v2.value0, prevEvents);
-            write(v2.value1)(snd(handler2))();
-            pokeMutMap(v2.value0, handler2, events);
+            var handler3 = unsafeLookup(v2.value0, prevEvents);
+            write(v2.value1)(snd(handler3))();
+            pokeMutMap(v2.value0, handler3, events);
             return v2;
           }
           ;
@@ -6185,6 +6272,10 @@
   };
 
   // output/Halogen.HTML.Core/index.js
+  var map18 = /* @__PURE__ */ map(functorArray);
+  var map19 = /* @__PURE__ */ map(functorProp);
+  var map22 = /* @__PURE__ */ map(functorInput);
+  var bimap3 = /* @__PURE__ */ bimap(bifunctorVDom);
   var HTML = function(x) {
     return x;
   };
@@ -6194,6 +6285,9 @@
   var text5 = function($29) {
     return HTML(Text.create($29));
   };
+  var handler = /* @__PURE__ */ function() {
+    return Handler.create;
+  }();
   var element = function(ns) {
     return function(name15) {
       return function(props) {
@@ -6202,6 +6296,15 @@
         };
       };
     };
+  };
+  var bifunctorHTML = {
+    bimap: function(f) {
+      return function(g) {
+        return function(v) {
+          return bimap3(map18(map19(map22(g))))(f)(v);
+        };
+      };
+    }
   };
   var attr = function(ns) {
     return function(v) {
@@ -6764,18 +6867,18 @@
   };
   var foldFree = function(dictMonadRec) {
     var Monad0 = dictMonadRec.Monad0();
-    var map111 = map(Monad0.Bind1().Apply0().Functor0());
+    var map114 = map(Monad0.Bind1().Apply0().Functor0());
     var pure15 = pure(Monad0.Applicative0());
     var tailRecM4 = tailRecM(dictMonadRec);
     return function(k) {
       var go2 = function(f) {
         var v = toView(f);
         if (v instanceof Return) {
-          return map111(Done.create)(pure15(v.value0));
+          return map114(Done.create)(pure15(v.value0));
         }
         ;
         if (v instanceof Bind) {
-          return map111(function($199) {
+          return map114(function($199) {
             return Loop.create(v.value1($199));
           })(k(v.value0));
         }
@@ -6783,6 +6886,86 @@
         throw new Error("Failed pattern match at Control.Monad.Free (line 158, column 10 - line 160, column 37): " + [v.constructor.name]);
       };
       return tailRecM4(go2);
+    };
+  };
+
+  // output/Control.Monad.State.Trans/index.js
+  var functorStateT = function(dictFunctor) {
+    var map34 = map(dictFunctor);
+    return {
+      map: function(f) {
+        return function(v) {
+          return function(s) {
+            return map34(function(v1) {
+              return new Tuple(f(v1.value0), v1.value1);
+            })(v(s));
+          };
+        };
+      }
+    };
+  };
+  var monadStateT = function(dictMonad) {
+    return {
+      Applicative0: function() {
+        return applicativeStateT(dictMonad);
+      },
+      Bind1: function() {
+        return bindStateT(dictMonad);
+      }
+    };
+  };
+  var bindStateT = function(dictMonad) {
+    var bind15 = bind(dictMonad.Bind1());
+    return {
+      bind: function(v) {
+        return function(f) {
+          return function(s) {
+            return bind15(v(s))(function(v1) {
+              var v3 = f(v1.value0);
+              return v3(v1.value1);
+            });
+          };
+        };
+      },
+      Apply0: function() {
+        return applyStateT(dictMonad);
+      }
+    };
+  };
+  var applyStateT = function(dictMonad) {
+    var functorStateT1 = functorStateT(dictMonad.Bind1().Apply0().Functor0());
+    return {
+      apply: ap(monadStateT(dictMonad)),
+      Functor0: function() {
+        return functorStateT1;
+      }
+    };
+  };
+  var applicativeStateT = function(dictMonad) {
+    var pure15 = pure(dictMonad.Applicative0());
+    return {
+      pure: function(a2) {
+        return function(s) {
+          return pure15(new Tuple(a2, s));
+        };
+      },
+      Apply0: function() {
+        return applyStateT(dictMonad);
+      }
+    };
+  };
+  var monadStateStateT = function(dictMonad) {
+    var pure15 = pure(dictMonad.Applicative0());
+    var monadStateT1 = monadStateT(dictMonad);
+    return {
+      state: function(f) {
+        return function($206) {
+          return pure15(f($206));
+        };
+      },
+      Monad0: function() {
+        return monadStateT1;
+      }
     };
   };
 
@@ -7107,11 +7290,37 @@
       return val;
     };
   };
+  var Thunk = /* @__PURE__ */ function() {
+    function Thunk2(value0, value1, value22, value32) {
+      this.value0 = value0;
+      this.value1 = value1;
+      this.value2 = value22;
+      this.value3 = value32;
+    }
+    ;
+    Thunk2.create = function(value0) {
+      return function(value1) {
+        return function(value22) {
+          return function(value32) {
+            return new Thunk2(value0, value1, value22, value32);
+          };
+        };
+      };
+    };
+    return Thunk2;
+  }();
   var unsafeEqThunk = function(v, v1) {
     return refEq2(v.value0, v1.value0) && (refEq2(v.value1, v1.value1) && v.value1(v.value3, v1.value3));
   };
   var runThunk = function(v) {
     return v.value2(v.value3);
+  };
+  var mapThunk = function(k) {
+    return function(v) {
+      return new Thunk(v.value0, v.value1, function($51) {
+        return k(v.value2($51));
+      }, v.value3);
+    };
   };
   var buildThunk = function(toVDom) {
     var haltThunk = function(state3) {
@@ -7147,7 +7356,10 @@
   // output/Halogen.Component/index.js
   var voidLeft2 = /* @__PURE__ */ voidLeft(functorHalogenM);
   var traverse_3 = /* @__PURE__ */ traverse_(applicativeHalogenM)(foldableMaybe);
-  var map16 = /* @__PURE__ */ map(functorHalogenM);
+  var map20 = /* @__PURE__ */ map(functorHalogenM);
+  var map110 = /* @__PURE__ */ map(functorFn);
+  var map23 = /* @__PURE__ */ map(functorMaybe);
+  var bimap4 = /* @__PURE__ */ bimap(bifunctorHTML);
   var pure5 = /* @__PURE__ */ pure(applicativeHalogenM);
   var lookup5 = /* @__PURE__ */ lookup4();
   var pop3 = /* @__PURE__ */ pop2();
@@ -7194,7 +7406,7 @@
       ;
       if (v instanceof Query) {
         return unCoyoneda(function(g) {
-          var $45 = map16(maybe(v.value1(unit))(g));
+          var $45 = map20(maybe(v.value1(unit))(g));
           return function($46) {
             return $45(args.handleQuery($46));
           };
@@ -7206,6 +7418,36 @@
   };
   var mkComponentSlot = unsafeCoerce2;
   var mkComponent = unsafeCoerce2;
+  var functorComponentSlotBox = {
+    map: function(f) {
+      return unComponentSlot(function(slot) {
+        return mkComponentSlot({
+          get: slot.get,
+          pop: slot.pop,
+          set: slot.set,
+          component: slot.component,
+          input: slot.input,
+          output: map110(map23(f))(slot.output)
+        });
+      });
+    }
+  };
+  var map32 = /* @__PURE__ */ map(functorComponentSlotBox);
+  var functorComponentSlot = {
+    map: function(f) {
+      return function(v) {
+        if (v instanceof ComponentSlot) {
+          return new ComponentSlot(map32(f)(v.value0));
+        }
+        ;
+        if (v instanceof ThunkSlot) {
+          return new ThunkSlot(mapThunk(bimap4(map(functorComponentSlot)(f))(f))(v.value0));
+        }
+        ;
+        throw new Error("Failed pattern match at Halogen.Component (line 209, column 11 - line 211, column 74): " + [v.constructor.name]);
+      };
+    }
+  };
   var defaultEval = /* @__PURE__ */ function() {
     return {
       handleAction: $$const(pure5(unit)),
@@ -7227,14 +7469,14 @@
         return function(label5) {
           return function(p2) {
             return function(comp) {
-              return function(input2) {
+              return function(input3) {
                 return function(output2) {
                   return mkComponentSlot({
                     get: lookup23(label5)(p2),
                     pop: pop22(label5)(p2),
                     set: insert22(label5)(p2),
                     component: comp,
-                    input: input2,
+                    input: input3,
                     output: output2
                   });
                 };
@@ -7252,6 +7494,7 @@
   }();
   var span4 = /* @__PURE__ */ element2("span");
   var div2 = /* @__PURE__ */ element2("div");
+  var button = /* @__PURE__ */ element2("button");
 
   // output/Halogen.HTML.Properties/index.js
   var attr2 = /* @__PURE__ */ function() {
@@ -7269,8 +7512,8 @@
         return function(label5) {
           return function(p2) {
             return function(component2) {
-              return function(input2) {
-                return widget(new ComponentSlot(componentSlot22(label5)(p2)(component2)(input2)($$const(Nothing.value))));
+              return function(input3) {
+                return widget(new ComponentSlot(componentSlot22(label5)(p2)(component2)(input3)($$const(Nothing.value))));
               };
             };
           };
@@ -7328,14 +7571,14 @@
     };
   };
   var initDriverState = function(component2) {
-    return function(input2) {
-      return function(handler2) {
+    return function(input3) {
+      return function(handler3) {
         return function(lchs) {
           return function __do2() {
             var selfRef = $$new({})();
             var childrenIn = $$new(empty5)();
             var childrenOut = $$new(empty5)();
-            var handlerRef = $$new(handler2)();
+            var handlerRef = $$new(handler3)();
             var pendingQueries = $$new(new Just(Nil.value))();
             var pendingOuts = $$new(new Just(Nil.value))();
             var pendingHandlers = $$new(Nothing.value)();
@@ -7344,7 +7587,7 @@
             var forks = $$new(empty3)();
             var ds = {
               component: component2,
-              state: component2.initialState(input2),
+              state: component2.initialState(input3),
               refs: empty3,
               children: empty5,
               childrenIn,
@@ -7381,11 +7624,11 @@
   var fork3 = /* @__PURE__ */ fork(monadForkAff);
   var parSequence_3 = /* @__PURE__ */ parSequence_(parallelAff)(applicativeParAff)(foldableList);
   var pure6 = /* @__PURE__ */ pure(applicativeAff);
-  var map18 = /* @__PURE__ */ map(functorCoyoneda);
+  var map24 = /* @__PURE__ */ map(functorCoyoneda);
   var parallel3 = /* @__PURE__ */ parallel(parallelAff);
-  var map19 = /* @__PURE__ */ map(functorAff);
+  var map111 = /* @__PURE__ */ map(functorAff);
   var sequential2 = /* @__PURE__ */ sequential(parallelAff);
-  var map22 = /* @__PURE__ */ map(functorMaybe);
+  var map25 = /* @__PURE__ */ map(functorMaybe);
   var insert8 = /* @__PURE__ */ insert2(ordSubscriptionId);
   var retractFreeAp2 = /* @__PURE__ */ retractFreeAp(applicativeParAff);
   var $$delete4 = /* @__PURE__ */ $$delete2(ordForkId);
@@ -7455,7 +7698,7 @@
     return function(ref2) {
       return function(q2) {
         return bind12(liftEffect4(read(ref2)))(function(v) {
-          return evalM(render)(ref2)(v["component"]["eval"](new Query(map18(Just.create)(liftCoyoneda(q2)), $$const(Nothing.value))));
+          return evalM(render)(ref2)(v["component"]["eval"](new Query(map24(Just.create)(liftCoyoneda(q2)), $$const(Nothing.value))));
         });
       };
     };
@@ -7474,7 +7717,7 @@
                     })(dsx);
                   }));
                 };
-                return map19(v2.value2)(sequential2(v2.value0(applicativeParAff)(evalChild)(v1.children)));
+                return map111(v2.value2)(sequential2(v2.value0(applicativeParAff)(evalChild)(v1.children)));
               })(cqb);
             });
           };
@@ -7523,7 +7766,7 @@
                   return handleAff(evalF(render)(ref2)(new Action(act)));
                 })))(function(finalize) {
                   return bind12(liftEffect4(read(ref2)))(function(v2) {
-                    return discard1(liftEffect4(modify_(map22(insert8(sid)(finalize)))(v2.subscriptions)))(function() {
+                    return discard1(liftEffect4(modify_(map25(insert8(sid)(finalize)))(v2.subscriptions)))(function() {
                       return pure6(v1.value1(sid));
                     });
                   });
@@ -7547,8 +7790,8 @@
             ;
             if (v1 instanceof Raise) {
               return bind12(liftEffect4(read(ref2)))(function(v2) {
-                return bind12(liftEffect4(read(v2.handlerRef)))(function(handler2) {
-                  return discard1(queueOrRun(v2.pendingOuts)(handler2(v1.value0)))(function() {
+                return bind12(liftEffect4(read(v2.handlerRef)))(function(handler3) {
+                  return discard1(queueOrRun(v2.pendingOuts)(handler3(v1.value0)))(function() {
                     return pure6(v1.value1);
                   });
                 });
@@ -7665,7 +7908,7 @@
   var parSequence_4 = /* @__PURE__ */ parSequence_(parallelAff)(applicativeParAff)(foldableList);
   var liftEffect5 = /* @__PURE__ */ liftEffect(monadEffectAff);
   var pure7 = /* @__PURE__ */ pure(applicativeEffect);
-  var map20 = /* @__PURE__ */ map(functorEffect);
+  var map26 = /* @__PURE__ */ map(functorEffect);
   var pure12 = /* @__PURE__ */ pure(applicativeAff);
   var when2 = /* @__PURE__ */ when(applicativeEffect);
   var renderStateX2 = /* @__PURE__ */ renderStateX(functorEffect);
@@ -7731,12 +7974,12 @@
           };
         };
         var runComponent = function(lchs) {
-          return function(handler2) {
+          return function(handler3) {
             return function(j) {
               return unComponent(function(c) {
                 return function __do2() {
                   var lchs$prime = newLifecycleHandlers();
-                  var $$var2 = initDriverState(c)(j)(handler2)(lchs$prime)();
+                  var $$var2 = initDriverState(c)(j)(handler3)(lchs$prime)();
                   var pre2 = read(lchs)();
                   write({
                     initializers: Nil.value,
@@ -7758,12 +8001,12 @@
           };
         };
         var renderChild = function(lchs) {
-          return function(handler2) {
+          return function(handler3) {
             return function(childrenInRef) {
               return function(childrenOutRef) {
                 return unComponentSlot(function(slot) {
                   return function __do2() {
-                    var childrenIn = map20(slot.pop)(read(childrenInRef))();
+                    var childrenIn = map26(slot.pop)(read(childrenInRef))();
                     var $$var2 = function() {
                       if (childrenIn instanceof Just) {
                         write(childrenIn.value0.value1)(childrenInRef)();
@@ -7771,7 +8014,7 @@
                         unDriverStateX(function(st) {
                           return function __do3() {
                             flip(write)(st.handlerRef)(function() {
-                              var $65 = maybe(pure12(unit))(handler2);
+                              var $65 = maybe(pure12(unit))(handler3);
                               return function($66) {
                                 return $65(slot.output($66));
                               };
@@ -7784,7 +8027,7 @@
                       ;
                       if (childrenIn instanceof Nothing) {
                         return runComponent(lchs)(function() {
-                          var $67 = maybe(pure12(unit))(handler2);
+                          var $67 = maybe(pure12(unit))(handler3);
                           return function($68) {
                             return $67(slot.output($68));
                           };
@@ -7793,7 +8036,7 @@
                       ;
                       throw new Error("Failed pattern match at Halogen.Aff.Driver (line 213, column 14 - line 222, column 98): " + [childrenIn.constructor.name]);
                     }();
-                    var isDuplicate = map20(function($69) {
+                    var isDuplicate = map26(function($69) {
                       return isJust(slot.get($69));
                     })(read(childrenOutRef))();
                     when2(isDuplicate)(warn("Halogen: Duplicate slot address was detected during rendering, unexpected results may occur"))();
@@ -7819,11 +8062,11 @@
           return function($$var2) {
             return function __do2() {
               var v = read($$var2)();
-              var shouldProcessHandlers = map20(isNothing)(read(v.pendingHandlers))();
+              var shouldProcessHandlers = map26(isNothing)(read(v.pendingHandlers))();
               when2(shouldProcessHandlers)(write(new Just(Nil.value))(v.pendingHandlers))();
               write(empty5)(v.childrenOut)();
               write(v.children)(v.childrenIn)();
-              var handler2 = function() {
+              var handler3 = function() {
                 var $70 = queueOrRun(v.pendingHandlers);
                 var $71 = evalF(render)(v.selfRef);
                 return function($72) {
@@ -7833,11 +8076,11 @@
               var childHandler = function() {
                 var $73 = queueOrRun(v.pendingQueries);
                 return function($74) {
-                  return $73(handler2(Action.create($74)));
+                  return $73(handler3(Action.create($74)));
                 };
               }();
               var rendering = renderSpec2.render(function($75) {
-                return handleAff(handler2($75));
+                return handleAff(handler3($75));
               })(renderChild(lchs)(childHandler)(v.childrenIn)(v.childrenOut))(v.component.render(v.state))(v.rendering)();
               var children2 = read(v.childrenOut)();
               var childrenIn = read(v.childrenIn)();
@@ -8012,15 +8255,15 @@
   }
 
   // output/Web.DOM.Node/index.js
-  var map21 = /* @__PURE__ */ map(functorEffect);
+  var map27 = /* @__PURE__ */ map(functorEffect);
   var parentNode2 = /* @__PURE__ */ function() {
-    var $6 = map21(toMaybe);
+    var $6 = map27(toMaybe);
     return function($7) {
       return $6(_parentNode($7));
     };
   }();
   var nextSibling = /* @__PURE__ */ function() {
-    var $15 = map21(toMaybe);
+    var $15 = map27(toMaybe);
     return function($16) {
       return $15(_nextSibling($16));
     };
@@ -8048,7 +8291,7 @@
   var identity9 = /* @__PURE__ */ identity(categoryFn);
   var bind14 = /* @__PURE__ */ bind(bindAff);
   var liftEffect6 = /* @__PURE__ */ liftEffect(monadEffectAff);
-  var map23 = /* @__PURE__ */ map(functorEffect);
+  var map28 = /* @__PURE__ */ map(functorEffect);
   var bindFlipped7 = /* @__PURE__ */ bindFlipped(bindEffect);
   var substInParent = function(v) {
     return function(v1) {
@@ -8073,7 +8316,7 @@
       })(npn)();
     };
   };
-  var mkSpec = function(handler2) {
+  var mkSpec = function(handler3) {
     return function(renderChildRef) {
       return function(document2) {
         var getNode = unRenderStateX(function(v) {
@@ -8134,7 +8377,7 @@
           var renderComponentSlot = $lazy_renderComponentSlot(109);
           return render;
         };
-        var buildAttributes = buildProp(handler2);
+        var buildAttributes = buildProp(handler3);
         return {
           buildWidget: buildWidget2,
           buildAttributes,
@@ -8145,14 +8388,14 @@
   };
   var renderSpec = function(document2) {
     return function(container) {
-      var render = function(handler2) {
+      var render = function(handler3) {
         return function(child) {
           return function(v) {
             return function(v1) {
               if (v1 instanceof Nothing) {
                 return function __do2() {
                   var renderChildRef = $$new(child)();
-                  var spec = mkSpec(handler2)(renderChildRef)(document2);
+                  var spec = mkSpec(handler3)(renderChildRef)(document2);
                   var machine = buildVDom(spec)(v);
                   var node = extract2(machine);
                   $$void6(appendChild(node)(toNode(container)))();
@@ -8196,7 +8439,7 @@
   var runUI2 = function(component2) {
     return function(i2) {
       return function(element3) {
-        return bind14(liftEffect6(map23(toDocument)(bindFlipped7(document)(windowImpl))))(function(document2) {
+        return bind14(liftEffect6(map28(toDocument)(bindFlipped7(document)(windowImpl))))(function(document2) {
           return runUI(renderSpec(document2)(element3))(component2)(i2);
         });
       };
@@ -8215,7 +8458,7 @@
   var discard5 = /* @__PURE__ */ discard(discardUnit)(bindEither);
   var when4 = /* @__PURE__ */ when(applicativeEither);
   var pure9 = /* @__PURE__ */ pure(applicativeEither);
-  var map24 = /* @__PURE__ */ map(functorEither);
+  var map29 = /* @__PURE__ */ map(functorEither);
   var alt5 = /* @__PURE__ */ alt(altEither);
   var lmap4 = /* @__PURE__ */ lmap(bifunctorEither);
   var notEq1 = /* @__PURE__ */ notEq(/* @__PURE__ */ eqArray(eqJson));
@@ -8263,7 +8506,7 @@
     return function(dictDecodeRep) {
       var decodeRepWith1 = decodeRepWith(dictDecodeRep);
       return function(e) {
-        var $101 = map24(to2);
+        var $101 = map29(to2);
         var $102 = decodeRepWith1(e);
         return function($103) {
           return $101($102($103));
@@ -8284,7 +8527,7 @@
       return {
         decodeRepWith: function(e) {
           return function(j) {
-            return alt5(map24(Inl.create)(decodeRepWith1(e)(j)))(map24(Inr.create)(decodeRepWith2(e)(j)));
+            return alt5(map29(Inl.create)(decodeRepWith1(e)(j)))(map29(Inr.create)(decodeRepWith2(e)(j)));
           };
         }
       };
@@ -8295,7 +8538,7 @@
     return {
       decodeRepArgs: function(js) {
         return bind8(note(new TypeMismatch("NonEmptyArray"))(uncons(js)))(function(v) {
-          return map24(function($104) {
+          return map29(function($104) {
             return function(v1) {
               return {
                 init: v1,
@@ -8409,10 +8652,29 @@
       return "Ref";
     }
   };
+  var inlineIsSymbol = {
+    reflectSymbol: function() {
+      return "inline";
+    }
+  };
+  var blockIsSymbol = {
+    reflectSymbol: function() {
+      return "block";
+    }
+  };
+  var ExpanderIsSymbol = {
+    reflectSymbol: function() {
+      return "Expander";
+    }
+  };
   var decodeRepSum2 = /* @__PURE__ */ decodeRepSum(/* @__PURE__ */ decodeRepConstructorArg(StringIsSymbol)(decodeJsonString));
   var decodeRepConstructor2 = /* @__PURE__ */ decodeRepConstructor(GroupIsSymbol);
-  var decodeRepArgsProduct2 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeJsonVariant()(/* @__PURE__ */ decodeJsonVariantRLCons(/* @__PURE__ */ decodeJsonVariantRLCons(decodeJsonVariantRLRowNil)(rowIsSymbol)(decodeJsonNull)())(columnIsSymbol)(decodeJsonNull)())));
-  var decodeRepConstructorArg2 = /* @__PURE__ */ decodeRepConstructorArg(RefIsSymbol)(decodeJsonString);
+  var decodeJsonVariant2 = /* @__PURE__ */ decodeJsonVariant();
+  var decodeJsonVariantRLCons2 = /* @__PURE__ */ decodeJsonVariantRLCons(decodeJsonVariantRLRowNil);
+  var decodeRepArgsProduct2 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeJsonVariant2(/* @__PURE__ */ decodeJsonVariantRLCons(/* @__PURE__ */ decodeJsonVariantRLCons2(rowIsSymbol)(decodeJsonNull)())(columnIsSymbol)(decodeJsonNull)())));
+  var decodeRepSum1 = /* @__PURE__ */ decodeRepSum(/* @__PURE__ */ decodeRepConstructorArg(RefIsSymbol)(decodeJsonString));
+  var decodeRepConstructor1 = /* @__PURE__ */ decodeRepConstructor(ExpanderIsSymbol);
+  var decodeRepArgsProduct1 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeJsonVariant2(/* @__PURE__ */ decodeJsonVariantRLCons(/* @__PURE__ */ decodeJsonVariantRLCons2(inlineIsSymbol)(decodeJsonNull)())(blockIsSymbol)(decodeJsonNull)())));
   var fromFoldable6 = /* @__PURE__ */ fromFoldable4(foldableArray)(ordString);
   var pure10 = /* @__PURE__ */ pure(applicativeST);
   var traverse_7 = /* @__PURE__ */ traverse_(applicativeST)(foldableArray);
@@ -8450,6 +8712,22 @@
     };
     return Ref3;
   }();
+  var Expander = /* @__PURE__ */ function() {
+    function Expander2(value0, value1, value22) {
+      this.value0 = value0;
+      this.value1 = value1;
+      this.value2 = value22;
+    }
+    ;
+    Expander2.create = function(value0) {
+      return function(value1) {
+        return function(value22) {
+          return new Expander2(value0, value1, value22);
+        };
+      };
+    };
+    return Expander2;
+  }();
   var genericDoc_ = {
     to: function(x) {
       if (x instanceof Inl) {
@@ -8460,11 +8738,15 @@
         return new Group(x.value0.value0.value0, x.value0.value0.value1);
       }
       ;
-      if (x instanceof Inr && x.value0 instanceof Inr) {
-        return new Ref2(x.value0.value0);
+      if (x instanceof Inr && (x.value0 instanceof Inr && x.value0.value0 instanceof Inl)) {
+        return new Ref2(x.value0.value0.value0);
       }
       ;
-      throw new Error("Failed pattern match at Rybl.Language (line 23, column 1 - line 23, column 30): " + [x.constructor.name]);
+      if (x instanceof Inr && (x.value0 instanceof Inr && x.value0.value0 instanceof Inr)) {
+        return new Expander(x.value0.value0.value0.value0, x.value0.value0.value0.value1.value0, x.value0.value0.value0.value1.value1);
+      }
+      ;
+      throw new Error("Failed pattern match at Rybl.Language (line 24, column 1 - line 24, column 30): " + [x.constructor.name]);
     },
     from: function(x) {
       if (x instanceof $$String) {
@@ -8476,16 +8758,20 @@
       }
       ;
       if (x instanceof Ref2) {
-        return new Inr(new Inr(x.value0));
+        return new Inr(new Inr(new Inl(x.value0)));
       }
       ;
-      throw new Error("Failed pattern match at Rybl.Language (line 23, column 1 - line 23, column 30): " + [x.constructor.name]);
+      if (x instanceof Expander) {
+        return new Inr(new Inr(new Inr(new Product(x.value0, new Product(x.value1, x.value2)))));
+      }
+      ;
+      throw new Error("Failed pattern match at Rybl.Language (line 24, column 1 - line 24, column 30): " + [x.constructor.name]);
     }
   };
   var genericDecodeJson2 = /* @__PURE__ */ genericDecodeJson(genericDoc_);
   var decodeJsonDoc = {
     decodeJson: function(x) {
-      return genericDecodeJson2(decodeRepSum2(decodeRepSum(decodeRepConstructor2(decodeRepArgsProduct2(decodeRepArgsArgument(decodeArray2(decodeJsonDoc)))))(decodeRepConstructorArg2)))(x);
+      return genericDecodeJson2(decodeRepSum2(decodeRepSum(decodeRepConstructor2(decodeRepArgsProduct2(decodeRepArgsArgument(decodeArray2(decodeJsonDoc)))))(decodeRepSum1(decodeRepConstructor1(decodeRepArgsProduct1(decodeRepArgsProduct(decodeRepArgsArgument(decodeJsonDoc))(decodeRepArgsArgument(decodeJsonDoc))))))))(x);
     }
   };
   var collectRefs = function(d0) {
@@ -8504,18 +8790,22 @@
           return $$void7(push(v1.value0)(v));
         }
         ;
-        throw new Error("Failed pattern match at Rybl.Language (line 45, column 9 - line 45, column 34): " + [v1.constructor.name]);
+        if (v1 instanceof Expander) {
+          return traverse_7(go2)([v1.value1, v1.value2]);
+        }
+        ;
+        throw new Error("Failed pattern match at Rybl.Language (line 48, column 9 - line 48, column 34): " + [v1.constructor.name]);
       };
       go2(d0)();
       return v;
     }));
   };
 
-  // output/Control.Monad.Reader/index.js
-  var unwrap3 = /* @__PURE__ */ unwrap();
-  var runReader = function(v) {
-    return function($4) {
-      return unwrap3(v($4));
+  // output/Control.Monad.State/index.js
+  var evalState = function(v) {
+    return function(s) {
+      var v1 = v(s);
+      return v1.value0;
     };
   };
 
@@ -8757,6 +9047,15 @@
       return over2(l)($$const(b2));
     };
   };
+  var modifying = function(dictMonadState) {
+    var $$void9 = $$void(dictMonadState.Monad0().Bind1().Apply0().Functor0());
+    var modify5 = modify4(dictMonadState);
+    return function(p2) {
+      return function(f) {
+        return $$void9(modify5(over2(p2)(f)));
+      };
+    };
+  };
   var assign2 = function(dictMonadState) {
     var $$void9 = $$void(dictMonadState.Monad0().Bind1().Apply0().Functor0());
     var modify5 = modify4(dictMonadState);
@@ -8939,9 +9238,9 @@
   }
 
   // output/Control.Monad.Except/index.js
-  var unwrap4 = /* @__PURE__ */ unwrap();
+  var unwrap3 = /* @__PURE__ */ unwrap();
   var runExcept = function($3) {
-    return unwrap4(runExceptT($3));
+    return unwrap3(runExceptT($3));
   };
 
   // output/Promise.Internal/foreign.js
@@ -8985,10 +9284,10 @@
   var voidRight2 = /* @__PURE__ */ voidRight(functorEffect);
   var mempty2 = /* @__PURE__ */ mempty(monoidCanceler);
   var thenOrCatch3 = /* @__PURE__ */ thenOrCatch2();
-  var map25 = /* @__PURE__ */ map(functorEffect);
+  var map30 = /* @__PURE__ */ map(functorEffect);
   var resolve3 = /* @__PURE__ */ resolve2();
   var alt6 = /* @__PURE__ */ alt(altMaybe);
-  var map110 = /* @__PURE__ */ map(functorMaybe);
+  var map112 = /* @__PURE__ */ map(functorMaybe);
   var readString2 = /* @__PURE__ */ readString(monadIdentity);
   var bind9 = /* @__PURE__ */ bind(bindAff);
   var liftEffect7 = /* @__PURE__ */ liftEffect(monadEffectAff);
@@ -8996,9 +9295,9 @@
     return function(p2) {
       return makeAff(function(cb) {
         return voidRight2(mempty2)(thenOrCatch3(function(a2) {
-          return map25(resolve3)(cb(new Right(a2)));
+          return map30(resolve3)(cb(new Right(a2)));
         })(function(e) {
-          return map25(resolve3)(cb(new Left(customCoerce(e))));
+          return map30(resolve3)(cb(new Left(customCoerce(e))));
         })(p2));
       });
     };
@@ -9006,7 +9305,7 @@
   var coerce3 = function(rej) {
     return fromMaybe$prime(function(v) {
       return error("Promise failed, couldn't extract JS Error or String");
-    })(alt6(toError(rej))(map110(error)(hush(runExcept(readString2(unsafeToForeign(rej)))))));
+    })(alt6(toError(rej))(map112(error)(hush(runExcept(readString2(unsafeToForeign(rej)))))));
   };
   var toAff = /* @__PURE__ */ toAff$prime(coerce3);
   var toAffE = function(f) {
@@ -9068,7 +9367,7 @@
   // output/Fetch/index.js
   var $$void8 = /* @__PURE__ */ $$void(functorEffect);
   var thenOrCatch4 = /* @__PURE__ */ thenOrCatch2();
-  var map26 = /* @__PURE__ */ map(functorEffect);
+  var map31 = /* @__PURE__ */ map(functorEffect);
   var resolve4 = /* @__PURE__ */ resolve2();
   var bind10 = /* @__PURE__ */ bind(bindAff);
   var liftEffect8 = /* @__PURE__ */ liftEffect(monadEffectAff);
@@ -9081,9 +9380,9 @@
       return makeAff(function(cb) {
         return function __do2() {
           $$void8(thenOrCatch4(function(a2) {
-            return map26(resolve4)(cb(new Right(a2)));
+            return map31(resolve4)(cb(new Right(a2)));
           })(function(e) {
-            return map26(resolve4)(cb(new Left(coerce3(e))));
+            return map31(resolve4)(cb(new Left(coerce3(e))));
           })(p2))();
           return effectCanceler(abort(abortController));
         };
@@ -9111,6 +9410,25 @@
       };
     };
   };
+
+  // output/Web.UIEvent.MouseEvent.EventTypes/index.js
+  var click2 = "click";
+
+  // output/Halogen.HTML.Events/index.js
+  var mouseHandler = unsafeCoerce2;
+  var handler2 = function(et) {
+    return function(f) {
+      return handler(et)(function(ev) {
+        return new Just(new Action(f(ev)));
+      });
+    };
+  };
+  var onClick = /* @__PURE__ */ function() {
+    var $15 = handler2(click2);
+    return function($16) {
+      return $15(mouseHandler($16));
+    };
+  }();
 
   // output/Data.Lens.Lens/index.js
   var lens$prime = function(to2) {
@@ -9164,14 +9482,40 @@
   };
 
   // output/Rybl.Language.BasicUI/index.js
-  var traverse2 = /* @__PURE__ */ traverse(traversableArray);
+  var discard6 = /* @__PURE__ */ discard(discardUnit);
+  var prop$prime2 = /* @__PURE__ */ prop$prime({
+    reflectSymbol: function() {
+      return "widgetIndex";
+    }
+  })()()(strongFn);
+  var bimap5 = /* @__PURE__ */ bimap(bifunctorHTML);
+  var map33 = /* @__PURE__ */ map(functorComponentSlot);
+  var expandCons2 = /* @__PURE__ */ expandCons();
+  var inj$prime2 = /* @__PURE__ */ inj$prime();
+  var toggle_is_openIsSymbol = {
+    reflectSymbol: function() {
+      return "toggle_is_open";
+    }
+  };
+  var inj$prime1 = /* @__PURE__ */ inj$prime2(toggle_is_openIsSymbol);
+  var pure11 = /* @__PURE__ */ pure(applicativeMaybe);
+  var receiveIsSymbol = {
+    reflectSymbol: function() {
+      return "receive";
+    }
+  };
+  var inj$prime22 = /* @__PURE__ */ inj$prime2(receiveIsSymbol);
   var on$prime2 = /* @__PURE__ */ on$prime();
-  var on$prime1 = /* @__PURE__ */ on$prime2({
+  var not3 = /* @__PURE__ */ not(heytingAlgebraBoolean);
+  var on$prime1 = /* @__PURE__ */ on$prime2(receiveIsSymbol);
+  var put2 = /* @__PURE__ */ put(monadStateHalogenM);
+  var traverse2 = /* @__PURE__ */ traverse(traversableArray);
+  var on$prime22 = /* @__PURE__ */ on$prime2({
     reflectSymbol: function() {
       return "row";
     }
   });
-  var on$prime22 = /* @__PURE__ */ on$prime2({
+  var on$prime3 = /* @__PURE__ */ on$prime2({
     reflectSymbol: function() {
       return "column";
     }
@@ -9183,30 +9527,28 @@
       return "error_on_load";
     }
   };
-  var on$prime3 = /* @__PURE__ */ on$prime2(error_on_loadIsSymbol);
+  var on$prime4 = /* @__PURE__ */ on$prime2(error_on_loadIsSymbol);
   var not_yet_loadedIsSymbol = {
     reflectSymbol: function() {
       return "not_yet_loaded";
     }
   };
-  var on$prime4 = /* @__PURE__ */ on$prime2(not_yet_loadedIsSymbol);
+  var on$prime5 = /* @__PURE__ */ on$prime2(not_yet_loadedIsSymbol);
   var loadedIsSymbol = {
     reflectSymbol: function() {
       return "loaded";
     }
   };
-  var on$prime5 = /* @__PURE__ */ on$prime2(loadedIsSymbol);
-  var fromFoldable7 = /* @__PURE__ */ fromFoldable3(ordString)(foldableList);
-  var map27 = /* @__PURE__ */ map(functorList);
-  var inj$prime2 = /* @__PURE__ */ inj$prime();
-  var inj$prime1 = /* @__PURE__ */ inj$prime2(not_yet_loadedIsSymbol);
-  var toUnfoldable5 = /* @__PURE__ */ toUnfoldable3(unfoldableList);
-  var pure11 = /* @__PURE__ */ pure(applicativeMaybe);
-  var receiveIsSymbol = {
+  var on$prime6 = /* @__PURE__ */ on$prime2(loadedIsSymbol);
+  var slot_2 = /* @__PURE__ */ slot_()({
     reflectSymbol: function() {
-      return "receive";
+      return "widget";
     }
-  };
+  })(ordInt);
+  var fromFoldable7 = /* @__PURE__ */ fromFoldable3(ordString)(foldableList);
+  var map113 = /* @__PURE__ */ map(functorList);
+  var inj$prime3 = /* @__PURE__ */ inj$prime2(not_yet_loadedIsSymbol);
+  var toUnfoldable5 = /* @__PURE__ */ toUnfoldable3(unfoldableList);
   var initializeIsSymbol = {
     reflectSymbol: function() {
       return "initialize";
@@ -9221,22 +9563,78 @@
     }
   })(toCoreRequestOptionsHelpe)()()));
   var pure14 = /* @__PURE__ */ pure(applicativeHalogenM);
-  var inj$prime22 = /* @__PURE__ */ inj$prime2(error_on_loadIsSymbol);
+  var inj$prime4 = /* @__PURE__ */ inj$prime2(error_on_loadIsSymbol);
   var fromJsonString2 = /* @__PURE__ */ fromJsonString(decodeJsonDoc);
   var show12 = /* @__PURE__ */ show(showJsonDecodeError);
-  var inj$prime3 = /* @__PURE__ */ inj$prime2(loadedIsSymbol);
+  var inj$prime5 = /* @__PURE__ */ inj$prime2(loadedIsSymbol);
   var expand2 = /* @__PURE__ */ expand();
   var assign3 = /* @__PURE__ */ assign2(monadStateHalogenM);
-  var prop$prime2 = /* @__PURE__ */ prop$prime({
+  var prop$prime1 = /* @__PURE__ */ prop$prime({
     reflectSymbol: function() {
       return "ctx";
     }
   })()()(strongFn);
-  var prop$prime1 = /* @__PURE__ */ prop$prime({
+  var prop$prime22 = /* @__PURE__ */ prop$prime({
     reflectSymbol: function() {
       return "namedDocs";
     }
   })()()(strongFn);
+  var nextSlotIndex = function(dictMonadState) {
+    var Monad0 = dictMonadState.Monad0();
+    var Bind1 = Monad0.Bind1();
+    var discard12 = discard6(Bind1);
+    var modifying2 = modifying(dictMonadState);
+    var pure23 = pure(Monad0.Applicative0());
+    return bind(Bind1)(get2(dictMonadState))(function(v) {
+      return discard12(modifying2(prop$prime2)(function(v1) {
+        return v1 + 1 | 0;
+      }))(function() {
+        return pure23(v.widgetIndex);
+      });
+    });
+  };
+  var mapAction_ComponentHTML = function(f) {
+    return bimap5(map33(f))(f);
+  };
+  var theExpanderComponent = /* @__PURE__ */ function() {
+    var render = function(v) {
+      return mapAction_ComponentHTML(expandCons2)(div2([style("box-shadow: 0 0 0 0.1em black inset; display: flex; flex-direction: column; padding: 0.5em; gap: 0.5em;")])([mapAction_ComponentHTML(expandCons2)(v.label), button([onClick($$const(inj$prime1(unit)))])([text5("expand")]), function() {
+        if (v.is_open) {
+          return mapAction_ComponentHTML(expandCons2)(v.body);
+        }
+        ;
+        return div2([])([text5("...")]);
+      }()]));
+    };
+    var initialState = function(v) {
+      return {
+        sty: v.sty,
+        label: v.label,
+        body: v.body,
+        is_open: false
+      };
+    };
+    var $$eval = mkEval({
+      handleQuery: defaultEval.handleQuery,
+      initialize: defaultEval.initialize,
+      finalize: defaultEval.finalize,
+      receive: function($171) {
+        return pure11(inj$prime22($171));
+      },
+      handleAction: on$prime2(toggle_is_openIsSymbol)($$const(modifying(monadStateHalogenM)(prop$prime({
+        reflectSymbol: function() {
+          return "is_open";
+        }
+      })()()(strongFn))(not3)))(on$prime1(function($172) {
+        return put2(initialState($172));
+      })(case_))
+    });
+    return mkComponent({
+      initialState,
+      "eval": $$eval,
+      render
+    });
+  }();
   var renderDoc = function(dictMonadReader) {
     var MonadAsk0 = dictMonadReader.MonadAsk0();
     var Monad0 = MonadAsk0.Monad0();
@@ -9245,101 +9643,117 @@
     var bind15 = bind(Monad0.Bind1());
     var traverse12 = traverse2(Applicative0);
     var ask2 = ask(MonadAsk0);
-    return function(v) {
-      if (v instanceof $$String) {
-        return pure23(span4([])([text5(v.value0)]));
-      }
-      ;
-      if (v instanceof Group) {
-        return bind15(traverse12(renderDoc(dictMonadReader))(v.value1))(function(kids) {
-          var style3 = function(flexDirection) {
-            return "display: flex; flex-direction: " + (flexDirection + "; gap: 0.5em;");
-          };
-          return on$prime1($$const(pure23(div2([style(style3("row"))])(kids))))(on$prime22($$const(pure23(div2([style(style3("column"))])(kids))))(case_))(v.value0);
-        });
-      }
-      ;
-      if (v instanceof Ref2) {
-        return bind15(ask2)(function(v1) {
-          var v2 = lookup8(v.value0)(v1.namedDocs);
-          if (v2 instanceof Nothing) {
-            return pure23(div2([])([text5("missing ref: " + show4(v.value0))]));
-          }
-          ;
-          if (v2 instanceof Just) {
-            return on$prime3(function(err) {
-              return pure23(div2([style("display: flex; flex-direction: column; box-shadow: 0 0 0 0.1em red inset; padding: 0.5em")])([text5("error when loading ref " + show4(v.value0)), err]));
-            })(on$prime4($$const(pure23(div2([])([text5("loading ref " + show4(v.value0))]))))(on$prime5(renderDoc(dictMonadReader))(case_)))(v2.value0);
-          }
-          ;
-          throw new Error("Failed pattern match at Rybl.Language.BasicUI (line 123, column 3 - line 144, column 12): " + [v2.constructor.name]);
-        });
-      }
-      ;
-      throw new Error("Failed pattern match at Rybl.Language.BasicUI (line 91, column 1 - line 91, column 58): " + [v.constructor.name]);
+    return function(dictMonadState) {
+      var nextSlotIndex1 = nextSlotIndex(dictMonadState);
+      return function(v) {
+        if (v instanceof $$String) {
+          return pure23(span4([])([text5(v.value0)]));
+        }
+        ;
+        if (v instanceof Group) {
+          return bind15(traverse12(renderDoc(dictMonadReader)(dictMonadState))(v.value1))(function(kids) {
+            var style3 = function(flexDirection) {
+              return "display: flex; flex-direction: " + (flexDirection + "; gap: 0.5em;");
+            };
+            return on$prime22($$const(pure23(div2([style(style3("row"))])(kids))))(on$prime3($$const(pure23(div2([style(style3("column"))])(kids))))(case_))(v.value0);
+          });
+        }
+        ;
+        if (v instanceof Ref2) {
+          return bind15(ask2)(function(v1) {
+            var v2 = lookup8(v.value0)(v1.namedDocs);
+            if (v2 instanceof Nothing) {
+              return pure23(div2([])([text5("missing ref: " + show4(v.value0))]));
+            }
+            ;
+            if (v2 instanceof Just) {
+              return on$prime4(function(err) {
+                return pure23(div2([style("display: flex; flex-direction: column; background-color: #ffcccb;")])([text5("error when loading ref " + show4(v.value0)), err]));
+              })(on$prime5($$const(pure23(div2([])([text5("loading ref " + show4(v.value0))]))))(on$prime6(renderDoc(dictMonadReader)(dictMonadState))(case_)))(v2.value0);
+            }
+            ;
+            throw new Error("Failed pattern match at Rybl.Language.BasicUI (line 132, column 3 - line 153, column 12): " + [v2.constructor.name]);
+          });
+        }
+        ;
+        if (v instanceof Expander) {
+          return bind15(nextSlotIndex1)(function(widgetIndex) {
+            return bind15(renderDoc(dictMonadReader)(dictMonadState)(v.value1))(function(label5) {
+              return bind15(renderDoc(dictMonadReader)(dictMonadState)(v.value2))(function(body4) {
+                return pure23(slot_2($$Proxy.value)(widgetIndex)(theExpanderComponent)({
+                  sty: v.value0,
+                  label: label5,
+                  body: body4
+                }));
+              });
+            });
+          });
+        }
+        ;
+        throw new Error("Failed pattern match at Rybl.Language.BasicUI (line 100, column 1 - line 100, column 78): " + [v.constructor.name]);
+      };
     };
   };
-  var renderDoc1 = /* @__PURE__ */ renderDoc(/* @__PURE__ */ monadReaderReaderT(monadIdentity));
+  var renderDoc1 = /* @__PURE__ */ renderDoc(/* @__PURE__ */ monadReaderReaderT(/* @__PURE__ */ monadStateT(monadIdentity)))(/* @__PURE__ */ monadStateReaderT(/* @__PURE__ */ monadStateStateT(monadIdentity)));
   var theDocComponent = /* @__PURE__ */ function() {
     var render = function(v) {
-      return div2([])([flip(runReader)(v.ctx)(renderDoc1(v.doc))]);
+      return mapAction_ComponentHTML(function($173) {
+        return expandCons2(expandCons2($173));
+      })(div2([])([flip(evalState)(v.env)(flip(runReaderT)(v.ctx)(renderDoc1(v.doc)))]));
     };
     var initialState = function(v) {
       return {
         doc: v.doc,
         ctx: {
-          namedDocs: fromFoldable7(map27(function(x) {
-            return new Tuple(x, inj$prime1({}));
+          namedDocs: fromFoldable7(map113(function(x) {
+            return new Tuple(x, inj$prime3({}));
           })(toUnfoldable5(collectRefs(v.doc))))
+        },
+        env: {
+          widgetIndex: 0
         }
       };
     };
     var $$eval = mkEval({
       handleQuery: defaultEval.handleQuery,
       finalize: defaultEval.finalize,
-      receive: function() {
-        var $111 = inj$prime2(receiveIsSymbol);
-        return function($112) {
-          return pure11($111($112));
-        };
-      }(),
+      receive: function($174) {
+        return pure11(inj$prime22($174));
+      },
       initialize: pure11(inj$prime2(initializeIsSymbol)({})),
       handleAction: on$prime2(initializeIsSymbol)($$const(bind11(get2(monadStateHalogenM))(function(v1) {
         return bind11(traverseWithIndex3(function(x) {
-          return on$prime4($$const(bind11(liftAff2(fetch3("namedDocs/" + (x + ".json"))({
+          return on$prime5($$const(bind11(liftAff2(fetch3("namedDocs/" + (x + ".json"))({
             method: GET2.value
           })))(function(response) {
-            var $104 = !response.ok;
-            if ($104) {
-              return pure14(inj$prime22(div2([])([text5("error on fetch: " + response.statusText)])));
+            var $164 = !response.ok;
+            if ($164) {
+              return pure14(inj$prime4(div2([])([text5("error on fetch: " + response.statusText)])));
             }
             ;
             return bind11(liftAff2(response.text))(function(v2) {
               var v3 = fromJsonString2(v2);
               if (v3 instanceof Left) {
-                return pure14(inj$prime22(div2([])([text5("error on decode: " + show12(v3.value0))])));
+                return pure14(inj$prime4(div2([])([text5("error on decode: " + show12(v3.value0))])));
               }
               ;
               if (v3 instanceof Right) {
-                return pure14(inj$prime3(v3.value0));
+                return pure14(inj$prime5(v3.value0));
               }
               ;
-              throw new Error("Failed pattern match at Rybl.Language.BasicUI (line 73, column 31 - line 78, column 67): " + [v3.constructor.name]);
+              throw new Error("Failed pattern match at Rybl.Language.BasicUI (line 80, column 31 - line 85, column 67): " + [v3.constructor.name]);
             });
-          })))($$const(function($113) {
-            return pure14(expand2($113));
+          })))($$const(function($175) {
+            return pure14(expand2($175));
           })(case_));
         })(v1.ctx.namedDocs))(function(namedDocs$prime) {
-          return assign3(function($114) {
-            return prop$prime2(prop$prime1($114));
+          return assign3(function($176) {
+            return prop$prime1(prop$prime22($176));
           })(namedDocs$prime);
         });
-      })))(on$prime2(receiveIsSymbol)(function() {
-        var $115 = put(monadStateHalogenM);
-        return function($116) {
-          return $115(initialState($116));
-        };
-      }())(case_))
+      })))(on$prime1(function($177) {
+        return put2(initialState($177));
+      })(case_))
     });
     return mkComponent({
       initialState,
@@ -9349,20 +9763,26 @@
   }();
 
   // output/Rybl.App/index.js
-  var slot_2 = /* @__PURE__ */ slot_()({
+  var slot_3 = /* @__PURE__ */ slot_()({
     reflectSymbol: function() {
       return "doc";
     }
   })(ordUnit);
-  var inj$prime4 = /* @__PURE__ */ inj$prime()({
+  var inj$prime6 = /* @__PURE__ */ inj$prime();
+  var inj$prime12 = /* @__PURE__ */ inj$prime6({
     reflectSymbol: function() {
       return "column";
     }
   });
+  var inj$prime23 = /* @__PURE__ */ inj$prime6({
+    reflectSymbol: function() {
+      return "block";
+    }
+  });
   var component = /* @__PURE__ */ function() {
     var render = function(v) {
-      return div2([])([slot_2($$Proxy.value)(unit)(theDocComponent)({
-        doc: new Group(inj$prime4(unit), [new $$String("This is an example Doc that references a bunch of named documents that should be encoded as JSON files."), new Ref2("example_doc_1"), new Ref2("example_doc_2"), new Ref2("example_doc_3"), new Ref2("example_doc_4"), new Ref2("example_doc_5")])
+      return div2([style("margin: auto; max-width: 40em;")])([slot_3($$Proxy.value)(unit)(theDocComponent)({
+        doc: new Group(inj$prime12(unit), [new $$String("This is an example Doc that references a bunch of named documents that should be encoded as JSON files."), new Ref2("example_doc_1"), new Ref2("example_doc_2"), new Ref2("example_doc_3"), new Ref2("example_doc_4"), new Ref2("example_doc_5"), new Expander(inj$prime23(unit), new $$String("This is a label for an Expander"), new Group(inj$prime12(unit), [new Ref2("lorem_ipsum_short"), new Expander(inj$prime23(unit), new $$String("This is a label for an Expander"), new Ref2("lorem_ipsum_long"))]))])
       })]);
     };
     var initialState = function(v) {

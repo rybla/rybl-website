@@ -9,7 +9,7 @@ import Effect (Effect)
 import Effect.Aff (launchAff_)
 import Effect.Class.Console as Console
 import Rybl.Compile.NamedDocs (namedDocs)
-import Rybl.Constants (output_dir, serve_dir)
+import Rybl.Constants (assets_dir, compile_output_dir, serve_dir)
 import Rybl.Node (writeTextFile)
 import Rybl.Node as RyblN
 
@@ -17,17 +17,22 @@ main :: Effect Unit
 main = launchAff_ do
   Console.log "[compile] begin"
 
-  RyblN.initDir output_dir
+  RyblN.resetDir compile_output_dir
 
   Console.log "[compile] index"
-  writeTextFile (output_dir <> "/" <> "index.html") index_html_str
+  writeTextFile (compile_output_dir <> "/" <> "index.html") index_html_str
 
   Console.log "[compile] namedDocs"
-  RyblN.resetDir (output_dir <> "/" <> "namedDocs/")
+  RyblN.initDir (compile_output_dir <> "/" <> "namedDocs")
   namedDocs # traverseWithIndex_ \x d -> do
-    writeTextFile (output_dir <> "/" <> "namedDocs/" <> x <> ".json") (toJsonString d)
+    writeTextFile (compile_output_dir <> "/" <> "namedDocs/" <> x <> ".json") (toJsonString d)
 
-  RyblN.replaceDir output_dir serve_dir
+  Console.log "[compile] assets"
+  RyblN.copy "favicon.ico" (compile_output_dir <> "/" <> "favicon.ico") { errorOnExist: true, force: false, recursive: false }
+  RyblN.copyDir assets_dir (compile_output_dir <> "/" <> "assets") { errorOnExist: true }
+
+  Console.log "[compile] finalize"
+  RyblN.replaceDir compile_output_dir serve_dir
 
   Console.log "[compile] end"
 

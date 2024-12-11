@@ -8,6 +8,7 @@ import Effect.Aff (Aff)
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
+import Halogen.HTML.Properties as HP
 import Halogen.VDom.Driver as HVD
 import Rybl.Language as Doc
 import Rybl.Language.BasicUI (theDocComponent)
@@ -23,7 +24,7 @@ component = H.mkComponent { initialState, eval, render }
   eval = H.mkEval H.defaultEval
   render {} =
     HH.div
-      []
+      [ HP.style "margin: auto; max-width: 40em;" ]
       [ HH.slot_ (Proxy @"doc") unit theDocComponent
           { doc:
               Doc.Group (inj' @"column" unit)
@@ -33,6 +34,15 @@ component = H.mkComponent { initialState, eval, render }
                 , Doc.Ref "example_doc_3"
                 , Doc.Ref "example_doc_4"
                 , Doc.Ref "example_doc_5"
+                , Doc.Expander (inj' @"block" unit)
+                    (Doc.String "This is a label for an Expander")
+                    ( Doc.Group (inj' @"column" unit)
+                        [ Doc.Ref "lorem_ipsum_short"
+                        , Doc.Expander (inj' @"block" unit)
+                            (Doc.String "This is a label for an Expander")
+                            (Doc.Ref "lorem_ipsum_long")
+                        ]
+                    )
                 ]
           }
       ]

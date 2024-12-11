@@ -2,13 +2,15 @@ module Rybl.Language.BasicUI where
 
 import Prelude
 
-import Control.Monad.Reader (class MonadReader, ask, runReader)
-import Control.Monad.State (get, put)
+import Control.Monad.Reader (class MonadReader, ask, runReaderT)
+import Control.Monad.State (class MonadState, evalState, get)
+import Control.Monad.State.Class (put)
 import Data.Argonaut (JsonDecodeError)
 import Data.Argonaut.Decode (fromJsonString)
+import Data.Bifunctor (bimap)
 import Data.Either (Either(..))
 import Data.Either.Nested (type (\/))
-import Data.Lens ((.=))
+import Data.Lens ((%=), (.=))
 import Data.List (List)
 import Data.Map as Map
 import Data.Maybe (Maybe(..))
@@ -16,19 +18,21 @@ import Data.Set as Set
 import Data.Traversable (traverse)
 import Data.TraversableWithIndex (traverseWithIndex)
 import Data.Tuple.Nested ((/\))
-import Data.Variant (case_, inj', on')
+import Data.Variant (case_, expandCons, inj', on')
 import Data.Variant as V
 import Effect.Aff (Aff)
 import Fetch (fetch)
 import Fetch as Fetch
 import Halogen (Component, defaultEval, mkComponent, mkEval) as H
-import Halogen (liftAff)
+import Halogen (ComponentHTML, liftAff)
 import Halogen.HTML (div) as H
 import Halogen.HTML as HH
+import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Rybl.Language (Doc(..), collectRefs)
-import Rybl.Language.Common (HTML, Input, State, Ctx)
-import Rybl.Utility (prop', (##))
+import Rybl.Language.Common (Ctx, HTML, Input, State, Env)
+import Rybl.Utility (prop', (##), insert')
+import Type.Prelude (Proxy(..))
 
 theDocComponent :: H.Component _ Input _ Aff
 theDocComponent = H.mkComponent { initialState, eval, render }
@@ -42,6 +46,9 @@ theDocComponent = H.mkComponent { initialState, eval, render }
               # Set.toUnfoldable
               # map @List (\x -> x /\ inj' @"not_yet_loaded" {})
               # Map.fromFoldable
+        }
+    , env:
+        { widgetIndex: 0
         }
     } :: State
 
@@ -81,14 +88,16 @@ theDocComponent = H.mkComponent { initialState, eval, render }
             )
     }
 
-  render { doc, ctx } =
+  render { doc, ctx, env } =
     H.div
       []
       [ renderDoc doc
-          # flip runReader ctx
+          # flip runReaderT ctx
+          # flip evalState env
       ]
+      # mapAction_ComponentHTML (expandCons @"receive" >>> expandCons @"initialize")
 
-renderDoc :: forall m. MonadReader Ctx m => Doc -> m HTML
+renderDoc :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
 renderDoc (String str) = do
   pure
     $ HH.span
@@ -137,8 +146,55 @@ renderDoc (Ref x) = do
       # on' @"error_on_load"
           ( \err -> pure
               $ HH.div
-                  [ HP.style "display: flex; flex-direction: column; box-shadow: 0 0 0 0.1em red inset; padding: 0.5em" ]
+                  [ HP.style "display: flex; flex-direction: column; background-color: #ffcccb;" ]
                   [ HH.text $ "error when loading ref " <> show x
                   , err
                   ]
           )
+
+renderDoc (Expander sty label_ body_) = do
+  widgetIndex <- nextSlotIndex
+  label <- renderDoc label_
+  body <- renderDoc body_
+  pure $ HH.slot_ (Proxy @"widget") widgetIndex theExpanderComponent { sty, label, body }
+
+nextSlotIndex :: forall m. MonadState Env m => m Int
+nextSlotIndex = do
+  { widgetIndex } <- get
+  prop' @"widgetIndex" %= (_ + 1)
+  pure widgetIndex
+
+theExpanderComponent :: H.Component _ _ _ Aff
+theExpanderComponent = H.mkComponent { initialState, eval, render }
+  where
+  initialState { sty, label, body } =
+    { sty, label, body, is_open: false }
+
+  eval = H.mkEval H.defaultEval
+    { receive = pure <<< inj' @"receive"
+    , handleAction = case_
+        # on' @"receive" (put <<< initialState)
+        # on' @"toggle_is_open" (const (prop' @"is_open" %= not))
+    }
+
+  render { sty, label, body, is_open } =
+    HH.div
+      [ HP.style "box-shadow: 0 0 0 0.1em black inset; display: flex; flex-direction: column; padding: 0.5em; gap: 0.5em;" ]
+      [ label # mapAction_ComponentHTML (expandCons @"toggle_is_open")
+      , HH.button
+          [ HE.onClick $ const $ inj' @"toggle_is_open" unit ]
+          [ HH.text "expand" ]
+      , if is_open then
+          body # mapAction_ComponentHTML (expandCons @"toggle_is_open")
+        else
+          HH.div [] [ HH.text "..." ]
+      ]
+      # mapAction_ComponentHTML (expandCons @"receive")
+
+mapAction_ComponentHTML
+  :: forall action action' slots m
+   . (action -> action')
+  -> ComponentHTML action slots m
+  -> ComponentHTML action' slots m
+mapAction_ComponentHTML f = bimap (map f) f
+

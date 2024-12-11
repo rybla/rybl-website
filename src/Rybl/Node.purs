@@ -20,12 +20,16 @@ type CopyOptions =
 
 foreign import copy_ :: String -> String -> CopyOptions -> Effect (Promise Unit)
 
+copy' :: String -> String -> CopyOptions -> Aff Unit
+copy' source target opts = do toAffE $ copy_ source target opts
+
 copy :: String -> String -> CopyOptions -> Aff Unit
-copy source target opts = toAffE $ copy_ source target opts
+copy source target opts = do
+  Console.log $ intercalate " " [ "copy", source, "->", target ]
+  copy' source target opts
 
 copyDir :: String -> String -> { errorOnExist :: Boolean } -> Aff Unit
 copyDir source target { errorOnExist } = do
-  Console.log $ intercalate " " [ "copy", source, "->", target ]
   copy source target { recursive: true, force: true, errorOnExist }
 
 initDir :: String -> Aff Unit
@@ -33,7 +37,7 @@ initDir target = do
   (NFS.exists target # liftEffect) >>= case _ of
     true -> pure unit
     false -> do
-      Console.log $ intercalate " " [ "create", target ]
+      Console.log $ intercalate " " [ "init", target ]
       NFSA.mkdir target
 
 createDir :: String -> Aff Unit
@@ -49,13 +53,14 @@ resetDir target = do
 
 removeDir :: String -> Aff Unit
 removeDir target = do
+  Console.log $ intercalate " " [ "remove", target ]
   NFSA.rm' target { force: true, recursive: true, maxRetries: 1, retryDelay: 10 }
 
 replaceDir :: String -> String -> Aff Unit
 replaceDir source target = do
   Console.log $ intercalate " " [ "replace", source, "->", target ]
   NFSA.rm' target { force: true, recursive: true, maxRetries: 1, retryDelay: 10 }
-  copy source target { recursive: true, force: true, errorOnExist: false }
+  copy' source target { recursive: true, force: true, errorOnExist: false }
 
 writeTextFile :: String -> String -> Aff Unit
 writeTextFile target content = do

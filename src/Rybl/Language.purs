@@ -19,6 +19,7 @@ data Doc
   = String String
   | Group GroupStyle (Array Doc)
   | Ref Ref
+  | Expander ExpanderStyle Doc Doc
 
 derive instance Generic Doc _
 
@@ -35,6 +36,8 @@ type Ref = String
 
 type GroupStyle = Variant (row :: Unit, column :: Unit)
 
+type ExpanderStyle = Variant (inline :: Unit, block :: Unit)
+
 --------------------------------------------------------------------------------
 
 collectRefs :: Doc -> Set Ref
@@ -45,6 +48,7 @@ collectRefs d0 =
         go (String _) = pure unit
         go (Group _ ds) = ds # traverse_ go
         go (Ref ref) = refs # STArray.push ref # void
+        go (Expander _ d1 d2) = [ d1, d2 ] # traverse_ go
       go d0
       pure refs
   ) # Set.fromFoldable

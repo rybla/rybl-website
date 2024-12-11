@@ -2,10 +2,12 @@ module Rybl.Language.Common where
 
 import Prelude
 
+import Data.Const (Const)
 import Data.Map (Map)
 import Data.Variant (Variant)
 import Effect.Aff (Aff)
 import Halogen (ComponentHTML)
+import Halogen as H
 import Rybl.Language (Doc)
 
 type Input =
@@ -15,6 +17,7 @@ type Input =
 type State =
   { doc :: Doc
   , ctx :: Ctx
+  , env :: Env
   }
 
 type Ctx =
@@ -28,14 +31,20 @@ type Ctx =
         )
   }
 
+type Env =
+  { widgetIndex :: Int
+  }
+
 type Action = Variant
-  ( receive :: Input
-  , initialize :: {}
+  (
   )
 
 type Slots :: Row Type
-type Slots = ()
+type Slots =
+  ( widget :: H.Slot (Const Void) Void Int
+  )
 
 type M = Aff
 
 type HTML = ComponentHTML Action Slots M
+

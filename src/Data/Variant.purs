@@ -20,6 +20,7 @@ module Data.Variant
   , traverseOne
   , traverseSome
   , expand
+  , expandCons
   , contract
   , Unvariant(..)
   , Unvariant'
