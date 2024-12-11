@@ -5,8 +5,10 @@ module Data.Variant
   , class EncodeJsonVariantRL
   , decodeJsonVariantRL
   , inj
+  , inj'
   , prj
   , on
+  , on'
   , onMatch
   , over
   , overOne
@@ -621,8 +623,8 @@ expandCons = unsafeCoerce
 -- case_ :: forall a. Variant () -> a
 -- case_ = V.case_
 
--- on :: forall @x a b r1 r2. Cons x a r1 r2 => IsSymbol x => (a -> b) -> (Variant r1 -> b) -> Variant r2 -> b
--- on = V.on (Proxy @x)
+on' :: forall @x a b r1 r2. Cons x a r1 r2 => IsSymbol x => (a -> b) -> (Variant r1 -> b) -> Variant r2 -> b
+on' = on (Proxy @x)
 
--- inj :: forall @x a r1 r2. Cons x a r1 r2 => IsSymbol x => a -> Variant r2
--- inj = V.inj (Proxy @x)
+inj' :: forall @x a r1 r2. Cons x a r1 r2 => IsSymbol x => a -> Variant r2
+inj' = inj (Proxy @x)

@@ -178,3 +178,6 @@ dist
 .spago
 output
 .psc-ide-port
+
+# rybl
+compile_output

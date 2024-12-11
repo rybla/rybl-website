@@ -6,9 +6,11 @@ import Control.Promise (Promise, toAffE)
 import Data.Foldable (intercalate)
 import Effect (Effect)
 import Effect.Aff (Aff)
+import Effect.Class (liftEffect)
 import Effect.Class.Console as Console
 import Node.Encoding (Encoding(..))
 import Node.FS.Aff as NFSA
+import Node.FS.Sync as NFS
 
 type CopyOptions =
   { recursive :: Boolean
@@ -25,6 +27,25 @@ copyDir :: String -> String -> { errorOnExist :: Boolean } -> Aff Unit
 copyDir source target { errorOnExist } = do
   Console.log $ intercalate " " [ "copy", source, "->", target ]
   copy source target { recursive: true, force: true, errorOnExist }
+
+initDir :: String -> Aff Unit
+initDir target = do
+  (NFS.exists target # liftEffect) >>= case _ of
+    true -> pure unit
+    false -> do
+      Console.log $ intercalate " " [ "create", target ]
+      NFSA.mkdir target
+
+createDir :: String -> Aff Unit
+createDir target = do
+  Console.log $ intercalate " " [ "create", target ]
+  NFSA.mkdir target
+
+resetDir :: String -> Aff Unit
+resetDir target = do
+  Console.log $ intercalate " " [ "reset", target ]
+  NFSA.rm' target { force: true, recursive: true, maxRetries: 1, retryDelay: 10 }
+  NFSA.mkdir target
 
 removeDir :: String -> Aff Unit
 removeDir target = do

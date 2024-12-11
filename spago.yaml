@@ -7,6 +7,7 @@ package:
     - arrays
     - console
     - effect
+    - fetch
     - halogen
     - lists
     - maybe

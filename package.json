@@ -1,11 +1,10 @@
 {
   "name": "rybl-website",
-  "module": "index.ts",
-  "type": "module",
   "scripts": {
-    "serve": "bun --hot run serve.ts",
-    "compile": "spago run -m Rybl.Compile",
-    "bundle": "spago bundle --module Rybl.App --bundle-type app --outfile docs/main.js"
+    "compile": "bun compile.ts",
+    "bundle": "bun bundle.ts",
+    "build": "bun run compile && bun run bundle",
+    "serve": "bun --hot run serve.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
