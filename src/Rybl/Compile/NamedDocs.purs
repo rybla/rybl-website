@@ -10,7 +10,25 @@ import Rybl.Language (Doc(..))
 
 namedDocs :: Map String Doc
 namedDocs = Map.fromFoldable
-  [ "example_doc_1" /\
+  [ "index" /\
+      Group (inj' @"column" unit)
+        [ String "This is an example Doc that references a bunch of named documents that should be encoded as JSON files."
+        , Ref "example_doc_1"
+        , Ref "example_doc_2"
+        , Ref "example_doc_3"
+        , Ref "example_doc_4"
+        , Ref "example_doc_5"
+        , Expander (inj' @"block" unit)
+            (String "This is a label for an Expander")
+            ( Group (inj' @"column" unit)
+                [ Ref "lorem_ipsum_short"
+                , Expander (inj' @"block" unit)
+                    (String "This is a label for an Expander")
+                    (Ref "lorem_ipsum_long")
+                ]
+            )
+        ]
+  , "example_doc_1" /\
       String "This is example doc 1"
   , "example_doc_2" /\
       String "This is example doc 2"

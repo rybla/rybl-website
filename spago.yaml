@@ -9,6 +9,7 @@ package:
     - effect
     - fetch
     - halogen
+    - js-uri
     - lists
     - maybe
     - node-child-process
@@ -17,6 +18,7 @@ package:
     - prelude
     - profunctor-lenses
     - transformers
+    - web-url
   test:
     main: Test.Main
     dependencies: []

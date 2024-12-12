@@ -13,6 +13,7 @@
             "effect",
             "fetch",
             "halogen",
+            "js-uri",
             "lists",
             "maybe",
             "node-child-process",
@@ -20,11 +21,13 @@
             "node-process",
             "prelude",
             "profunctor-lenses",
-            "transformers"
+            "transformers",
+            "web-url"
           ],
           "build_plan": [
             "aff",
             "aff-promise",
+            "ansi",
             "argonaut",
             "argonaut-codecs",
             "argonaut-core",
@@ -68,10 +71,12 @@
             "js-fetch",
             "js-promise",
             "js-promise-aff",
+            "js-uri",
             "lazy",
             "lists",
             "maybe",
             "media-types",
+            "mmorph",
             "newtype",
             "node-buffer",
             "node-child-process",
@@ -89,6 +94,7 @@
             "orders",
             "parallel",
             "partial",
+            "pipes",
             "posix-types",
             "prelude",
             "profunctor",
@@ -96,6 +102,7 @@
             "record",
             "refs",
             "safe-coerce",
+            "spec",
             "st",
             "strings",
             "tailrec",
@@ -115,7 +122,8 @@
             "web-storage",
             "web-streams",
             "web-touchevents",
-            "web-uievents"
+            "web-uievents",
+            "web-url"
           ]
         },
         "test": {
@@ -675,6 +683,16 @@
       "dependencies": [
         "aff",
         "foreign"
+      ]
+    },
+    "ansi": {
+      "type": "registry",
+      "version": "7.0.0",
+      "integrity": "sha256-ZMB6HD+q9CXvn9fRCmJ8dvuDrOVHcjombL3oNOerVnE=",
+      "dependencies": [
+        "foldable-traversable",
+        "lists",
+        "strings"
       ]
     },
     "argonaut": {
@@ -1277,6 +1295,15 @@
         "js-promise"
       ]
     },
+    "js-uri": {
+      "type": "registry",
+      "version": "3.1.0",
+      "integrity": "sha256-3p0ynHveCJmC2CXze+eMBdW/2l5e953Q8XMAKz+jxUo=",
+      "dependencies": [
+        "functions",
+        "maybe"
+      ]
+    },
     "lazy": {
       "type": "registry",
       "version": "6.0.0",
@@ -1325,6 +1352,16 @@
       "dependencies": [
         "newtype",
         "prelude"
+      ]
+    },
+    "mmorph": {
+      "type": "registry",
+      "version": "7.0.0",
+      "integrity": "sha256-urZlZNNqGeQFe5D/ClHlR8QgGBNHTMFPtJ5S5IpflTQ=",
+      "dependencies": [
+        "free",
+        "functors",
+        "transformers"
       ]
     },
     "newtype": {
@@ -1562,6 +1599,20 @@
       "integrity": "sha256-fwXerld6Xw1VkReh8yeQsdtLVrjfGiVuC5bA1Wyo/J4=",
       "dependencies": []
     },
+    "pipes": {
+      "type": "registry",
+      "version": "8.0.0",
+      "integrity": "sha256-kvfqGM4cPA/wCcBHbp5psouFw5dZGvku2462x7ZBwSY=",
+      "dependencies": [
+        "aff",
+        "lists",
+        "mmorph",
+        "prelude",
+        "tailrec",
+        "transformers",
+        "tuples"
+      ]
+    },
     "posix-types": {
       "type": "registry",
       "version": "6.0.0",
@@ -1644,6 +1695,40 @@
       "integrity": "sha256-a1ibQkiUcbODbLE/WAq7Ttbbh9ex+x33VCQ7GngKudU=",
       "dependencies": [
         "unsafe-coerce"
+      ]
+    },
+    "spec": {
+      "type": "registry",
+      "version": "8.1.1",
+      "integrity": "sha256-EM7UfQIaSgiw13LJ4ZASkfYmmRDKIlec3nYbGKFqGhk=",
+      "dependencies": [
+        "aff",
+        "ansi",
+        "arrays",
+        "avar",
+        "bifunctors",
+        "control",
+        "datetime",
+        "effect",
+        "either",
+        "exceptions",
+        "foldable-traversable",
+        "fork",
+        "identity",
+        "integers",
+        "lists",
+        "maybe",
+        "newtype",
+        "now",
+        "ordered-collections",
+        "parallel",
+        "pipes",
+        "prelude",
+        "refs",
+        "strings",
+        "tailrec",
+        "transformers",
+        "tuples"
       ]
     },
     "st": {
@@ -1866,6 +1951,20 @@
       "integrity": "sha256-5I+ut9JYno3wowti3vJGs1afKCm1ucppKuy+zhuSyss=",
       "dependencies": [
         "web-html"
+      ]
+    },
+    "web-url": {
+      "type": "registry",
+      "version": "2.0.0",
+      "integrity": "sha256-isicTqg0+JZmIK+eD3kwQroOocufYDGZVNIx/wFw488=",
+      "dependencies": [
+        "aff",
+        "effect",
+        "maybe",
+        "partial",
+        "prelude",
+        "spec",
+        "tuples"
       ]
     }
   }

@@ -2,7 +2,10 @@ module Rybl.Language.BasicUI where
 
 import Prelude
 
+import Control.Applicative (pure)
 import Control.Monad.Reader (class MonadReader, ask, runReaderT)
+import Control.Monad.ST (ST)
+import Control.Monad.ST.Internal as ST
 import Control.Monad.State (class MonadState, evalState, get)
 import Control.Monad.State.Class (put)
 import Data.Argonaut (JsonDecodeError)
@@ -10,10 +13,13 @@ import Data.Argonaut.Decode (fromJsonString)
 import Data.Bifunctor (bimap)
 import Data.Either (Either(..))
 import Data.Either.Nested (type (\/))
+import Data.Foldable (foldr)
 import Data.Lens ((%=), (.=))
 import Data.List (List)
+import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(..))
+import Data.Set (Set)
 import Data.Set as Set
 import Data.Traversable (traverse)
 import Data.TraversableWithIndex (traverseWithIndex)
@@ -29,9 +35,9 @@ import Halogen.HTML (div) as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import Rybl.Language (Doc(..), collectRefs)
+import Rybl.Language (Doc(..), Ref, collectRefs)
 import Rybl.Language.Common (Ctx, HTML, Input, State, Env)
-import Rybl.Utility (prop', (##), insert')
+import Rybl.Utility (insert', prop', todo, (##))
 import Type.Prelude (Proxy(..))
 
 theDocComponent :: H.Component _ Input _ Aff
@@ -41,11 +47,12 @@ theDocComponent = H.mkComponent { initialState, eval, render }
     { doc
     , ctx:
         { namedDocs:
-            doc
-              # collectRefs
-              # Set.toUnfoldable
-              # map @List (\x -> x /\ inj' @"not_yet_loaded" {})
-              # Map.fromFoldable
+            -- doc
+            --   # collectRefs
+            --   # Set.toUnfoldable
+            --   # map @List (\x -> x /\ inj' @"not_yet_loaded" {})
+            --   # Map.fromFoldable
+            Map.empty
         }
     , env:
         { widgetIndex: 0
@@ -59,31 +66,43 @@ theDocComponent = H.mkComponent { initialState, eval, render }
         # on' @"receive" (put <<< initialState)
         # on' @"initialize"
             ( const do
-                -- load namedDocs
-                do
-                  { ctx: { namedDocs } } <- get
-                  namedDocs' <- namedDocs # traverseWithIndex \x -> case_
-                    # const (pure <<< V.expand)
-                    # on' @"not_yet_loaded"
-                        ( const do
-                            response <-
-                              fetch ("namedDocs/" <> x <> ".json")
-                                { method: Fetch.GET
-                                } # liftAff
-                            if not response.ok then do
-                              pure $ inj' @"error_on_load" $
-                                HH.div
-                                  []
-                                  [ HH.text $ "error on fetch: " <> response.statusText ]
-                            else do
-                              str :: String <- response.text # liftAff
-                              case fromJsonString str :: JsonDecodeError \/ Doc of
-                                Left err -> pure $ inj' @"error_on_load" $
+                do -- load namedDocs
+                  let
+                    go :: Map Ref _ -> Set Ref -> Aff (Map Ref _)
+                    go namedDocs refs = case refs # Set.findMin of
+                      Nothing -> pure namedDocs
+                      Just ref -> do
+                        response <-
+                          fetch ("namedDocs/" <> ref <> ".json")
+                            { method: Fetch.GET }
+                        if not response.ok then do
+                          let
+                            v = inj' @"error_on_load" $
+                              HH.div
+                                []
+                                [ HH.text $ "error on fetch: " <> response.statusText ]
+                          go
+                            (namedDocs # Map.insert ref v)
+                            (refs # Set.delete ref)
+                        else do
+                          str :: String <- response.text # liftAff
+                          case fromJsonString str :: JsonDecodeError \/ Doc of
+                            Left err -> do
+                              let
+                                v = inj' @"error_on_load" $
                                   HH.div
                                     []
                                     [ HH.text $ "error on decode: " <> show err ]
-                                Right d -> pure $ inj' @"loaded" d
-                        )
+                              go
+                                (namedDocs # Map.insert ref v)
+                                (refs # Set.delete ref)
+                            Right doc' -> do
+                              let v = inj' @"loaded" doc'
+                              go
+                                (namedDocs # Map.insert ref v)
+                                (refs # Set.union (doc' # collectRefs) # Set.delete ref)
+                  { doc } <- get
+                  namedDocs' <- go Map.empty (doc # collectRefs) # liftAff
                   prop' @"ctx" <<< prop' @"namedDocs" .= namedDocs'
             )
     }
@@ -100,9 +119,16 @@ theDocComponent = H.mkComponent { initialState, eval, render }
 renderDoc :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
 renderDoc (String str) = do
   pure
-    $ HH.span
+    $ HH.div
         []
         [ HH.text str ]
+
+renderDoc (Error d) = do
+  e <- d # renderDoc
+  pure
+    $ HH.div
+        [ HP.style "background-color: #ffcccb;" ]
+        [ e ]
 
 renderDoc (Group sty ds) = do
   kids <- ds # traverse renderDoc

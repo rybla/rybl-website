@@ -17,6 +17,7 @@ import Data.Variant (Variant)
 
 data Doc
   = String String
+  | Error Doc
   | Group GroupStyle (Array Doc)
   | Ref Ref
   | Expander ExpanderStyle Doc Doc
@@ -46,6 +47,7 @@ collectRefs d0 =
       refs :: STArray _ String <- STArray.new
       let
         go (String _) = pure unit
+        go (Error d) = d # go
         go (Group _ ds) = ds # traverse_ go
         go (Ref ref) = refs # STArray.push ref # void
         go (Expander _ d1 d2) = [ d1, d2 ] # traverse_ go
