@@ -1,15 +1,9 @@
 # rybl-website
 
-To install dependencies:
+## Build
 
-```bash
+```sh
 bun install
+bun run build
+bun run serve
 ```
-
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.1.35. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
