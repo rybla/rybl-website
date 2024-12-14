@@ -1,4 +1,4 @@
-module Rybl.Language.Common where
+module Rybl.Language.Component.Common where
 
 import Prelude
 
@@ -8,14 +8,16 @@ import Data.Variant (Variant)
 import Effect.Aff (Aff)
 import Halogen (ComponentHTML)
 import Halogen as H
-import Rybl.Language (Doc)
+import Rybl.Language (Doc, ViewMode)
 
 type Input =
   { doc :: Doc
+  , viewMode :: ViewMode
   }
 
 type State =
   { doc :: Doc
+  , viewMode :: ViewMode
   , ctx :: Ctx
   , env :: Env
   }
@@ -25,7 +27,7 @@ type Ctx =
       Map String
         ( Variant
             ( loaded :: Doc
-            , not_yet_loaded :: {}
+            , not_yet_loaded :: Unit
             , error_on_load :: HTML
             )
         )

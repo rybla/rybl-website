@@ -15,6 +15,13 @@ import Data.Show.Generic (genericShow)
 import Data.Traversable (traverse_)
 import Data.Variant (Variant)
 
+type ViewMode = Variant
+  ( unknown :: Unit
+  , mobile :: Unit
+  , wide_desktop :: Unit
+  , narrow_desktop :: Unit
+  )
+
 data Doc
   = String String
   | Error Doc

@@ -9,6 +9,7 @@ package:
     - effect
     - fetch
     - halogen
+    - halogen-css
     - js-uri
     - lists
     - maybe

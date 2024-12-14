@@ -13,6 +13,7 @@
             "effect",
             "fetch",
             "halogen",
+            "halogen-css",
             "js-uri",
             "lists",
             "maybe",
@@ -38,10 +39,12 @@
             "avar",
             "bifunctors",
             "catenable-lists",
+            "colors",
             "console",
             "const",
             "contravariant",
             "control",
+            "css",
             "datetime",
             "distributive",
             "dom-indexed",
@@ -61,6 +64,7 @@
             "functors",
             "gen",
             "halogen",
+            "halogen-css",
             "halogen-subscriptions",
             "halogen-vdom",
             "http-methods",
@@ -73,6 +77,7 @@
             "js-promise-aff",
             "js-uri",
             "lazy",
+            "lcg",
             "lists",
             "maybe",
             "media-types",
@@ -99,6 +104,9 @@
             "prelude",
             "profunctor",
             "profunctor-lenses",
+            "quickcheck",
+            "quickcheck-laws",
+            "random",
             "record",
             "refs",
             "safe-coerce",
@@ -106,6 +114,7 @@
             "st",
             "strings",
             "tailrec",
+            "these",
             "transformers",
             "tuples",
             "type-equality",
@@ -828,6 +837,19 @@
         "unfoldable"
       ]
     },
+    "colors": {
+      "type": "registry",
+      "version": "7.0.1",
+      "integrity": "sha256-udlg/y2PFsHYli8Tgz8BQGGrOjyGo0BcJj36IfgYADs=",
+      "dependencies": [
+        "arrays",
+        "integers",
+        "lists",
+        "numbers",
+        "partial",
+        "strings"
+      ]
+    },
     "console": {
       "type": "registry",
       "version": "6.1.0",
@@ -866,6 +888,21 @@
       "dependencies": [
         "newtype",
         "prelude"
+      ]
+    },
+    "css": {
+      "type": "registry",
+      "version": "6.0.0",
+      "integrity": "sha256-zfSHxgiU4rSWuVxMjSKKh+s7j433wxmsr+CqI6hm9s4=",
+      "dependencies": [
+        "colors",
+        "console",
+        "effect",
+        "nonempty",
+        "profunctor",
+        "strings",
+        "these",
+        "transformers"
       ]
     },
     "datetime": {
@@ -1163,6 +1200,15 @@
         "web-uievents"
       ]
     },
+    "halogen-css": {
+      "type": "registry",
+      "version": "10.0.0",
+      "integrity": "sha256-ZKz2cSbfkcY2faMDwSGu7pa2P8aEHPv/a03Hnyy+mdw=",
+      "dependencies": [
+        "css",
+        "halogen"
+      ]
+    },
     "halogen-subscriptions": {
       "type": "registry",
       "version": "2.0.0",
@@ -1313,6 +1359,19 @@
         "foldable-traversable",
         "invariant",
         "prelude"
+      ]
+    },
+    "lcg": {
+      "type": "registry",
+      "version": "4.0.0",
+      "integrity": "sha256-h7ME5cthLfbgJOJdsZcSfFpwXsx4rf8YmhebU+3iSYg=",
+      "dependencies": [
+        "effect",
+        "integers",
+        "maybe",
+        "partial",
+        "prelude",
+        "random"
       ]
     },
     "lists": {
@@ -1670,6 +1729,58 @@
         "tuples"
       ]
     },
+    "quickcheck": {
+      "type": "registry",
+      "version": "8.0.1",
+      "integrity": "sha256-ZvpccKQCvgslTXZCNmpYW4bUsFzhZd/kQUr2WmxFTGY=",
+      "dependencies": [
+        "arrays",
+        "console",
+        "control",
+        "effect",
+        "either",
+        "enums",
+        "exceptions",
+        "foldable-traversable",
+        "gen",
+        "identity",
+        "integers",
+        "lazy",
+        "lcg",
+        "lists",
+        "maybe",
+        "newtype",
+        "nonempty",
+        "numbers",
+        "partial",
+        "prelude",
+        "record",
+        "st",
+        "strings",
+        "tailrec",
+        "transformers",
+        "tuples",
+        "unfoldable"
+      ]
+    },
+    "quickcheck-laws": {
+      "type": "registry",
+      "version": "7.0.0",
+      "integrity": "sha256-rnzVTiDnymzYkvnhI8EvPwrmO8LgcTnrMTuiI172Tkc=",
+      "dependencies": [
+        "enums",
+        "quickcheck"
+      ]
+    },
+    "random": {
+      "type": "registry",
+      "version": "6.0.0",
+      "integrity": "sha256-CJ611a35MPCE7XQMp0rdC6MCn76znlhisiCRgboAG+Q=",
+      "dependencies": [
+        "effect",
+        "integers"
+      ]
+    },
     "record": {
       "type": "registry",
       "version": "4.0.0",
@@ -1778,6 +1889,19 @@
         "partial",
         "prelude",
         "refs"
+      ]
+    },
+    "these": {
+      "type": "registry",
+      "version": "6.0.0",
+      "integrity": "sha256-6poQvFzGw7Ir9mTDEbFV9N6+cUeSHe0FdzTR2ZK1o6g=",
+      "dependencies": [
+        "arrays",
+        "gen",
+        "lists",
+        "quickcheck",
+        "quickcheck-laws",
+        "tuples"
       ]
     },
     "transformers": {

@@ -1,11 +1,8 @@
-module Rybl.Language.BasicUI where
+module Rybl.Language.Component.Basic where
 
 import Prelude
 
-import Control.Applicative (pure)
 import Control.Monad.Reader (class MonadReader, ask, runReaderT)
-import Control.Monad.ST (ST)
-import Control.Monad.ST.Internal as ST
 import Control.Monad.State (class MonadState, evalState, get)
 import Control.Monad.State.Class (put)
 import Data.Argonaut (JsonDecodeError)
@@ -13,19 +10,14 @@ import Data.Argonaut.Decode (fromJsonString)
 import Data.Bifunctor (bimap)
 import Data.Either (Either(..))
 import Data.Either.Nested (type (\/))
-import Data.Foldable (foldr)
 import Data.Lens ((%=), (.=))
-import Data.List (List)
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(..))
 import Data.Set (Set)
 import Data.Set as Set
 import Data.Traversable (traverse)
-import Data.TraversableWithIndex (traverseWithIndex)
-import Data.Tuple.Nested ((/\))
 import Data.Variant (case_, expandCons, inj', on')
-import Data.Variant as V
 import Effect.Aff (Aff)
 import Fetch (fetch)
 import Fetch as Fetch
@@ -35,33 +27,26 @@ import Halogen.HTML (div) as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import Rybl.Language (Doc(..), Ref, collectRefs)
-import Rybl.Language.Common (Ctx, HTML, Input, State, Env)
-import Rybl.Utility (insert', prop', todo, (##))
+import Rybl.Language (Doc(..), Ref, ExpanderStyle, collectRefs)
+import Rybl.Language.Component.Common (Ctx, Env, Input, State, HTML)
+import Rybl.Utility (prop', (##))
 import Type.Prelude (Proxy(..))
 
-theDocComponent :: H.Component _ Input _ Aff
+theDocComponent :: forall query output. H.Component query Input output Aff
 theDocComponent = H.mkComponent { initialState, eval, render }
   where
-  initialState { doc } =
+  initialState { doc, viewMode } =
     { doc
+    , viewMode
     , ctx:
-        { namedDocs:
-            -- doc
-            --   # collectRefs
-            --   # Set.toUnfoldable
-            --   # map @List (\x -> x /\ inj' @"not_yet_loaded" {})
-            --   # Map.fromFoldable
-            Map.empty
-        }
+        { namedDocs: Map.empty }
     , env:
-        { widgetIndex: 0
-        }
+        { widgetIndex: 0 }
     } :: State
 
   eval = H.mkEval H.defaultEval
     { receive = pure <<< inj' @"receive"
-    , initialize = pure $ inj' @"initialize" {}
+    , initialize = pure $ inj' @"initialize" unit
     , handleAction = case_
         # on' @"receive" (put <<< initialState)
         # on' @"initialize"
@@ -190,7 +175,7 @@ nextSlotIndex = do
   prop' @"widgetIndex" %= (_ + 1)
   pure widgetIndex
 
-theExpanderComponent :: H.Component _ _ _ Aff
+theExpanderComponent :: forall query output. H.Component query { sty :: ExpanderStyle, label :: HTML, body :: HTML } output Aff
 theExpanderComponent = H.mkComponent { initialState, eval, render }
   where
   initialState { sty, label, body } =

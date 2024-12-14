@@ -2,26 +2,26 @@ module Rybl.App where
 
 import Prelude
 
-import Control.Applicative (pure)
+import CSS (em, margin, maxWidth) as CSS
+import CSS.Common (auto) as CSS
 import Data.Argonaut.Decode (fromJsonString)
 import Data.Either (either)
 import Data.Lens ((.=))
-import Data.Maybe (Maybe(..), maybe)
+import Data.Maybe (Maybe(..))
 import Data.Variant (case_, inj', on')
 import Effect (Effect)
-import Effect.Aff (Aff, throwError)
-import Effect.Aff as Aff
+import Effect.Aff (Aff)
 import Effect.Class.Console as Console
 import Halogen (liftEffect)
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
-import Halogen.HTML.Properties as HP
+import Halogen.HTML.CSS as HCss
 import Halogen.Query.Event as HQE
 import Halogen.VDom.Driver as HVD
-import JSURI (decodeURI, encodeURI)
-import Rybl.Language as Doc
-import Rybl.Language.BasicUI (theDocComponent)
+import JSURI (decodeURI)
+import Rybl.Language as Rybl.Language
+import Rybl.Language.Component.Basic as Rybl.Language.Component
 import Rybl.Utility (prop')
 import Type.Proxy (Proxy(..))
 import Web.HTML as Web.HTML
@@ -35,11 +35,12 @@ import Web.URL.URLSearchParams as Web.URLSearchParams
 main :: Effect Unit
 main = HA.runHalogenAff $ HVD.runUI component {} =<< HA.awaitBody
 
-component :: H.Component _ _ _ Aff
+component :: forall query input output. H.Component query input output Aff
 component = H.mkComponent { initialState, eval, render }
   where
-  initialState {} =
-    { doc: Doc.Ref "index"
+  initialState _ =
+    { doc: Rybl.Language.Ref "index" :: Rybl.Language.Doc
+    , viewMode: inj' @"unknown" unit :: Rybl.Language.ViewMode
     }
 
   eval = H.mkEval H.defaultEval
@@ -76,38 +77,21 @@ component = H.mkComponent { initialState, eval, render }
                   Nothing -> pure unit
                   Just doc_str_ -> do
                     doc <- case doc_str_ # decodeURI of
-                      Nothing -> pure $ Doc.Error $ Doc.String $ "decodeURI error"
+                      Nothing -> pure $ Rybl.Language.Error $ Rybl.Language.String $ "decodeURI error"
                       Just doc_str -> do
                         pure $
                           doc_str
                             # fromJsonString
-                            # either (\err -> Doc.String $ "JsonDecodeError: " <> show err) identity
+                            # either (\err -> Rybl.Language.String $ "JsonDecodeError: " <> show err) identity
                     prop' @"doc" .= doc
         )
 
-  render { doc } =
+  render { doc, viewMode } =
     HH.div
-      [ HP.style "margin: auto; max-width: 40em;" ]
-      [ HH.slot_ (Proxy @"doc") unit theDocComponent
-          { doc:
-              --   Doc.Group (inj' @"column" unit)
-              --     [ Doc.String "This is an example Doc that references a bunch of named documents that should be encoded as JSON files."
-              --     , Doc.Ref "example_doc_1"
-              --     , Doc.Ref "example_doc_2"
-              --     , Doc.Ref "example_doc_3"
-              --     , Doc.Ref "example_doc_4"
-              --     , Doc.Ref "example_doc_5"
-              --     , Doc.Expander (inj' @"block" unit)
-              --         (Doc.String "This is a label for an Expander")
-              --         ( Doc.Group (inj' @"column" unit)
-              --             [ Doc.Ref "lorem_ipsum_short"
-              --             , Doc.Expander (inj' @"block" unit)
-              --                 (Doc.String "This is a label for an Expander")
-              --                 (Doc.Ref "lorem_ipsum_long")
-              --             ]
-              --         )
-              --     ]
-              doc
-          }
+      [ HCss.style do
+          CSS.margin CSS.auto CSS.auto CSS.auto CSS.auto
+          CSS.maxWidth (CSS.em 40.0)
+      ]
+      [ HH.slot_ (Proxy @"doc") unit Rybl.Language.Component.theDocComponent { doc, viewMode }
       ]
 
