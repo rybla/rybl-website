@@ -2,8 +2,6 @@ module Rybl.App where
 
 import Prelude
 
-import CSS (em, margin, maxWidth) as CSS
-import CSS.Common (auto) as CSS
 import Data.Argonaut.Decode (fromJsonString)
 import Data.Either (either)
 import Data.Lens ((.=))
@@ -16,7 +14,7 @@ import Halogen (liftEffect)
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
-import Halogen.HTML.CSS as HCss
+import Halogen.HTML.Properties as HP
 import Halogen.Query.Event as HQE
 import Halogen.VDom.Driver as HVD
 import JSURI (decodeURI)
@@ -88,10 +86,7 @@ component = H.mkComponent { initialState, eval, render }
 
   render { doc, viewMode } =
     HH.div
-      [ HCss.style do
-          CSS.margin CSS.auto CSS.auto CSS.auto CSS.auto
-          CSS.maxWidth (CSS.em 40.0)
-      ]
+      [ HP.style "margin: auto; max-width: 40em;" ]
       [ HH.slot_ (Proxy @"doc") unit Rybl.Language.Component.theDocComponent { doc, viewMode }
       ]
 
