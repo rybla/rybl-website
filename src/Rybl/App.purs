@@ -6,7 +6,7 @@ import Data.Argonaut.Decode (fromJsonString)
 import Data.Either (either)
 import Data.Lens ((.=))
 import Data.Maybe (Maybe(..))
-import Data.Variant (case_, inj', on')
+import Rybl.Data.Variant (case_, inj', on')
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Class.Console as Console

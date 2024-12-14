@@ -17,7 +17,7 @@ import Data.Maybe (Maybe(..))
 import Data.Set (Set)
 import Data.Set as Set
 import Data.Traversable (traverse)
-import Data.Variant (case_, expandCons, inj', on')
+import Rybl.Data.Variant (case_, expandCons, inj', on')
 import Effect.Aff (Aff)
 import Fetch (fetch)
 import Fetch as Fetch

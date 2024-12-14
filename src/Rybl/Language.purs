@@ -13,7 +13,7 @@ import Data.Set (Set)
 import Data.Set as Set
 import Data.Show.Generic (genericShow)
 import Data.Traversable (traverse_)
-import Data.Variant (Variant)
+import Rybl.Data.Variant (Variant)
 
 type ViewMode = Variant
   ( unknown :: Unit

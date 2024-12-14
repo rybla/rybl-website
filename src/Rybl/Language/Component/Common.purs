@@ -4,7 +4,7 @@ import Prelude
 
 import Data.Const (Const)
 import Data.Map (Map)
-import Data.Variant (Variant)
+import Rybl.Data.Variant (Variant)
 import Effect.Aff (Aff)
 import Halogen (ComponentHTML)
 import Halogen as H

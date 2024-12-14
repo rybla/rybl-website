@@ -1,4 +1,4 @@
-module Data.Variant.Internal
+module Rybl.Data.Variant.Internal
   ( VariantRep(..)
   , VariantCase
   , VariantFCase

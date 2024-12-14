@@ -1,4 +1,4 @@
-module Data.Variant
+module Rybl.Data.Variant
   ( Variant
   , class DecodeJsonVariantRL
   , encodeJsonVariantRL
@@ -49,8 +49,8 @@ import Data.Enum (class Enum, pred, succ, class BoundedEnum, Cardinality(..), fr
 import Data.List as L
 import Data.Maybe (Maybe)
 import Data.Symbol (class IsSymbol, reflectSymbol)
-import Data.Variant.Internal (class Contractable, class VariantMapCases, class VariantMatchCases, class VariantTags, class VariantTraverseCases, BoundedDict, BoundedEnumDict, VariantCase, VariantRep(..), contractWith, lookup, lookupCardinality, lookupEq, lookupFirst, lookupFromEnum, lookupLast, lookupOrd, lookupPred, lookupSucc, lookupToEnum, unsafeGet, unsafeHas, variantTags)
-import Data.Variant.Internal (class Contractable, class VariantMapCases, class VariantMatchCases, class VariantTraverseCases) as Exports
+import Rybl.Data.Variant.Internal (class Contractable, class VariantMapCases, class VariantMatchCases, class VariantTags, class VariantTraverseCases, BoundedDict, BoundedEnumDict, VariantCase, VariantRep(..), contractWith, lookup, lookupCardinality, lookupEq, lookupFirst, lookupFromEnum, lookupLast, lookupOrd, lookupPred, lookupSucc, lookupToEnum, unsafeGet, unsafeHas, variantTags)
+import Rybl.Data.Variant.Internal (class Contractable, class VariantMapCases, class VariantMatchCases, class VariantTraverseCases) as Exports
 import Partial.Unsafe (unsafeCrashWith)
 import Prim.Row (class Cons)
 import Prim.Row as R

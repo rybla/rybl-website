@@ -5,7 +5,7 @@ import Prelude
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Tuple.Nested ((/\))
-import Data.Variant (inj')
+import Rybl.Data.Variant (inj')
 import Rybl.Language (Doc(..))
 
 namedDocs :: Map String Doc
