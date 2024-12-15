@@ -5,10 +5,10 @@ import Prelude
 import Control.Monad.Writer (Writer, execWriter)
 import Data.Array as Array
 import Data.Int as Int
-import Data.Tuple.Nested (type (/\), (/\))
 import Halogen.HTML.Properties (IProp)
 import Halogen.HTML.Properties as HP
 import Partial.Unsafe (unsafeCrashWith)
+import Rybl.Data.Variant (Variant)
 
 type Style = StyleM Unit
 type StyleM = Writer (Array String)
@@ -21,6 +21,9 @@ class Render a where
 
 class RenderStyle a where
   renderStyle :: a -> Array String
+
+type RenderStyleF a = a -> Array String
+type RenderF a = a -> String
 
 --------------------------------------------------------------------------------
 
@@ -63,27 +66,10 @@ instance Render Hex2x3 where
 -- Color
 --------------------------------------------------------------------------------
 
-data Color
-  = BaseColor BaseColor
-  | OpacityColor BaseColor Ratio
-  | MixColor BaseColor Percent BaseColor
-
-data BaseColor
-  = RgbBaseColor PosInt PosInt PosInt
-  | HexBaseColor Hex2x3
-  | HslBaseColor PosInt Percent Percent
-  | NamedBaseColor Name
+data Color = Color PosInt PosInt PosInt Ratio
 
 instance Render Color where
-  render (BaseColor c) = render c
-  render (OpacityColor c a) = neutral "color-mix" [ "in srgb", render c <> " " <> render (cast' @Percent a), "transparent" ]
-  render (MixColor c1 p c2) = neutral "color-mix" [ "in srgb", render c1 <> " " <> render p, render c2 ]
-
-instance Render BaseColor where
-  render (RgbBaseColor r g b) = neutral "rgb" [ render r, render g, render b ]
-  render (HexBaseColor h) = "#" <> render h
-  render (HslBaseColor h s l) = neutral "hsla" [ render h, render s, render l ]
-  render (NamedBaseColor name) = render name
+  render (Color r g b a) = neutral "rgba" [ render r, render g, render b, render a ]
 
 --------------------------------------------------------------------------------
 -- Cast
@@ -114,8 +100,8 @@ instance Cast Percent Ratio where
 instance Cast Ratio Percent where
   cast (Ratio x) = Percent $ cast $ x * 100.0
 
-instance Cast Name Color where
-  cast name = BaseColor (NamedBaseColor name)
+-- instance Cast Name Color where
+--   cast name = BaseColor (NamedBaseColor name)
 
 --------------------------------------------------------------------------------
 -- Utilities
