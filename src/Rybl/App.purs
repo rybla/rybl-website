@@ -49,18 +49,21 @@ component = H.mkComponent { initialState, eval, render }
   handleAction = case_
     # on' @"initialize"
         ( const do
+            Console.log "[App.initialize]"
+            -- initialize listener: popstate => update
             document <- Web.HTML.window >>= Web.HTML.Window.document # liftEffect
             void $ H.subscribe $
               HQE.eventListener
                 Web.HTML.Event.PopStateEvent.EventTypes.popstate
                 (document # Web.HTML.HTMLDocument.toEventTarget)
                 (const $ pure $ inj' @"update" unit)
+            -- first update
             handleAction (inj' @"update" unit)
-            pure unit
         )
     # on' @"update"
         ( const do
             Console.log "[App.update]"
+            -- update .doc
             mb_url <-
               Web.HTML.window
                 >>= Web.HTML.Window.location
@@ -82,6 +85,8 @@ component = H.mkComponent { initialState, eval, render }
                             # fromJsonString
                             # either (\err -> Rybl.Language.String $ "JsonDecodeError: " <> show err) identity
                     prop' @"doc" .= doc
+            -- TODO: update .viewMode
+            pure unit
         )
 
   render { doc, viewMode } =
