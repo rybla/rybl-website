@@ -2,15 +2,20 @@ module Rybl.Halogen.Style where
 
 import Prelude
 
-import Control.Monad.Writer (Writer, execWriter)
+import Control.Monad.Writer (Writer, execWriter, tell)
 import Data.Array as Array
 import Data.Int as Int
+import Data.Symbol (class IsSymbol, reflectSymbol)
 import Halogen.HTML.Properties (IProp)
 import Halogen.HTML.Properties as HP
 import Partial.Unsafe (unsafeCrashWith)
-import Rybl.Data.Variant (Variant)
+import Prim.Row (class Cons, class Nub, class Union)
+import Record as Record
+import Type.Proxy (Proxy(..))
 
-type Style = StyleM Unit
+type U = Unit
+
+type Style = StyleM U
 type StyleM = Writer (Array String)
 
 style :: forall r i. Style -> IProp (style :: String | r) i
@@ -26,11 +31,42 @@ type RenderStyleF a = a -> Array String
 type RenderF a = a -> String
 
 --------------------------------------------------------------------------------
+-- Errors
+--------------------------------------------------------------------------------
 
 malformed :: forall a. String -> String -> a
 malformed label v = unsafeCrashWith $ "malformed " <> label <> ": " <> v
 
 --------------------------------------------------------------------------------
+-- Types
+--------------------------------------------------------------------------------
+
+instance Render Number where
+  render = show
+
+instance Render String where
+  render = show
+
+instance Render Int where
+  render = show
+
+newtype Literal xs = Literal (forall r. LiteralK xs r -> r)
+type LiteralK xs r = forall x xs_. IsSymbol x => Cons x U xs_ xs => Proxy x -> r
+
+mkLiteral :: forall x xs_ xs. IsSymbol x => Cons x U xs_ xs => Proxy x -> Literal xs
+mkLiteral x = Literal \k -> k x
+
+unLiteral :: forall xs r. LiteralK xs r -> Literal xs -> r
+unLiteral k1 (Literal k2) = k2 k1
+
+instance Show (Literal xs) where
+  show = unLiteral reflectSymbol
+
+instance Render (Literal xs) where
+  render = show
+
+literal :: forall @x xs_ xs. IsSymbol x => Cons x U xs_ xs => Literal xs
+literal = mkLiteral (Proxy @x)
 
 newtype Name = Name String
 
@@ -100,8 +136,114 @@ instance Cast Percent Ratio where
 instance Cast Ratio Percent where
   cast (Ratio x) = Percent $ cast $ x * 100.0
 
--- instance Cast Name Color where
---   cast name = BaseColor (NamedBaseColor name)
+--------------------------------------------------------------------------------
+-- CSS Properties
+--------------------------------------------------------------------------------
+
+accent_color :: Color -> Style
+accent_color c = tell [ "accent-color: " <> render c ]
+
+align_content :: Literal ("stretch" :: U, "center" :: U, "flex-start" :: U, "flex-end" :: U, "space-between" :: U, "space-around" :: U, "space-evenly" :: U, "initial" :: U, "inherit" :: U) -> Style
+align_content x = tell [ "align-content: " <> (x # unLiteral reflectSymbol) ]
+
+align_items :: Literal ("normal" :: U, "stretch" :: U, "center" :: U, "flex-start" :: U, "flex-end" :: U, "start" :: U, "end" :: U, "baseline" :: U, "initial" :: U, "inherit" :: U) -> Style
+align_items x = tell [ "align-items: " <> (x # unLiteral reflectSymbol) ]
+
+align_self :: Literal ("auto" :: U, "self" :: U, "stretch" :: U, "center" :: U, "flex-start" :: U, "flex-end" :: U, "baseline" :: U, "initial" :: U, "inherit" :: U) -> Style
+align_self x = tell [ "align-self: " <> (x # unLiteral reflectSymbol) ]
+
+data Measure a u = Measure a (Literal u)
+
+type Time = Measure Number ("s" :: U, "ms" :: U)
+
+instance Render a => Render (Measure a u) where
+  render (Measure a u) = render a <> render u
+
+type AnimationArgs = AnimationArgs'
+  (name :: Name)
+
+type AnimationArgs' r =
+  ( duration :: Time
+  , timing_function :: Literal ("linear" :: U, "ease" :: U, "ease-in" :: U, "ease-out" :: U, "ease-in-out" :: U, "step-start" :: U, "step-end" :: U, "initial" :: U, "inherit" :: U)
+  , delay :: Time
+  , iteration_count :: Literal ("infinite" :: U, "initial" :: U, "inherit" :: U)
+  , direction :: Literal ("normal" :: U, "reverse" :: U, "alternate" :: U, "alternate-reverse" :: U, "initial" :: U, "inherit" :: U)
+  , fill_mode :: Literal ("none" :: U, "forwards" :: U, "backwards" :: U, "both" :: U, "initial" :: U, "inherit" :: U)
+  , play_state :: Literal ("paused" :: U, "running" :: U, "initial" :: U, "inherit" :: U)
+  | r
+  )
+
+animation :: Record AnimationArgs -> Style
+animation { name, duration, timing_function, delay, iteration_count, direction, fill_mode, play_state } = tell [ "animation: " <> Array.intercalate " " [ render name, render duration, render timing_function, render delay, render iteration_count, render direction, render fill_mode, render play_state ] ]
+
+animation' :: forall r r'. Union r (AnimationArgs' ()) r' => Nub r' AnimationArgs => Record r -> Style
+animation' args = animation
+  ( Record.merge args
+      ( { timing_function: literal @"linear"
+        , delay: Measure 0.0 (literal @"s")
+        , duration: Measure 1.0 (literal @"s")
+        , iteration_count: literal @"infinite"
+        , direction: literal @"normal"
+        , fill_mode: literal @"none"
+        , play_state: literal @"running"
+        } :: Record (AnimationArgs' ())
+      )
+  )
+
+-- background
+-- border
+-- box_shadow
+-- color
+-- cursor
+-- display
+-- flex
+-- flex_direction
+-- flex_flow
+-- flex_wrap
+-- float
+-- font
+-- font_size
+-- font_weight
+-- gap
+-- height
+-- justify_content
+-- justify_items
+-- line_height
+-- left
+-- margin
+-- max_height
+-- max_width
+-- min_height
+-- min_width
+-- opacity
+-- outline
+-- overflow
+-- overflow_x
+-- overflow_y
+-- padding
+-- position
+-- right
+-- text_align
+-- text_decoration
+-- text_decoration_color
+-- text_decoration_line
+-- text_decoration_style
+-- text_decoration_thickness
+-- text_emphasis
+-- text_orientation
+-- text_shadow
+-- text_transform
+-- top
+-- user_select
+-- vertical_align
+-- visibility
+-- white_space
+-- width
+-- word_break
+-- word_spacing
+-- word_wrap
+-- writing_mode
+-- z_index
 
 --------------------------------------------------------------------------------
 -- Utilities
