@@ -1,8 +1,9 @@
 module Rybl.Language.Component.Basic where
 
 import Prelude
+import Rybl.Language.Component.Common
 
-import Control.Monad.Reader (class MonadReader, ask, runReaderT)
+import Control.Monad.Reader (class MonadReader, ask, local, runReaderT)
 import Control.Monad.State (class MonadState, evalState, get)
 import Control.Monad.State.Class (put)
 import Data.Argonaut (JsonDecodeError)
@@ -17,7 +18,6 @@ import Data.Maybe (Maybe(..))
 import Data.Set (Set)
 import Data.Set as Set
 import Data.Traversable (traverse)
-import Rybl.Data.Variant (case_, expandCons, inj', on')
 import Effect.Aff (Aff)
 import Fetch (fetch)
 import Fetch as Fetch
@@ -27,10 +27,14 @@ import Halogen.HTML (div) as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import Rybl.Language (Doc(..), Ref, ExpanderStyle, collectRefs)
-import Rybl.Language.Component.Common (Ctx, Env, Input, State, HTML)
-import Rybl.Utility (prop', (##))
+import Rybl.Data.Variant (case_, expandCons, inj', on')
+import Rybl.Language (Doc(..), ExpanderStyle, Ref, collectRefs, collectSidenotes)
+import Rybl.Utility (literal, prop', (##), ($@=))
 import Type.Prelude (Proxy(..))
+
+--------------------------------------------------------------------------------
+-- theDocComponent
+--------------------------------------------------------------------------------
 
 theDocComponent :: forall query output. H.Component query Input output Aff
 theDocComponent = H.mkComponent { initialState, eval, render }
@@ -39,7 +43,9 @@ theDocComponent = H.mkComponent { initialState, eval, render }
     { doc
     , viewMode
     , ctx:
-        { namedDocs: Map.empty }
+        { namedDocs: Map.empty
+        , display: literal @"block"
+        }
     , env:
         { widgetIndex: 0 }
     } :: State
@@ -101,41 +107,63 @@ theDocComponent = H.mkComponent { initialState, eval, render }
       ]
       # mapAction_ComponentHTML (expandCons @"receive" >>> expandCons @"initialize")
 
+nextSlotIndex :: forall m. MonadState Env m => m Int
+nextSlotIndex = do
+  { widgetIndex } <- get
+  prop' @"widgetIndex" %= (_ + 1)
+  pure widgetIndex
+
+--------------------------------------------------------------------------------
+-- renderDoc
+--------------------------------------------------------------------------------
+
 renderDoc :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
 renderDoc (String str) = do
+  ctx <- ask
   pure
     $ HH.div
-        []
+        [ HP.style $ renderDisplayStyle ctx.display ]
         [ HH.text str ]
 
 renderDoc (Error d) = do
+  ctx <- ask
   e <- d # renderDoc
   pure
     $ HH.div
-        [ HP.style "background-color: #ffcccb;" ]
+        [ HP.style $ "background-color: #ffcccb; " <> renderDisplayStyle ctx.display ]
         [ e ]
 
 renderDoc (Group sty ds) = do
-  kids <- ds # traverse renderDoc
+  ctx <- ask
   let
     gap = "0.5em"
-    style flexDirection = "display: flex; flex-direction: " <> flexDirection <> "; gap: " <> gap <> ";"
   sty ## case_
     # on' @"column"
         ( const do
-            pure
-              $ HH.div
-                  [ HP.style $ style "column" ]
-                  kids
+            kids <- ds # traverse renderDoc # local (_ { display = literal @"block" })
+            pure $
+              HH.div
+                [ HP.style $ renderDisplayStyle_flex ctx.display <> "flex-direction: column; " <> "gap: " <> gap ]
+                kids
 
         )
     # on' @"row"
         ( const do
+            kids <- ds # traverse renderDoc # local (_ { display = literal @"block" })
             pure
               $ HH.div
-                  [ HP.style $ style "row" ]
+                  [ HP.style $ renderDisplayStyle_flex ctx.display <> "flex-direction: row; " <> "gap: " <> gap ]
                   kids
 
+        )
+    # on' @"flow"
+        ( const do
+            kids <- ds # traverse renderDoc # local (_ { display = literal @"inline" })
+            pure $
+              HH.div
+                -- [ HP.style $ renderDisplayStyle_flex ctx.display <> "flex-direction: row; " <> "flex-wrap: wrap; " <> "gap: 0.2em" ]
+                []
+                kids
         )
 
 renderDoc (Ref x) = do
@@ -169,11 +197,33 @@ renderDoc (Expander sty label_ body_) = do
   body <- renderDoc body_
   pure $ HH.slot_ (Proxy @"widget") widgetIndex theExpanderComponent { sty, label, body }
 
-nextSlotIndex :: forall m. MonadState Env m => m Int
-nextSlotIndex = do
-  { widgetIndex } <- get
-  prop' @"widgetIndex" %= (_ + 1)
-  pure widgetIndex
+renderDoc (Sidenote _id label_ _body) = do
+  ctx <- ask
+  label <- renderDoc label_
+  pure $
+    HH.div
+      [ HP.style $ renderDisplayStyle_flex ctx.display <> "flex-direction: row; gap: 0.2em;" ]
+      [ HH.div [ HP.style "display: inline;" ] [ HH.text "[sidenote]" ]
+      , HH.div [ HP.style "display: inline;" ] [ label ]
+      ]
+
+renderDoc (SidenotesThreshold body_) = do
+  body <- renderDoc body_
+  sidenotes <- renderDoc $@= _.body <$> collectSidenotes body_
+  pure $
+    HH.div
+      [ HP.style "display: flex; flex-direction: row; gap: 4em;" ]
+      [ HH.div
+          []
+          [ body ]
+      , HH.div
+          [ HP.style "display: flex; flex-direction: column; gap: 1em;" ]
+          sidenotes
+      ]
+
+--------------------------------------------------------------------------------
+-- theExpanderComponent
+--------------------------------------------------------------------------------
 
 theExpanderComponent :: forall query output. H.Component query { sty :: ExpanderStyle, label :: HTML, body :: HTML } output Aff
 theExpanderComponent = H.mkComponent { initialState, eval, render }
@@ -201,6 +251,10 @@ theExpanderComponent = H.mkComponent { initialState, eval, render }
           HH.div [] [ HH.text "..." ]
       ]
       # mapAction_ComponentHTML (expandCons @"receive")
+
+--------------------------------------------------------------------------------
+-- Misc
+--------------------------------------------------------------------------------
 
 mapAction_ComponentHTML
   :: forall action action' slots m

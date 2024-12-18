@@ -37,6 +37,7 @@ module Rybl.Data.Variant
   , class VariantBoundedEnums
   , variantBoundedEnums
   , module Exports
+  , reflectVariantKey
   ) where
 
 import Prelude
@@ -49,17 +50,17 @@ import Data.Enum (class Enum, pred, succ, class BoundedEnum, Cardinality(..), fr
 import Data.List as L
 import Data.Maybe (Maybe)
 import Data.Symbol (class IsSymbol, reflectSymbol)
-import Rybl.Data.Variant.Internal (class Contractable, class VariantMapCases, class VariantMatchCases, class VariantTags, class VariantTraverseCases, BoundedDict, BoundedEnumDict, VariantCase, VariantRep(..), contractWith, lookup, lookupCardinality, lookupEq, lookupFirst, lookupFromEnum, lookupLast, lookupOrd, lookupPred, lookupSucc, lookupToEnum, unsafeGet, unsafeHas, variantTags)
-import Rybl.Data.Variant.Internal (class Contractable, class VariantMapCases, class VariantMatchCases, class VariantTraverseCases) as Exports
 import Partial.Unsafe (unsafeCrashWith)
 import Prim.Row (class Cons)
 import Prim.Row as R
 import Prim.RowList (class RowToList)
 import Prim.RowList as RL
+import Rybl.Data.Variant.Internal (class Contractable, class VariantMapCases, class VariantMatchCases, class VariantTags, class VariantTraverseCases, BoundedDict, BoundedEnumDict, VariantCase, VariantRep(..), contractWith, lookup, lookupCardinality, lookupEq, lookupFirst, lookupFromEnum, lookupLast, lookupOrd, lookupPred, lookupSucc, lookupToEnum, unsafeGet, unsafeHas, variantTags)
+import Rybl.Data.Variant.Internal (class Contractable, class VariantMapCases, class VariantMatchCases, class VariantTraverseCases) as Exports
 import Type.Proxy (Proxy(..))
 import Unsafe.Coerce (unsafeCoerce)
 
-foreign import data Variant ∷ Row Type → Type
+foreign import data Variant :: Row Type → Type
 
 -- | Inject into the variant at a given label.
 -- | ```purescript
@@ -67,7 +68,7 @@ foreign import data Variant ∷ Row Type → Type
 -- | intAtFoo = inj (Proxy :: Proxy "foo") 42
 -- | ```
 inj
-  ∷ ∀ sym a r1 r2
+  :: ∀ sym a r1 r2
   . R.Cons sym a r1 r2
   ⇒ IsSymbol sym
   ⇒ Proxy sym
@@ -75,7 +76,7 @@ inj
   → Variant r2
 inj p value = coerceV $ VariantRep { type: reflectSymbol p, value }
   where
-  coerceV ∷ VariantRep a → Variant r2
+  coerceV :: VariantRep a → Variant r2
   coerceV = unsafeCoerce
 
 -- | Attempt to read a variant at a given label.
@@ -85,7 +86,7 @@ inj p value = coerceV $ VariantRep { type: reflectSymbol p, value }
 -- |   Nothing -> 0
 -- | ```
 prj
-  ∷ ∀ sym a r1 r2 f
+  :: ∀ sym a r1 r2 f
   . R.Cons sym a r1 r2
   ⇒ IsSymbol sym
   ⇒ Alternative f
@@ -98,7 +99,7 @@ prj p = on p pure (const empty)
 -- | The failure branch receives the provided variant, but with the label
 -- | removed.
 on
-  ∷ ∀ sym a b r1 r2
+  :: ∀ sym a b r1 r2
   . R.Cons sym a r1 r2
   ⇒ IsSymbol sym
   ⇒ Proxy sym
@@ -111,10 +112,10 @@ on p f g r =
     VariantRep v | v.type == reflectSymbol p → f v.value
     _ → g (coerceR r)
   where
-  coerceV ∷ Variant r2 → VariantRep a
+  coerceV :: Variant r2 → VariantRep a
   coerceV = unsafeCoerce
 
-  coerceR ∷ Variant r2 → Variant r1
+  coerceR :: Variant r2 → Variant r1
   coerceR = unsafeCoerce
 
 -- | Match a `Variant` with a `Record` containing functions for handling cases.
@@ -134,7 +135,7 @@ on p f g r =
 -- | in usage. When in doubt, label methods with specific types, such as
 -- | `show :: Int -> String`, or give the whole record an appropriate type.
 onMatch
-  ∷ ∀ rl r r1 r2 r3 b
+  :: ∀ rl r r1 r2 r3 b
   . RL.RowToList r rl
   ⇒ VariantMatchCases rl r1 b
   ⇒ R.Union r1 r2 r3
@@ -148,16 +149,16 @@ onMatch r k v =
     _ → k (coerceR v)
 
   where
-  coerceV ∷ ∀ a. Variant r3 → VariantRep a
+  coerceV :: ∀ a. Variant r3 → VariantRep a
   coerceV = unsafeCoerce
 
-  coerceR ∷ Variant r3 → Variant r2
+  coerceR :: Variant r3 → Variant r2
   coerceR = unsafeCoerce
 
 -- | Map over one case of a variant, putting the result back at the same label,
 -- | with a fallback function to handle the remaining cases.
 overOne
-  ∷ ∀ sym a b r1 r2 r3 r4
+  :: ∀ sym a b r1 r2 r3 r4
   . IsSymbol sym
   ⇒ R.Cons sym a r1 r2
   ⇒ R.Cons sym b r4 r3
@@ -173,7 +174,7 @@ overOne p f = on p (inj p <<< f)
 -- | at, i.e. its label in the record. Labels not found in the record are
 -- | handled using the fallback function.
 overSome
-  ∷ ∀ r rl ri ro r1 r2 r3 r4
+  :: ∀ r rl ri ro r1 r2 r3 r4
   . RL.RowToList r rl
   ⇒ VariantMapCases rl ri ro
   ⇒ R.Union ri r2 r1
@@ -189,13 +190,13 @@ overSome r k v =
     _ → k (coerceR v)
 
   where
-  coerceV ∷ ∀ a. Variant r1 → VariantRep a
+  coerceV :: ∀ a. Variant r1 → VariantRep a
   coerceV = unsafeCoerce
 
-  coerceV' ∷ ∀ a. VariantRep a → Variant r3
+  coerceV' :: ∀ a. VariantRep a → Variant r3
   coerceV' = unsafeCoerce
 
-  coerceR ∷ Variant r1 → Variant r2
+  coerceR :: Variant r1 → Variant r2
   coerceR = unsafeCoerce
 
 -- | Map over some labels and leave the rest unchanged. For example:
@@ -208,7 +209,7 @@ overSome r k v =
 -- | `over r` is like `expand # overSome r` but with a more easily
 -- | solved constraint (i.e. it can be solved once the type of `r` is known).
 over
-  ∷ ∀ r rl ri ro r1 r2 r3
+  :: ∀ r rl ri ro r1 r2 r3
   . RL.RowToList r rl
   ⇒ VariantMapCases rl ri ro
   ⇒ R.Union ri r2 r1
@@ -218,12 +219,12 @@ over
   → Variant r3
 over r = overSome r unsafeExpand
   where
-  unsafeExpand = unsafeCoerce ∷ Variant r2 → Variant r3
+  unsafeExpand = unsafeCoerce :: Variant r2 → Variant r3
 
 -- | Traverse over one case of a variant (in a functorial/monadic context `m`),
 -- | putting the result back at the same label, with a fallback function.
 traverseOne
-  ∷ ∀ sym a b r1 r2 r3 r4 m
+  :: ∀ sym a b r1 r2 r3 r4 m
   . IsSymbol sym
   ⇒ R.Cons sym a r1 r2
   ⇒ R.Cons sym b r4 r3
@@ -240,7 +241,7 @@ traverseOne p f = on p (map (inj p) <<< f)
 -- | at, i.e. its label in the record. Labels not found in the record are
 -- | handled using the fallback function.
 traverseSome
-  ∷ ∀ r rl ri ro r1 r2 r3 r4 m
+  :: ∀ r rl ri ro r1 r2 r3 r4 m
   . RL.RowToList r rl
   ⇒ VariantTraverseCases m rl ri ro
   ⇒ R.Union ri r2 r1
@@ -258,19 +259,19 @@ traverseSome r k v =
     _ → k (coerceR v)
 
   where
-  coerceV ∷ ∀ a. Variant r1 → VariantRep a
+  coerceV :: ∀ a. Variant r1 → VariantRep a
   coerceV = unsafeCoerce
 
-  coerceV' ∷ ∀ a. VariantRep a → Variant r3
+  coerceV' :: ∀ a. VariantRep a → Variant r3
   coerceV' = unsafeCoerce
 
-  coerceR ∷ Variant r1 → Variant r2
+  coerceR :: Variant r1 → Variant r2
   coerceR = unsafeCoerce
 
 -- | Traverse over some labels and leave the rest unchanged.
 -- | (Implemented by expanding after `traverseSome`.)
 traverse
-  ∷ ∀ r rl ri ro r1 r2 r3 m
+  :: ∀ r rl ri ro r1 r2 r3 m
   . RL.RowToList r rl
   ⇒ VariantTraverseCases m rl ri ro
   ⇒ R.Union ri r2 r1
@@ -281,7 +282,7 @@ traverse
   → m (Variant r3)
 traverse r = traverseSome r (pure <<< unsafeExpand)
   where
-  unsafeExpand = unsafeCoerce ∷ Variant r2 → Variant r3
+  unsafeExpand = unsafeCoerce :: Variant r2 → Variant r3
 
 -- | Combinator for exhaustive pattern matching.
 -- | ```purescript
@@ -291,7 +292,7 @@ traverse r = traverseSome r (pure <<< unsafeExpand)
 -- |  # on (Proxy :: Proxy "bar") (\bar -> "Bar: " <> bar)
 -- |  # on (Proxy :: Proxy "baz") (\baz -> "Baz: " <> show baz)
 -- | ```
-case_ ∷ ∀ a. Variant () → a
+case_ :: ∀ a. Variant () → a
 case_ r = unsafeCrashWith case unsafeCoerce r of
   VariantRep v → "Data.Variant: pattern match failure [" <> v.type <> "]"
 
@@ -305,7 +306,7 @@ case_ r = unsafeCrashWith case unsafeCoerce r of
 -- |   }
 -- | ```
 match
-  ∷ ∀ rl r r1 r2 b
+  :: ∀ rl r r1 r2 b
   . RL.RowToList r rl
   ⇒ VariantMatchCases rl r1 b
   ⇒ R.Union r1 () r2
@@ -321,13 +322,13 @@ match r = case_ # onMatch r
 -- |  # on (Proxy :: Proxy "foo") (\foo -> "Foo: " <> show foo)
 -- |  # on (Proxy :: Proxy "bar") (\bar -> "Bar: " <> bar)
 -- | ```
-default ∷ ∀ a r. a → Variant r → a
+default :: ∀ a r. a → Variant r → a
 default a _ = a
 
 -- | Every `Variant lt` can be cast to some `Variant gt` as long as `lt` is a
 -- | subset of `gt`.
 expand
-  ∷ ∀ lt a gt
+  :: ∀ lt a gt
   . R.Union lt a gt
   ⇒ Variant lt
   → Variant gt
@@ -337,22 +338,22 @@ expand = unsafeCoerce
 -- | of `gt`, as long as there is proof that the `Variant`'s runtime tag is
 -- | within the subset of `lt`.
 contract
-  ∷ ∀ lt gt f
+  :: ∀ lt gt f
   . Alternative f
   ⇒ Contractable gt lt
   ⇒ Variant gt
   → f (Variant lt)
 contract v =
   contractWith
-    (Proxy ∷ Proxy gt)
-    (Proxy ∷ Proxy lt)
+    (Proxy :: Proxy gt)
+    (Proxy :: Proxy lt)
     (case coerceV v of VariantRep v' → v'.type)
     (coerceR v)
   where
-  coerceV ∷ ∀ a. Variant gt → VariantRep a
+  coerceV :: ∀ a. Variant gt → VariantRep a
   coerceV = unsafeCoerce
 
-  coerceR ∷ Variant gt → Variant lt
+  coerceR :: Variant gt → Variant lt
   coerceR = unsafeCoerce
 
 type Unvariant' r x =
@@ -370,18 +371,18 @@ newtype Unvariant r = Unvariant
 -- | constraints required to reconstruct the Variant. This lets you
 -- | work generically with some Variant at runtime.
 unvariant
-  ∷ ∀ r
+  :: ∀ r
   . Variant r
   → Unvariant r
-unvariant v = case (unsafeCoerce v ∷ VariantRep Unit) of
+unvariant v = case (unsafeCoerce v :: VariantRep Unit) of
   VariantRep o →
     Unvariant \f →
       coerce f { reflectSymbol: const o.type } {} Proxy o.value
   where
   coerce
-    ∷ ∀ x
+    :: ∀ x
     . Unvariant' r x
-    → { reflectSymbol ∷ Proxy "" → String }
+    → { reflectSymbol :: Proxy "" → String }
     → {}
     → Proxy ""
     → Unit
@@ -389,80 +390,80 @@ unvariant v = case (unsafeCoerce v ∷ VariantRep Unit) of
   coerce = unsafeCoerce
 
 -- | Reconstructs a Variant given an Unvariant eliminator.
-revariant ∷ ∀ r. Unvariant r -> Variant r
+revariant :: ∀ r. Unvariant r -> Variant r
 revariant (Unvariant f) = f inj
 
 class VariantEqs :: RL.RowList Type -> Constraint
 class VariantEqs rl where
-  variantEqs ∷ Proxy rl → L.List (VariantCase → VariantCase → Boolean)
+  variantEqs :: Proxy rl → L.List (VariantCase → VariantCase → Boolean)
 
-instance eqVariantNil ∷ VariantEqs RL.Nil where
+instance eqVariantNil :: VariantEqs RL.Nil where
   variantEqs _ = L.Nil
 
-instance eqVariantCons ∷ (VariantEqs rs, Eq a) ⇒ VariantEqs (RL.Cons sym a rs) where
+instance eqVariantCons :: (VariantEqs rs, Eq a) ⇒ VariantEqs (RL.Cons sym a rs) where
   variantEqs _ =
-    L.Cons (coerceEq eq) (variantEqs (Proxy ∷ Proxy rs))
+    L.Cons (coerceEq eq) (variantEqs (Proxy :: Proxy rs))
     where
-    coerceEq ∷ (a → a → Boolean) → VariantCase → VariantCase → Boolean
+    coerceEq :: (a → a → Boolean) → VariantCase → VariantCase → Boolean
     coerceEq = unsafeCoerce
 
-instance eqVariant ∷ (RL.RowToList r rl, VariantTags rl, VariantEqs rl) ⇒ Eq (Variant r) where
+instance eqVariant :: (RL.RowToList r rl, VariantTags rl, VariantEqs rl) ⇒ Eq (Variant r) where
   eq v1 v2 =
     let
-      c1 = unsafeCoerce v1 ∷ VariantRep VariantCase
-      c2 = unsafeCoerce v2 ∷ VariantRep VariantCase
-      tags = variantTags (Proxy ∷ Proxy rl)
-      eqs = variantEqs (Proxy ∷ Proxy rl)
+      c1 = unsafeCoerce v1 :: VariantRep VariantCase
+      c2 = unsafeCoerce v2 :: VariantRep VariantCase
+      tags = variantTags (Proxy :: Proxy rl)
+      eqs = variantEqs (Proxy :: Proxy rl)
     in
       lookupEq tags eqs c1 c2
 
 class VariantBounded :: RL.RowList Type -> Constraint
 class VariantBounded rl where
-  variantBounded ∷ Proxy rl → L.List (BoundedDict VariantCase)
+  variantBounded :: Proxy rl → L.List (BoundedDict VariantCase)
 
-instance boundedVariantNil ∷ VariantBounded RL.Nil where
+instance boundedVariantNil :: VariantBounded RL.Nil where
   variantBounded _ = L.Nil
 
-instance boundedVariantCons ∷ (VariantBounded rs, Bounded a) ⇒ VariantBounded (RL.Cons sym a rs) where
-  variantBounded _ = L.Cons dict (variantBounded (Proxy ∷ Proxy rs))
+instance boundedVariantCons :: (VariantBounded rs, Bounded a) ⇒ VariantBounded (RL.Cons sym a rs) where
+  variantBounded _ = L.Cons dict (variantBounded (Proxy :: Proxy rs))
     where
-    dict ∷ BoundedDict VariantCase
+    dict :: BoundedDict VariantCase
     dict =
       { top: coerce top
       , bottom: coerce bottom
       }
 
-    coerce ∷ a → VariantCase
+    coerce :: a → VariantCase
     coerce = unsafeCoerce
 
-instance boundedVariant ∷ (RL.RowToList r rl, VariantTags rl, VariantEqs rl, VariantOrds rl, VariantBounded rl) ⇒ Bounded (Variant r) where
+instance boundedVariant :: (RL.RowToList r rl, VariantTags rl, VariantEqs rl, VariantOrds rl, VariantBounded rl) ⇒ Bounded (Variant r) where
   top =
     let
-      tags = variantTags (Proxy ∷ Proxy rl)
-      dicts = variantBounded (Proxy ∷ Proxy rl)
-      coerce = unsafeCoerce ∷ VariantRep VariantCase → Variant r
+      tags = variantTags (Proxy :: Proxy rl)
+      dicts = variantBounded (Proxy :: Proxy rl)
+      coerce = unsafeCoerce :: VariantRep VariantCase → Variant r
     in
       coerce $ VariantRep $ lookupLast "top" _.top tags dicts
 
   bottom =
     let
-      tags = variantTags (Proxy ∷ Proxy rl)
-      dicts = variantBounded (Proxy ∷ Proxy rl)
-      coerce = unsafeCoerce ∷ VariantRep VariantCase → Variant r
+      tags = variantTags (Proxy :: Proxy rl)
+      dicts = variantBounded (Proxy :: Proxy rl)
+      coerce = unsafeCoerce :: VariantRep VariantCase → Variant r
     in
       coerce $ VariantRep $ lookupFirst "bottom" _.bottom tags dicts
 
 class VariantBoundedEnums :: RL.RowList Type -> Constraint
 class VariantBounded rl ⇐ VariantBoundedEnums rl where
-  variantBoundedEnums ∷ Proxy rl → L.List (BoundedEnumDict VariantCase)
+  variantBoundedEnums :: Proxy rl → L.List (BoundedEnumDict VariantCase)
 
-instance enumVariantNil ∷ VariantBoundedEnums RL.Nil where
+instance enumVariantNil :: VariantBoundedEnums RL.Nil where
   variantBoundedEnums _ = L.Nil
 
-instance enumVariantCons ∷ (VariantBoundedEnums rs, BoundedEnum a) ⇒ VariantBoundedEnums (RL.Cons sym a rs) where
-  variantBoundedEnums _ = L.Cons dict (variantBoundedEnums (Proxy ∷ Proxy rs))
+instance enumVariantCons :: (VariantBoundedEnums rs, BoundedEnum a) ⇒ VariantBoundedEnums (RL.Cons sym a rs) where
+  variantBoundedEnums _ = L.Cons dict (variantBoundedEnums (Proxy :: Proxy rs))
     where
-    dict ∷ BoundedEnumDict VariantCase
+    dict :: BoundedEnumDict VariantCase
     dict =
       { pred: coerceAToMbA pred
       , succ: coerceAToMbA succ
@@ -471,103 +472,103 @@ instance enumVariantCons ∷ (VariantBoundedEnums rs, BoundedEnum a) ⇒ Variant
       , cardinality: coerceCardinality cardinality
       }
 
-    coerceAToMbA ∷ (a → Maybe a) → VariantCase → Maybe VariantCase
+    coerceAToMbA :: (a → Maybe a) → VariantCase → Maybe VariantCase
     coerceAToMbA = unsafeCoerce
 
-    coerceFromEnum ∷ (a → Int) → VariantCase → Int
+    coerceFromEnum :: (a → Int) → VariantCase → Int
     coerceFromEnum = unsafeCoerce
 
-    coerceToEnum ∷ (Int → Maybe a) → Int → Maybe VariantCase
+    coerceToEnum :: (Int → Maybe a) → Int → Maybe VariantCase
     coerceToEnum = unsafeCoerce
 
-    coerceCardinality ∷ Cardinality a → Int
+    coerceCardinality :: Cardinality a → Int
     coerceCardinality = unsafeCoerce
 
-instance enumVariant ∷ (RL.RowToList r rl, VariantTags rl, VariantEqs rl, VariantOrds rl, VariantBoundedEnums rl) ⇒ Enum (Variant r) where
+instance enumVariant :: (RL.RowToList r rl, VariantTags rl, VariantEqs rl, VariantOrds rl, VariantBoundedEnums rl) ⇒ Enum (Variant r) where
   pred a =
     let
-      rep = unsafeCoerce a ∷ VariantRep VariantCase
-      tags = variantTags (Proxy ∷ Proxy rl)
-      bounds = variantBounded (Proxy ∷ Proxy rl)
-      dicts = variantBoundedEnums (Proxy ∷ Proxy rl)
-      coerce = unsafeCoerce ∷ Maybe (VariantRep VariantCase) → Maybe (Variant r)
+      rep = unsafeCoerce a :: VariantRep VariantCase
+      tags = variantTags (Proxy :: Proxy rl)
+      bounds = variantBounded (Proxy :: Proxy rl)
+      dicts = variantBoundedEnums (Proxy :: Proxy rl)
+      coerce = unsafeCoerce :: Maybe (VariantRep VariantCase) → Maybe (Variant r)
     in
       coerce $ lookupPred rep tags bounds dicts
 
   succ a =
     let
-      rep = unsafeCoerce a ∷ VariantRep VariantCase
-      tags = variantTags (Proxy ∷ Proxy rl)
-      bounds = variantBounded (Proxy ∷ Proxy rl)
-      dicts = variantBoundedEnums (Proxy ∷ Proxy rl)
-      coerce = unsafeCoerce ∷ Maybe (VariantRep VariantCase) → Maybe (Variant r)
+      rep = unsafeCoerce a :: VariantRep VariantCase
+      tags = variantTags (Proxy :: Proxy rl)
+      bounds = variantBounded (Proxy :: Proxy rl)
+      dicts = variantBoundedEnums (Proxy :: Proxy rl)
+      coerce = unsafeCoerce :: Maybe (VariantRep VariantCase) → Maybe (Variant r)
     in
       coerce $ lookupSucc rep tags bounds dicts
 
-instance boundedEnumVariant ∷ (RL.RowToList r rl, VariantTags rl, VariantEqs rl, VariantOrds rl, VariantBoundedEnums rl) ⇒ BoundedEnum (Variant r) where
+instance boundedEnumVariant :: (RL.RowToList r rl, VariantTags rl, VariantEqs rl, VariantOrds rl, VariantBoundedEnums rl) ⇒ BoundedEnum (Variant r) where
   cardinality =
-    Cardinality $ lookupCardinality $ variantBoundedEnums (Proxy ∷ Proxy rl)
+    Cardinality $ lookupCardinality $ variantBoundedEnums (Proxy :: Proxy rl)
 
   fromEnum a =
     let
-      rep = unsafeCoerce a ∷ VariantRep VariantCase
-      tags = variantTags (Proxy ∷ Proxy rl)
-      dicts = variantBoundedEnums (Proxy ∷ Proxy rl)
+      rep = unsafeCoerce a :: VariantRep VariantCase
+      tags = variantTags (Proxy :: Proxy rl)
+      dicts = variantBoundedEnums (Proxy :: Proxy rl)
     in
       lookupFromEnum rep tags dicts
 
   toEnum n =
     let
-      tags = variantTags (Proxy ∷ Proxy rl)
-      dicts = variantBoundedEnums (Proxy ∷ Proxy rl)
-      coerceV = unsafeCoerce ∷ Maybe (VariantRep VariantCase) → Maybe (Variant r)
+      tags = variantTags (Proxy :: Proxy rl)
+      dicts = variantBoundedEnums (Proxy :: Proxy rl)
+      coerceV = unsafeCoerce :: Maybe (VariantRep VariantCase) → Maybe (Variant r)
     in
       coerceV $ lookupToEnum n tags dicts
 
 class VariantOrds :: RL.RowList Type -> Constraint
 class VariantOrds rl where
-  variantOrds ∷ Proxy rl → L.List (VariantCase → VariantCase → Ordering)
+  variantOrds :: Proxy rl → L.List (VariantCase → VariantCase → Ordering)
 
-instance ordVariantNil ∷ VariantOrds RL.Nil where
+instance ordVariantNil :: VariantOrds RL.Nil where
   variantOrds _ = L.Nil
 
-instance ordVariantCons ∷ (VariantOrds rs, Ord a) ⇒ VariantOrds (RL.Cons sym a rs) where
+instance ordVariantCons :: (VariantOrds rs, Ord a) ⇒ VariantOrds (RL.Cons sym a rs) where
   variantOrds _ =
-    L.Cons (coerceOrd compare) (variantOrds (Proxy ∷ Proxy rs))
+    L.Cons (coerceOrd compare) (variantOrds (Proxy :: Proxy rs))
     where
-    coerceOrd ∷ (a → a → Ordering) → VariantCase → VariantCase → Ordering
+    coerceOrd :: (a → a → Ordering) → VariantCase → VariantCase → Ordering
     coerceOrd = unsafeCoerce
 
-instance ordVariant ∷ (RL.RowToList r rl, VariantTags rl, VariantEqs rl, VariantOrds rl) ⇒ Ord (Variant r) where
+instance ordVariant :: (RL.RowToList r rl, VariantTags rl, VariantEqs rl, VariantOrds rl) ⇒ Ord (Variant r) where
   compare v1 v2 =
     let
-      c1 = unsafeCoerce v1 ∷ VariantRep VariantCase
-      c2 = unsafeCoerce v2 ∷ VariantRep VariantCase
-      tags = variantTags (Proxy ∷ Proxy rl)
-      ords = variantOrds (Proxy ∷ Proxy rl)
+      c1 = unsafeCoerce v1 :: VariantRep VariantCase
+      c2 = unsafeCoerce v2 :: VariantRep VariantCase
+      tags = variantTags (Proxy :: Proxy rl)
+      ords = variantOrds (Proxy :: Proxy rl)
     in
       lookupOrd tags ords c1 c2
 
 class VariantShows :: RL.RowList Type -> Constraint
 class VariantShows rl where
-  variantShows ∷ Proxy rl → L.List (VariantCase → String)
+  variantShows :: Proxy rl → L.List (VariantCase → String)
 
-instance showVariantNil ∷ VariantShows RL.Nil where
+instance showVariantNil :: VariantShows RL.Nil where
   variantShows _ = L.Nil
 
-instance showVariantCons ∷ (VariantShows rs, Show a) ⇒ VariantShows (RL.Cons sym a rs) where
+instance showVariantCons :: (VariantShows rs, Show a) ⇒ VariantShows (RL.Cons sym a rs) where
   variantShows _ =
-    L.Cons (coerceShow show) (variantShows (Proxy ∷ Proxy rs))
+    L.Cons (coerceShow show) (variantShows (Proxy :: Proxy rs))
     where
-    coerceShow ∷ (a → String) → VariantCase → String
+    coerceShow :: (a → String) → VariantCase → String
     coerceShow = unsafeCoerce
 
-instance showVariant ∷ (RL.RowToList r rl, VariantTags rl, VariantShows rl) ⇒ Show (Variant r) where
+instance showVariant :: (RL.RowToList r rl, VariantTags rl, VariantShows rl) ⇒ Show (Variant r) where
   show v1 =
     let
-      VariantRep v = unsafeCoerce v1 ∷ VariantRep VariantCase
-      tags = variantTags (Proxy ∷ Proxy rl)
-      shows = variantShows (Proxy ∷ Proxy rl)
+      VariantRep v = unsafeCoerce v1 :: VariantRep VariantCase
+      tags = variantTags (Proxy :: Proxy rl)
+      shows = variantShows (Proxy :: Proxy rl)
       body = lookup "show" v.type tags shows v.value
     in
       "(inj @" <> show v.type <> " " <> body <> ")"
@@ -616,13 +617,13 @@ instance
     else
       expandCons @x <$> decodeJsonVariantRL @r @rl json
 
+reflectVariantKey :: forall r. Variant r -> String
+reflectVariantKey v = v'.type
+  where
+  VariantRep v' = unsafeCoerce v :: VariantRep VariantCase
+
 expandCons :: forall @x a r r'. Cons x a r r' => Variant r -> Variant r'
 expandCons = unsafeCoerce
-
--- TODO
-
--- case_ :: forall a. Variant () -> a
--- case_ = V.case_
 
 on' :: forall @x a b r1 r2. Cons x a r1 r2 => IsSymbol x => (a -> b) -> (Variant r1 -> b) -> Variant r2 -> b
 on' = on (Proxy @x)

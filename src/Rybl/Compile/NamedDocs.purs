@@ -10,7 +10,16 @@ import Rybl.Language (Doc(..))
 
 namedDocs :: Map String Doc
 namedDocs = Map.fromFoldable
-  [ "index" /\
+  [ "index" /\ Ref "example_index_2"
+  , "example_index_2" /\
+      Group (inj' @"flow" unit)
+        [ String "this is an"
+        , Sidenote "1"
+            (String "example")
+            (String "this is an example sidenote body. Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!")
+        , String "of a sidenote. and Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi! Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!"
+        ]
+  , "example_index_1" /\
       Group (inj' @"column" unit)
         [ String "This is an example Doc that references a bunch of named documents that should be encoded as JSON files."
         , Ref "example_doc_1"

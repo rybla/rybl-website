@@ -8,18 +8,21 @@ import Data.Argonaut.Encode.Generic (genericEncodeJson)
 import Data.Array.ST (STArray)
 import Data.Array.ST as ArrayST
 import Data.Array.ST as STArray
+import Data.Eq.Generic (genericEq)
 import Data.Generic.Rep (class Generic)
+import Data.Ord.Generic (genericCompare)
 import Data.Set (Set)
 import Data.Set as Set
 import Data.Show.Generic (genericShow)
 import Data.Traversable (traverse_)
 import Rybl.Data.Variant (Variant)
+import Rybl.Halogen.Style (U)
 
 type ViewMode = Variant
-  ( unknown :: Unit
-  , mobile :: Unit
-  , wide_desktop :: Unit
-  , narrow_desktop :: Unit
+  ( unknown :: U
+  , mobile :: U
+  , wide_desktop :: U
+  , narrow_desktop :: U
   )
 
 data Doc
@@ -28,11 +31,19 @@ data Doc
   | Group GroupStyle (Array Doc)
   | Ref Ref
   | Expander ExpanderStyle Doc Doc
+  | Sidenote Id Doc Doc
+  | SidenotesThreshold Doc
 
 derive instance Generic Doc _
 
 instance Show Doc where
   show x = genericShow x
+
+instance Eq Doc where
+  eq x = genericEq x
+
+instance Ord Doc where
+  compare x = genericCompare x
 
 instance EncodeJson Doc where
   encodeJson x = genericEncodeJson x
@@ -42,22 +53,56 @@ instance DecodeJson Doc where
 
 type Ref = String
 
-type GroupStyle = Variant (row :: Unit, column :: Unit)
+type Id = String
 
-type ExpanderStyle = Variant (inline :: Unit, block :: Unit)
+type GroupStyle = Variant (row :: U, column :: U, flow :: U)
+
+type ExpanderStyle = Variant (inline :: U, block :: U)
+
+kids_Doc :: Doc -> Array Doc
+kids_Doc (String _) = []
+kids_Doc (Error d) = [ d ]
+kids_Doc (Group _ ds) = ds
+kids_Doc (Ref _) = []
+kids_Doc (Expander _ d1 d2) = [ d1, d2 ]
+kids_Doc (Sidenote _ d1 d2) = [ d1, d2 ]
+kids_Doc (SidenotesThreshold d) = [ d ]
+
+linearKids_Doc :: Doc -> Array Doc
+linearKids_Doc (String _) = []
+linearKids_Doc (Error d) = [ d ]
+linearKids_Doc (Group _ ds) = ds
+linearKids_Doc (Ref _) = []
+linearKids_Doc (Expander _ d _) = [ d ]
+linearKids_Doc (Sidenote _ d _) = [ d ]
+linearKids_Doc (SidenotesThreshold d) = [ d ]
 
 --------------------------------------------------------------------------------
+
+collectSidenotes :: Doc -> Array { id :: Id, label :: Doc, body :: Doc }
+collectSidenotes d0 =
+  ArrayST.run do
+    sidenotes <- STArray.new
+    let
+      go d = do
+        case d of
+          SidenotesThreshold _ -> pure unit -- stop recursing
+          Sidenote id label body -> do
+            sidenotes # STArray.push { id, label, body } # void
+            label # go
+          _ -> d # linearKids_Doc # traverse_ go
+    go d0
+    pure sidenotes
 
 collectRefs :: Doc -> Set Ref
 collectRefs d0 =
   ( ArrayST.run do
       refs :: STArray _ String <- STArray.new
       let
-        go (String _) = pure unit
-        go (Error d) = d # go
-        go (Group _ ds) = ds # traverse_ go
-        go (Ref ref) = refs # STArray.push ref # void
-        go (Expander _ d1 d2) = [ d1, d2 ] # traverse_ go
+        go d = do
+          case d of
+            Ref ref -> refs # STArray.push ref # void
+            _ -> d # kids_Doc # traverse_ go
       go d0
       pure refs
   ) # Set.fromFoldable

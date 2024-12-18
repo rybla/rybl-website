@@ -2,15 +2,23 @@ module Rybl.Halogen.Style where
 
 import Prelude
 
+import Control.Monad.Error.Class (throwError)
 import Control.Monad.Writer (Writer, execWriter, tell)
+import Data.Argonaut (class DecodeJson, class EncodeJson, JsonDecodeError(..), decodeJson, encodeJson)
 import Data.Array as Array
+import Data.Either.Nested (type (\/))
 import Data.Int as Int
+import Data.List (List)
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Halogen.HTML.Properties (IProp)
 import Halogen.HTML.Properties as HP
 import Partial.Unsafe (unsafeCrashWith)
 import Prim.Row (class Cons, class Nub, class Union)
+import Prim.RowList (class RowToList, RowList)
+import Prim.RowList as RL
 import Record as Record
+import Rybl.Data.Variant (reflectVariantKey)
+import Rybl.Utility (class RowKeys, Literal(..), literal, rowKeys)
 import Type.Proxy (Proxy(..))
 
 type U = Unit
@@ -50,23 +58,8 @@ instance Render String where
 instance Render Int where
   render = show
 
-newtype Literal xs = Literal (forall r. LiteralK xs r -> r)
-type LiteralK xs r = forall x xs_. IsSymbol x => Cons x U xs_ xs => Proxy x -> r
-
-mkLiteral :: forall x xs_ xs. IsSymbol x => Cons x U xs_ xs => Proxy x -> Literal xs
-mkLiteral x = Literal \k -> k x
-
-unLiteral :: forall xs r. LiteralK xs r -> Literal xs -> r
-unLiteral k1 (Literal k2) = k2 k1
-
-instance Show (Literal xs) where
-  show = unLiteral reflectSymbol
-
 instance Render (Literal xs) where
-  render = show
-
-literal :: forall @x xs_ xs. IsSymbol x => Cons x U xs_ xs => Literal xs
-literal = mkLiteral (Proxy @x)
+  render (Literal v) = reflectVariantKey v
 
 newtype Name = Name String
 
@@ -97,6 +90,13 @@ data Hex2x3 = Hex2x3 Hex2 Hex2 Hex2
 
 instance Render Hex2x3 where
   render (Hex2x3 n1 n2 n3) = render n1 <> render n2 <> render n3
+
+data Measure a u = Measure a (Literal u)
+
+type Time = Measure Number ("s" :: U, "ms" :: U)
+
+instance Render a => Render (Measure a u) where
+  render (Measure a u) = render a <> render u
 
 --------------------------------------------------------------------------------
 -- Color
@@ -136,6 +136,7 @@ instance Cast Percent Ratio where
 instance Cast Ratio Percent where
   cast (Ratio x) = Percent $ cast $ x * 100.0
 
+{-
 --------------------------------------------------------------------------------
 -- CSS Properties
 --------------------------------------------------------------------------------
@@ -144,20 +145,13 @@ accent_color :: Color -> Style
 accent_color c = tell [ "accent-color: " <> render c ]
 
 align_content :: Literal ("stretch" :: U, "center" :: U, "flex-start" :: U, "flex-end" :: U, "space-between" :: U, "space-around" :: U, "space-evenly" :: U, "initial" :: U, "inherit" :: U) -> Style
-align_content x = tell [ "align-content: " <> (x # unLiteral reflectSymbol) ]
+align_content x = tell [ "align-content: " <> (x # ?a) ]
 
 align_items :: Literal ("normal" :: U, "stretch" :: U, "center" :: U, "flex-start" :: U, "flex-end" :: U, "start" :: U, "end" :: U, "baseline" :: U, "initial" :: U, "inherit" :: U) -> Style
-align_items x = tell [ "align-items: " <> (x # unLiteral reflectSymbol) ]
+align_items x = tell [ "align-items: " <> (x # ?a) ]
 
 align_self :: Literal ("auto" :: U, "self" :: U, "stretch" :: U, "center" :: U, "flex-start" :: U, "flex-end" :: U, "baseline" :: U, "initial" :: U, "inherit" :: U) -> Style
-align_self x = tell [ "align-self: " <> (x # unLiteral reflectSymbol) ]
-
-data Measure a u = Measure a (Literal u)
-
-type Time = Measure Number ("s" :: U, "ms" :: U)
-
-instance Render a => Render (Measure a u) where
-  render (Measure a u) = render a <> render u
+align_self x = tell [ "align-self: " <> (x # ?a) ]
 
 type AnimationArgs = AnimationArgs'
   (name :: Name)
@@ -244,6 +238,7 @@ animation' args = animation
 -- word_wrap
 -- writing_mode
 -- z_index
+-}
 
 --------------------------------------------------------------------------------
 -- Utilities

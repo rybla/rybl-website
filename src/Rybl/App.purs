@@ -91,7 +91,7 @@ component = H.mkComponent { initialState, eval, render }
 
   render { doc, viewMode } =
     HH.div
-      [ HP.style "margin: auto; max-width: 40em;" ]
+      [ HP.style "margin: auto; max-width: 600px;" ]
       [ HH.slot_ (Proxy @"doc") unit Rybl.Language.Component.theDocComponent { doc, viewMode }
       ]
 
