@@ -30,18 +30,18 @@ prop' = Data.Lens.Record.prop (Proxy @l)
 insert' :: forall @l r1 r2 a. IsSymbol l => Lacks l r1 => Cons l a r1 r2 => a -> Record r1 -> Record r2
 insert' = Record.insert (Proxy @l)
 
-infixl 1 traverse as $@=
-infixl 1 traverse_ as $@
+infixl 1 traverse as =@$
+infixl 1 traverse_ as @$
 
 traverseFlipped :: forall t a f b. Traversable t => Applicative f => t a -> (a -> f b) -> f (t b)
 traverseFlipped = flip traverse
 
-infixr 1 traverseFlipped as =@$
+infixr 1 traverseFlipped as $@=
 
 traverseFlipped_ :: forall t a f b. Applicative t => Foldable f => f a -> (a -> t b) -> t Unit
 traverseFlipped_ = flip traverse_
 
-infixr 1 traverseFlipped_ as @$
+infixr 1 traverseFlipped_ as $@
 
 class RowKeys :: forall k. Row k -> Constraint
 class RowKeys r where

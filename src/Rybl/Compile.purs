@@ -9,7 +9,7 @@ import Effect (Effect)
 import Effect.Aff (launchAff_)
 import Effect.Class.Console as Console
 import Rybl.Compile.NamedDocs (namedDocs)
-import Rybl.Constants (assets_dir, compile_output_dir, serve_dir)
+import Rybl.Constants (assets_dir, compile_input_dir, compile_output_dir, serve_dir)
 import Rybl.Node (writeTextFile)
 import Rybl.Node as RyblN
 
@@ -19,8 +19,11 @@ main = launchAff_ do
 
   RyblN.resetDir compile_output_dir
 
-  Console.log "[compile] index"
-  writeTextFile (compile_output_dir <> "/" <> "index.html") index_html_str
+  Console.log "[compile] index.html"
+  RyblN.copy (compile_input_dir <> "/" <> "index.html") (compile_output_dir <> "/" <> "index.html") { errorOnExist: true, force: false, recursive: false }
+
+  Console.log "[compile] main.css"
+  RyblN.copy (compile_input_dir <> "/" <> "main.css") (compile_output_dir <> "/" <> "main.css") { errorOnExist: true, force: false, recursive: false }
 
   Console.log "[compile] namedDocs"
   RyblN.initDir (compile_output_dir <> "/" <> "namedDocs")
@@ -36,20 +39,3 @@ main = launchAff_ do
 
   Console.log "[compile] end"
 
-index_html_str :: String
-index_html_str = String.trim
-  """
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>rybl.net</title>
-  <script src="main.js"></script>
-</head>
-
-<body></body>
-
-</html>
-"""

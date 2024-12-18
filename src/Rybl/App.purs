@@ -2,11 +2,11 @@ module Rybl.App where
 
 import Prelude
 
+import Control.Monad.Writer (tell)
 import Data.Argonaut.Decode (fromJsonString)
 import Data.Either (either)
 import Data.Lens ((.=))
 import Data.Maybe (Maybe(..))
-import Rybl.Data.Variant (case_, inj', on')
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Class.Console as Console
@@ -18,6 +18,9 @@ import Halogen.HTML.Properties as HP
 import Halogen.Query.Event as HQE
 import Halogen.VDom.Driver as HVD
 import JSURI (decodeURI)
+import Rybl.Data.Variant (case_, inj', on')
+import Rybl.Halogen.Class as Class
+import Rybl.Halogen.Style as Style
 import Rybl.Language as Rybl.Language
 import Rybl.Language.Component.Basic as Rybl.Language.Component
 import Rybl.Utility (prop')
@@ -91,7 +94,7 @@ component = H.mkComponent { initialState, eval, render }
 
   render { doc, viewMode } =
     HH.div
-      [ HP.style "margin: auto; max-width: 600px;" ]
+      [ HP.classes [ Class.mk @"app" ], Style.style $ tell [ "margin: auto", "width: 800px" ] ]
       [ HH.slot_ (Proxy @"doc") unit Rybl.Language.Component.theDocComponent { doc, viewMode }
       ]
 

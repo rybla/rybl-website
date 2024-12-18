@@ -12,12 +12,43 @@ namedDocs :: Map String Doc
 namedDocs = Map.fromFoldable
   [ "index" /\ Ref "example_index_2"
   , "example_index_2" /\
-      Group (inj' @"flow" unit)
-        [ String "this is an"
-        , Sidenote "1"
-            (String "example")
-            (String "this is an example sidenote body. Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!")
-        , String "of a sidenote. and Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi! Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!"
+      Group (inj' @"column" unit)
+        [ SidenotesThreshold
+            ( Group (inj' @"flow" unit)
+                [ String "This is an"
+                , Sidenote "1"
+                    (String "example")
+                    (String "This is an example sidenote body. Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!")
+                , String "of a sidenote. And, Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi! Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!"
+                ]
+            )
+        , String "Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi! Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!"
+        , String "Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi! Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!"
+        , String "Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi! Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!"
+        , SidenotesThreshold
+            ( Group (inj' @"flow" unit)
+                [ String "this is an"
+                , Sidenote "1"
+                    (String "example")
+                    (String "this is an example sidenote body. Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!")
+                , String "of a sidenote. and Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi! Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!"
+                ]
+            )
+        , String "Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi! Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!"
+        , SidenotesThreshold
+            ( Group (inj' @"flow" unit)
+                [ String "this is an"
+                , Sidenote "1"
+                    (String "example")
+                    (String "this is an example sidenote body. Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!")
+                , String "of a sidenote. and Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi! Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!"
+                , String "And then here is another "
+                , Sidenote "2"
+                    (String "example")
+                    (String "this is an example sidenote body. Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!")
+                , String "for your pleasure"
+                ]
+            )
         ]
   , "example_index_1" /\
       Group (inj' @"column" unit)

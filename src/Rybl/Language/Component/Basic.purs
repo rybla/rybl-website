@@ -1,13 +1,13 @@
 module Rybl.Language.Component.Basic where
 
 import Prelude
-import Rybl.Language.Component.Common
 
 import Control.Monad.Reader (class MonadReader, ask, local, runReaderT)
-import Control.Monad.State (class MonadState, evalState, get)
-import Control.Monad.State.Class (put)
+import Control.Monad.State (class MonadState, evalState, get, put)
+import Control.Monad.Writer (tell)
 import Data.Argonaut (JsonDecodeError)
 import Data.Argonaut.Decode (fromJsonString)
+import Data.Array as Array
 import Data.Bifunctor (bimap)
 import Data.Either (Either(..))
 import Data.Either.Nested (type (\/))
@@ -27,9 +27,12 @@ import Halogen.HTML (div) as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import Rybl.Data.Variant (case_, expandCons, inj', on')
+import Rybl.Data.Variant (case_, expandCons, inj', inj'U, on')
+import Rybl.Halogen.Class as Class
+import Rybl.Halogen.Style as Style
 import Rybl.Language (Doc(..), ExpanderStyle, Ref, collectRefs, collectSidenotes)
-import Rybl.Utility (literal, prop', (##), ($@=))
+import Rybl.Language.Component.Common (Ctx, Env, HTML, Input, State, renderDisplayStyle)
+import Rybl.Utility (prop', (##), ($@=))
 import Type.Prelude (Proxy(..))
 
 --------------------------------------------------------------------------------
@@ -44,7 +47,7 @@ theDocComponent = H.mkComponent { initialState, eval, render }
     , viewMode
     , ctx:
         { namedDocs: Map.empty
-        , display: literal @"block"
+        , display: inj'U @"block"
         }
     , env:
         { widgetIndex: 0 }
@@ -52,7 +55,7 @@ theDocComponent = H.mkComponent { initialState, eval, render }
 
   eval = H.mkEval H.defaultEval
     { receive = pure <<< inj' @"receive"
-    , initialize = pure $ inj' @"initialize" unit
+    , initialize = pure $ inj'U @"initialize"
     , handleAction = case_
         # on' @"receive" (put <<< initialState)
         # on' @"initialize"
@@ -100,7 +103,9 @@ theDocComponent = H.mkComponent { initialState, eval, render }
 
   render { doc, ctx, env } =
     H.div
-      []
+      [ HP.classes [ Class.mk @"doc" ]
+      , Style.style $ tell [ "width: 100%" ]
+      ]
       [ renderDoc doc
           # flip runReaderT ctx
           # flip evalState env
@@ -122,7 +127,7 @@ renderDoc (String str) = do
   ctx <- ask
   pure
     $ HH.div
-        [ HP.style $ renderDisplayStyle ctx.display ]
+        [ HP.classes [ Class.mk @"string" ], HP.style $ renderDisplayStyle ctx.display ]
         [ HH.text str ]
 
 renderDoc (Error d) = do
@@ -130,7 +135,7 @@ renderDoc (Error d) = do
   e <- d # renderDoc
   pure
     $ HH.div
-        [ HP.style $ "background-color: #ffcccb; " <> renderDisplayStyle ctx.display ]
+        [ HP.classes [ Class.mk @"error" ], HP.style $ "background-color: #ffcccb; " <> renderDisplayStyle ctx.display ]
         [ e ]
 
 renderDoc (Group sty ds) = do
@@ -140,29 +145,28 @@ renderDoc (Group sty ds) = do
   sty ## case_
     # on' @"column"
         ( const do
-            kids <- ds # traverse renderDoc # local (_ { display = literal @"block" })
+            kids <- ds # traverse renderDoc # local (_ { display = inj'U @"block" })
             pure $
               HH.div
-                [ HP.style $ renderDisplayStyle_flex ctx.display <> "flex-direction: column; " <> "gap: " <> gap ]
+                [ HP.classes [ Class.mk @"group", Class.mk @"group_column" ], Style.style $ tell [ "display: flex", "flex-direction: column", "gap: " <> gap ] ]
                 kids
 
         )
     # on' @"row"
         ( const do
-            kids <- ds # traverse renderDoc # local (_ { display = literal @"block" })
+            kids <- ds # traverse renderDoc # local (_ { display = inj'U @"block" })
             pure
               $ HH.div
-                  [ HP.style $ renderDisplayStyle_flex ctx.display <> "flex-direction: row; " <> "gap: " <> gap ]
+                  [ HP.classes [ Class.mk @"group", Class.mk @"group_row" ], Style.style $ tell [ "display: flex", "flex-direction: row", "gap: " <> gap ] ]
                   kids
 
         )
     # on' @"flow"
         ( const do
-            kids <- ds # traverse renderDoc # local (_ { display = literal @"inline" })
+            kids <- ds # traverse renderDoc # local (_ { display = inj'U @"inline" }) # map (Array.intersperse $ HH.text " ")
             pure $
               HH.div
-                -- [ HP.style $ renderDisplayStyle_flex ctx.display <> "flex-direction: row; " <> "flex-wrap: wrap; " <> "gap: 0.2em" ]
-                []
+                [ HP.classes [ Class.mk @"group", Class.mk @"group_flow" ], HP.style $ renderDisplayStyle ctx.display ]
                 kids
         )
 
@@ -171,21 +175,21 @@ renderDoc (Ref x) = do
   case namedDocs # Map.lookup x of
     Nothing -> pure
       $ HH.div
-          []
+          [ HP.classes [ Class.mk @"ref", Class.mk @"ref_missing" ] ]
           [ HH.text $ "missing ref: " <> show x ]
     Just a -> a ## case_
       # on' @"loaded" renderDoc
       # on' @"not_yet_loaded"
           ( const $ pure
               $ HH.div
-                  []
+                  [ HP.classes [ Class.mk @"ref", Class.mk @"ref_loading" ] ]
                   [ HH.text $ "loading ref " <> show x ]
 
           )
       # on' @"error_on_load"
           ( \err -> pure
               $ HH.div
-                  [ HP.style "display: flex; flex-direction: column; background-color: #ffcccb;" ]
+                  [ HP.classes [ Class.mk @"ref", Class.mk @"ref_error" ], HP.style "display: flex; flex-direction: column; background-color: #ffcccb;" ]
                   [ HH.text $ "error when loading ref " <> show x
                   , err
                   ]
@@ -197,29 +201,55 @@ renderDoc (Expander sty label_ body_) = do
   body <- renderDoc body_
   pure $ HH.slot_ (Proxy @"widget") widgetIndex theExpanderComponent { sty, label, body }
 
-renderDoc (Sidenote _id label_ _body) = do
+renderDoc (Sidenote id_ label_ _body) = do
   ctx <- ask
+  id <- local (_ { display = inj'U @"inline" }) $ renderSidenoteId id_
   label <- renderDoc label_
   pure $
     HH.div
-      [ HP.style $ renderDisplayStyle_flex ctx.display <> "flex-direction: row; gap: 0.2em;" ]
-      [ HH.div [ HP.style "display: inline;" ] [ HH.text "[sidenote]" ]
-      , HH.div [ HP.style "display: inline;" ] [ label ]
+      [ HP.classes [ Class.mk @"sidenote_label" ], HP.style $ renderDisplayStyle ctx.display ]
+      [ HH.div [ HP.style "display: inline;" ] [ label ]
+      , HH.text " "
+      , HH.div [ Style.style $ tell [ "display: inline" ] ] [ id ]
       ]
 
 renderDoc (SidenotesThreshold body_) = do
   body <- renderDoc body_
-  sidenotes <- renderDoc $@= _.body <$> collectSidenotes body_
+  sidenotes <- collectSidenotes body_ $@= \sidenote -> do
+    sidenote_id <- renderSidenoteId sidenote.id
+    sidenote_body <- renderDoc sidenote.body
+    pure $
+      HH.div
+        [ HP.classes [ Class.mk @"sidenote" ], Style.style $ tell [ "display: flex", "flex-direction: row", "gap: 0.2em" ] ]
+        [ sidenote_id
+        , sidenote_body
+        ]
   pure $
     HH.div
-      [ HP.style "display: flex; flex-direction: row; gap: 4em;" ]
+      [ HP.classes [ Class.mk @"sidenote_threshold" ]
+      , Style.style $ tell [ "display: flex", "flex-direction: row", "gap: 1em" ]
+      ]
       [ HH.div
-          []
+          [ HP.classes [ Class.mk @"sidenote_threshold_body" ]
+          , Style.style $ tell []
+          ]
           [ body ]
       , HH.div
-          [ HP.style "display: flex; flex-direction: column; gap: 1em;" ]
+          [ HP.classes [ Class.mk @"sidenote_threshold_sidenotes" ]
+          , Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 1em" ]
+          ]
           sidenotes
       ]
+
+renderSidenoteId :: forall m. MonadReader Ctx m => MonadState Env m => String -> m HTML
+renderSidenoteId id = do
+  ctx <- ask
+  pure $
+    HH.div
+      [ HP.classes [ Class.mk @"sidenote_id" ]
+      , Style.style $ tell [ renderDisplayStyle ctx.display, "margin: 0 0.2em", "padding: 0 0.2em", "color: red", "background-color: lightgray" ]
+      ]
+      [ HH.text id ]
 
 --------------------------------------------------------------------------------
 -- theExpanderComponent
@@ -238,17 +268,21 @@ theExpanderComponent = H.mkComponent { initialState, eval, render }
         # on' @"toggle_is_open" (const (prop' @"is_open" %= not))
     }
 
-  render { sty, label, body, is_open } =
+  render { sty: _, label, body, is_open } =
     HH.div
-      [ HP.style "box-shadow: 0 0 0 0.1em black inset; display: flex; flex-direction: column; padding: 0.5em; gap: 0.5em;" ]
+      [ HP.classes [ Class.mk @"expander" ]
+      , Style.style $ tell [ "box-shadow: 0 0 0 0.1em black inset", "display: flex", "flex-direction: column", "padding: 0.5em", "gap: 0.5em" ]
+      ]
       [ label # mapAction_ComponentHTML (expandCons @"toggle_is_open")
       , HH.button
-          [ HE.onClick $ const $ inj' @"toggle_is_open" unit ]
+          [ HP.classes [ Class.mk @"expander_button" ], HE.onClick $ const $ inj'U @"toggle_is_open" ]
           [ HH.text "expand" ]
       , if is_open then
           body # mapAction_ComponentHTML (expandCons @"toggle_is_open")
         else
-          HH.div [] [ HH.text "..." ]
+          HH.div
+            [ HP.classes [ Class.mk @"expander_placeholder_content" ] ]
+            [ HH.text "..." ]
       ]
       # mapAction_ComponentHTML (expandCons @"receive")
 

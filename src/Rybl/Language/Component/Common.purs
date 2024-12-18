@@ -9,7 +9,7 @@ import Halogen (ComponentHTML)
 import Halogen as H
 import Rybl.Data.Variant (Variant, case_, on')
 import Rybl.Language (Doc, ViewMode)
-import Rybl.Utility (Literal(..), U, (##))
+import Rybl.Utility (U)
 
 type Input =
   { doc :: Doc
@@ -35,15 +35,19 @@ type Ctx =
   , display :: Display
   }
 
-type Display = Literal ("block" :: U, "inline-block" :: U, "inline" :: U)
+type Display = Variant
+  ( "block" :: U
+  , "inline" :: U
+  )
 
 renderDisplayStyle :: Display -> String
-renderDisplayStyle d = "display: " <> show d <> "; "
+renderDisplayStyle = case_
+  # on' @"block" (const "display: block; ")
+  # on' @"inline" (const "display: inline; ")
 
 renderDisplayStyle_flex :: Display -> String
-renderDisplayStyle_flex (Literal d) = d ## case_
+renderDisplayStyle_flex = case_
   # on' @"block" (const "display: flex; ")
-  # on' @"inline-block" (const "display: inline-flex; ")
   # on' @"inline" (const "display: inline-flex; ")
 
 type Env =

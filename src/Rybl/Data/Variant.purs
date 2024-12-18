@@ -6,6 +6,7 @@ module Rybl.Data.Variant
   , decodeJsonVariantRL
   , inj
   , inj'
+  , inj'U
   , prj
   , on
   , on'
@@ -630,3 +631,6 @@ on' = on (Proxy @x)
 
 inj' :: forall @x a r1 r2. Cons x a r1 r2 => IsSymbol x => a -> Variant r2
 inj' = inj (Proxy @x)
+
+inj'U :: forall @x r1 r2. Cons x Unit r1 r2 => IsSymbol x => Variant r2
+inj'U = inj (Proxy @x) unit
