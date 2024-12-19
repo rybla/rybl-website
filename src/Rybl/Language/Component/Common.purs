@@ -4,11 +4,13 @@ import Prelude
 
 import Data.Const (Const)
 import Data.Map (Map)
+import Data.Maybe (Maybe)
 import Effect.Aff (Aff)
 import Halogen (ComponentHTML)
 import Halogen as H
+import Halogen.HTML (PlainHTML)
 import Rybl.Data.Variant (Variant, case_, on')
-import Rybl.Language (Doc, ViewMode)
+import Rybl.Language (Doc, ViewMode, Id)
 import Rybl.Utility (U)
 
 type Input =
@@ -28,17 +30,15 @@ type Ctx =
       Map String
         ( Variant
             ( loaded :: Doc
-            , not_yet_loaded :: Unit
-            , error_on_load :: HTML
+            , not_yet_loaded :: U
+            , error_on_load :: PlainHTML
             )
         )
   , display :: Display
+  , mb_target_sidenote_id :: Maybe Id
   }
 
-type Display = Variant
-  ( "block" :: U
-  , "inline" :: U
-  )
+type Display = Variant (block :: U, inline :: U)
 
 renderDisplayStyle :: Display -> String
 renderDisplayStyle = case_
@@ -55,12 +55,13 @@ type Env =
   }
 
 type Action = Variant
-  (
+  ( modify_env :: Env -> Env
+  , modify_ctx :: Ctx -> Ctx
   )
 
 type Slots :: Row Type
 type Slots =
-  ( widget :: H.Slot (Const Void) Void Int
+  ( widget :: H.Slot (Const Void) Action Int
   )
 
 type M = Aff

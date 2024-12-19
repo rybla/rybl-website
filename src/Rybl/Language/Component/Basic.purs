@@ -18,20 +18,21 @@ import Data.Maybe (Maybe(..))
 import Data.Set (Set)
 import Data.Set as Set
 import Data.Traversable (traverse)
+import Data.Unfoldable (none)
 import Effect.Aff (Aff)
 import Fetch (fetch)
 import Fetch as Fetch
-import Halogen (Component, defaultEval, mkComponent, mkEval) as H
+import Halogen (Component, defaultEval, mkComponent, mkEval, raise) as H
 import Halogen (ComponentHTML, liftAff)
 import Halogen.HTML (div) as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import Rybl.Data.Variant (case_, expandCons, inj', inj'U, on')
+import Rybl.Data.Variant (case_, expand, expandCons, inj', inj'U, on')
 import Rybl.Halogen.Class as Class
 import Rybl.Halogen.Style as Style
 import Rybl.Language (Doc(..), ExpanderStyle, Ref, collectRefs, collectSidenotes)
-import Rybl.Language.Component.Common (Ctx, Env, HTML, Input, State, renderDisplayStyle)
+import Rybl.Language.Component.Common (Ctx, Env, HTML, Input, State, Action, renderDisplayStyle)
 import Rybl.Utility (prop', (##), ($@=))
 import Type.Prelude (Proxy(..))
 
@@ -48,6 +49,7 @@ theDocComponent = H.mkComponent { initialState, eval, render }
     , ctx:
         { namedDocs: Map.empty
         , display: inj'U @"block"
+        , mb_target_sidenote_id: none
         }
     , env:
         { widgetIndex: 0 }
@@ -99,6 +101,8 @@ theDocComponent = H.mkComponent { initialState, eval, render }
                   namedDocs' <- go Map.empty (doc # collectRefs) # liftAff
                   prop' @"ctx" <<< prop' @"namedDocs" .= namedDocs'
             )
+        # on' @"modify_env" (prop' @"env" %= _)
+        # on' @"modify_ctx" (prop' @"ctx" %= _)
     }
 
   render { doc, ctx, env } =
@@ -189,9 +193,11 @@ renderDoc (Ref x) = do
       # on' @"error_on_load"
           ( \err -> pure
               $ HH.div
-                  [ HP.classes [ Class.mk @"ref", Class.mk @"ref_error" ], HP.style "display: flex; flex-direction: column; background-color: #ffcccb;" ]
+                  [ HP.classes [ Class.mk @"ref", Class.mk @"ref_error" ]
+                  , HP.style "display: flex; flex-direction: column; background-color: #ffcccb;"
+                  ]
                   [ HH.text $ "error when loading ref " <> show x
-                  , err
+                  , err # HH.fromPlainHTML
                   ]
           )
 
@@ -199,7 +205,7 @@ renderDoc (Expander sty label_ body_) = do
   widgetIndex <- nextSlotIndex
   label <- renderDoc label_
   body <- renderDoc body_
-  pure $ HH.slot_ (Proxy @"widget") widgetIndex theExpanderComponent { sty, label, body }
+  pure $ HH.slot (Proxy @"widget") widgetIndex theExpanderComponent { sty, label, body } expand
 
 renderDoc (Sidenote id_ label_ _body) = do
   ctx <- ask
@@ -210,16 +216,19 @@ renderDoc (Sidenote id_ label_ _body) = do
       [ HP.classes [ Class.mk @"sidenote_label" ]
       , Style.style $ tell [ renderDisplayStyle ctx.display ]
       ]
-      [ HH.div [ HP.style "display: inline;" ] [ label ]
+      [ HH.div
+          [ Style.style $ tell [ "display: inline" ] ]
+          [ label ]
       , HH.text " "
-      , HH.a
-          [ Style.style $ tell []
-          , HP.href $ "#" <> id_
+      , HH.div
+          [ Style.style $ tell [ "display: inline", "cursor: pointer" ]
+          , HE.onClick (const (inj' @"modify_ctx" _ { mb_target_sidenote_id = pure id_ }))
           ]
           [ id ]
       ]
 
 renderDoc (SidenotesThreshold body_) = do
+  ctx <- ask
   body <- renderDoc body_
   sidenotes <- collectSidenotes body_ $@= \sidenote -> do
     sidenote_id <- renderSidenoteId sidenote.id
@@ -232,7 +241,12 @@ renderDoc (SidenotesThreshold body_) = do
         ]
         [ sidenote_id
         , HH.div
-            [ HP.classes [ Class.mk @"sidenote_body" ] ]
+            [ HP.classes [ Class.mk @"sidenote_body" ]
+            , Style.style do
+                -- TODO: does this actually work not as a class toggle?
+                tell [ "transition-property: box-shadow", "transition-timing-function: linear", "transition-duration: 0.2s" ]
+                when (ctx.mb_target_sidenote_id == pure sidenote.id) do tell [ "box-shadow: 0 0 0 0.2em red" ]
+            ]
             [ sidenote_body ]
         ]
   pure $
@@ -266,7 +280,7 @@ renderSidenoteId id = do
 -- theExpanderComponent
 --------------------------------------------------------------------------------
 
-theExpanderComponent :: forall query output. H.Component query { sty :: ExpanderStyle, label :: HTML, body :: HTML } output Aff
+theExpanderComponent :: forall query. H.Component query { sty :: ExpanderStyle, label :: HTML, body :: HTML } Action Aff
 theExpanderComponent = H.mkComponent { initialState, eval, render }
   where
   initialState { sty, label, body } =
@@ -277,6 +291,8 @@ theExpanderComponent = H.mkComponent { initialState, eval, render }
     , handleAction = case_
         # on' @"receive" (put <<< initialState)
         # on' @"toggle_is_open" (const (prop' @"is_open" %= not))
+        # on' @"modify_env" (\f -> H.raise (inj' @"modify_env" f))
+        # on' @"modify_ctx" (\f -> H.raise (inj' @"modify_ctx" f))
     }
 
   render { sty: _, label, body, is_open } =

@@ -9,17 +9,3 @@
 .group_row>* {}
 
 .group_flow {}
-
-/* .group_flow>* {
-  margin-left: 0.2em;
-} */
-
-.sidenote:target>.sidenote_body {
-  box-shadow: 0 0 0 0.2em red;
-}
-
-.sidenote_body {
-  transition-property: box-shadow;
-  transition-timing-function: linear;
-  transition-duration: 0.2s;
-}
