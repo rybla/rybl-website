@@ -2,8 +2,11 @@ module Rybl.App where
 
 import Prelude
 
+import Control.Monad.State (get)
 import Control.Monad.Writer (tell)
+import Data.Argonaut (encodeJson)
 import Data.Argonaut.Decode (fromJsonString)
+import Data.Argonaut.Encode (toJsonString)
 import Data.Either (either)
 import Data.Lens ((.=))
 import Data.Maybe (Maybe(..))
@@ -17,7 +20,7 @@ import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
 import Halogen.Query.Event as HQE
 import Halogen.VDom.Driver as HVD
-import JSURI (decodeURI)
+import JSURI (decodeURI, encodeURI)
 import Rybl.Data.Variant (case_, inj', on')
 import Rybl.Halogen.Class as Class
 import Rybl.Halogen.Style as Style
@@ -66,7 +69,6 @@ component = H.mkComponent { initialState, eval, render }
     # on' @"update"
         ( const do
             Console.log "[App.update]"
-            -- update .doc
             mb_url <-
               Web.HTML.window
                 >>= Web.HTML.Window.location

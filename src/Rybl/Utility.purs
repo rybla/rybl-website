@@ -24,6 +24,9 @@ infixl 0 applyFlipped as ##
 todo :: forall b3. String -> b3
 todo msg = unsafeCrashWith $ "TODO: " <> msg
 
+bug :: forall b3. String -> b3
+bug msg = unsafeCrashWith $ "BUG: " <> msg
+
 prop' :: forall @l r1 r2 r a b. IsSymbol l => Cons l a r r1 => Cons l b r r2 => (forall p. Strong p => p a b -> p (Record r1) (Record r2))
 prop' = Data.Lens.Record.prop (Proxy @l)
 

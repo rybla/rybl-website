@@ -10,7 +10,19 @@ import Rybl.Language (Doc(..))
 
 namedDocs :: Map String Doc
 namedDocs = Map.fromFoldable
-  [ "index" /\ Ref "example_index_2"
+  [ "index" /\ Ref "example_index_4"
+  , "example_index_4" /\
+      (Link $ inj' @"ref" { label: "this is a ref to the example_index_3", ref: "example_index_3" })
+  , "example_index_3" /\
+      Group (inj'U @"column")
+        [ Group (inj'U @"flow")
+            [ String "Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi! Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!"
+            , String "You're going to want to link at"
+            , Link $ inj' @"external" { label: "google", href: "https://www.google.com/", mb_favicon_src: "https://www.google.com/favicon.ico" # pure }
+            , String "to find this information."
+            , String "Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi! Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!"
+            ]
+        ]
   , "example_index_2" /\
       Group (inj' @"column" unit)
         [ SidenotesThreshold $ Group (inj'U @"column")

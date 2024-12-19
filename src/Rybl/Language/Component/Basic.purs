@@ -7,6 +7,7 @@ import Control.Monad.State (class MonadState, evalState, get, put)
 import Control.Monad.Writer (tell)
 import Data.Argonaut (JsonDecodeError)
 import Data.Argonaut.Decode (fromJsonString)
+import Data.Argonaut.Encode (toJsonString)
 import Data.Array as Array
 import Data.Bifunctor (bimap)
 import Data.Either (Either(..))
@@ -14,7 +15,7 @@ import Data.Either.Nested (type (\/))
 import Data.Lens ((%=), (.=))
 import Data.Map (Map)
 import Data.Map as Map
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), fromMaybe')
 import Data.Set (Set)
 import Data.Set as Set
 import Data.Traversable (traverse)
@@ -28,12 +29,13 @@ import Halogen.HTML (div) as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
+import JSURI (encodeURI)
 import Rybl.Data.Variant (case_, expand, expandCons, inj', inj'U, on')
 import Rybl.Halogen.Class as Class
 import Rybl.Halogen.Style as Style
 import Rybl.Language (Doc(..), ExpanderStyle, Ref, collectRefs, collectSidenotes)
 import Rybl.Language.Component.Common (Ctx, Env, HTML, Input, State, Action, renderDisplayStyle)
-import Rybl.Utility (prop', (##), ($@=))
+import Rybl.Utility (bug, prop', todo, (##), ($@=))
 import Type.Prelude (Proxy(..))
 
 --------------------------------------------------------------------------------
@@ -58,52 +60,58 @@ theDocComponent = H.mkComponent { initialState, eval, render }
   eval = H.mkEval H.defaultEval
     { receive = pure <<< inj' @"receive"
     , initialize = pure $ inj'U @"initialize"
-    , handleAction = case_
-        # on' @"receive" (put <<< initialState)
-        # on' @"initialize"
-            ( const do
-                do -- load namedDocs
-                  let
-                    go :: Map Ref _ -> Set Ref -> Aff (Map Ref _)
-                    go namedDocs refs = case refs # Set.findMin of
-                      Nothing -> pure namedDocs
-                      Just ref -> do
-                        response <-
-                          fetch ("namedDocs/" <> ref <> ".json")
-                            { method: Fetch.GET }
-                        if not response.ok then do
+    , handleAction = handleAction
+    }
+
+  handleAction = case_
+    # on' @"receive"
+        ( \input -> do
+            put $ initialState input
+            handleAction (inj' @"initialize" unit)
+        )
+    # on' @"initialize"
+        ( const do
+            do -- load namedDocs
+              let
+                go :: Map Ref _ -> Set Ref -> Aff (Map Ref _)
+                go namedDocs refs = case refs # Set.findMin of
+                  Nothing -> pure namedDocs
+                  Just ref -> do
+                    response <-
+                      fetch ("namedDocs/" <> ref <> ".json")
+                        { method: Fetch.GET }
+                    if not response.ok then do
+                      let
+                        v = inj' @"error_on_load" $
+                          HH.div
+                            []
+                            [ HH.text $ "error on fetch: " <> response.statusText ]
+                      go
+                        (namedDocs # Map.insert ref v)
+                        (refs # Set.delete ref)
+                    else do
+                      str :: String <- response.text # liftAff
+                      case fromJsonString str :: JsonDecodeError \/ Doc of
+                        Left err -> do
                           let
                             v = inj' @"error_on_load" $
                               HH.div
                                 []
-                                [ HH.text $ "error on fetch: " <> response.statusText ]
+                                [ HH.text $ "error on decode: " <> show err ]
                           go
                             (namedDocs # Map.insert ref v)
                             (refs # Set.delete ref)
-                        else do
-                          str :: String <- response.text # liftAff
-                          case fromJsonString str :: JsonDecodeError \/ Doc of
-                            Left err -> do
-                              let
-                                v = inj' @"error_on_load" $
-                                  HH.div
-                                    []
-                                    [ HH.text $ "error on decode: " <> show err ]
-                              go
-                                (namedDocs # Map.insert ref v)
-                                (refs # Set.delete ref)
-                            Right doc' -> do
-                              let v = inj' @"loaded" doc'
-                              go
-                                (namedDocs # Map.insert ref v)
-                                (refs # Set.union (doc' # collectRefs) # Set.delete ref)
-                  { doc } <- get
-                  namedDocs' <- go Map.empty (doc # collectRefs) # liftAff
-                  prop' @"ctx" <<< prop' @"namedDocs" .= namedDocs'
-            )
-        # on' @"modify_env" (prop' @"env" %= _)
-        # on' @"modify_ctx" (prop' @"ctx" %= _)
-    }
+                        Right doc' -> do
+                          let v = inj' @"loaded" doc'
+                          go
+                            (namedDocs # Map.insert ref v)
+                            (refs # Set.union (doc' # collectRefs) # Set.delete ref)
+              { doc } <- get
+              namedDocs' <- go Map.empty (doc # collectRefs) # liftAff
+              prop' @"ctx" <<< prop' @"namedDocs" .= namedDocs'
+        )
+    # on' @"modify_env" (prop' @"env" %= _)
+    # on' @"modify_ctx" (prop' @"ctx" %= _)
 
   render { doc, ctx, env } =
     H.div
@@ -200,6 +208,52 @@ renderDoc (Ref x) = do
                   , err # HH.fromPlainHTML
                   ]
           )
+
+renderDoc (Link link_) = link_ ## case_
+  # on' @"external"
+      ( \link ->
+          pure $
+            HH.a
+              [ HP.classes [ Class.mk @"link", Class.mk @"link_external" ]
+              , Style.style $ tell
+                  [ "display: inline-flex"
+                  , "flex-direction: row"
+                  , "align-items: baseline"
+                  , "gap: 0.2em"
+                  ]
+              , HP.href link.href
+              ]
+              case link.mb_favicon_src of
+                Nothing ->
+                  [ HH.div_ [ HH.text link.label ] ]
+                Just favicon_src ->
+                  [ HH.img
+                      [ Style.style $ tell [ "height: 0.8em" ]
+                      , HP.src favicon_src
+                      ]
+                  , HH.div_ [ HH.text link.label ]
+                  ]
+      )
+  # on' @"ref"
+      ( \link -> do
+          pure $
+            HH.a
+              [ HP.classes [ Class.mk @"link", Class.mk @"link_external" ]
+              , Style.style $ tell
+                  [ "display: inline-flex"
+                  , "flex-direction: row"
+                  , "align-items: baseline"
+                  , "gap: 0.2em"
+                  ]
+              , HP.href $ "/index.html?doc=" <> (Ref link.ref # toJsonString # encodeURI # fromMaybe' \_ -> bug $ "failed: encodeURI " <> show (Ref link.ref # toJsonString))
+              ]
+              [ HH.img
+                  [ Style.style $ tell [ "height: 0.8em" ]
+                  , HP.src "/favicon.ico"
+                  ]
+              , HH.div_ [ HH.text link.label ]
+              ]
+      )
 
 renderDoc (Expander sty label_ body_) = do
   widgetIndex <- nextSlotIndex
