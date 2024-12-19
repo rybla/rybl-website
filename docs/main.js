@@ -7550,6 +7550,7 @@
   }();
   var div2 = /* @__PURE__ */ element2("div");
   var button = /* @__PURE__ */ element2("button");
+  var a = /* @__PURE__ */ element2("a");
 
   // output/Halogen.HTML.Properties/index.js
   var unwrap2 = /* @__PURE__ */ unwrap();
@@ -7557,6 +7558,8 @@
     return prop(dictIsProp);
   };
   var prop22 = /* @__PURE__ */ prop2(isPropString);
+  var id3 = /* @__PURE__ */ prop22("id");
+  var href4 = /* @__PURE__ */ prop22("href");
   var classes = /* @__PURE__ */ function() {
     var $32 = prop22("className");
     var $33 = joinWith(" ");
@@ -8680,6 +8683,11 @@
       return "sidenote_id";
     }
   };
+  var sidenote_bodyIsSymbol = {
+    reflectSymbol: function() {
+      return "sidenote_body";
+    }
+  };
   var ref_missingIsSymbol = {
     reflectSymbol: function() {
       return "ref_missing";
@@ -8778,6 +8786,11 @@
   var validClass$34sidenote_id$34 = {
     IsSymbol0: function() {
       return sidenote_idIsSymbol;
+    }
+  };
+  var validClass$34sidenote_body$34 = {
+    IsSymbol0: function() {
+      return sidenote_bodyIsSymbol;
     }
   };
   var validClass$34ref_missing$34 = {
@@ -9250,7 +9263,7 @@
         return new SidenotesThreshold(x.value0.value0.value0.value0.value0.value0);
       }
       ;
-      throw new Error("Failed pattern match at Rybl.Language (line 37, column 1 - line 37, column 30): " + [x.constructor.name]);
+      throw new Error("Failed pattern match at Rybl.Language (line 36, column 1 - line 36, column 30): " + [x.constructor.name]);
     },
     from: function(x) {
       if (x instanceof $$String) {
@@ -9281,7 +9294,7 @@
         return new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(x.value0))))));
       }
       ;
-      throw new Error("Failed pattern match at Rybl.Language (line 37, column 1 - line 37, column 30): " + [x.constructor.name]);
+      throw new Error("Failed pattern match at Rybl.Language (line 36, column 1 - line 36, column 30): " + [x.constructor.name]);
     }
   };
   var genericDecodeJson2 = /* @__PURE__ */ genericDecodeJson(genericDoc_);
@@ -9319,7 +9332,7 @@
       return [v.value0];
     }
     ;
-    throw new Error("Failed pattern match at Rybl.Language (line 71, column 1 - line 71, column 35): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Rybl.Language (line 70, column 1 - line 70, column 35): " + [v.constructor.name]);
   };
   var kids_Doc = function(v) {
     if (v instanceof $$String) {
@@ -9350,7 +9363,7 @@
       return [v.value0];
     }
     ;
-    throw new Error("Failed pattern match at Rybl.Language (line 62, column 1 - line 62, column 29): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Rybl.Language (line 61, column 1 - line 61, column 29): " + [v.constructor.name]);
   };
   var collectSidenotes = function(d0) {
     return run2(function __do2() {
@@ -9379,16 +9392,16 @@
   };
   var collectRefs = function(d0) {
     return fromFoldable6(run2(function __do2() {
-      var v = newSTArray();
+      var refs = newSTArray();
       var go2 = function(d) {
         if (d instanceof Ref2) {
-          return $$void8(push(d.value0)(v));
+          return $$void8(push(d.value0)(refs));
         }
         ;
         return traverse_8(go2)(kids_Doc(d));
       };
       go2(d0)();
-      return v;
+      return refs;
     }));
   };
 
@@ -10119,10 +10132,11 @@
       return "sidenote";
     }
   })());
-  var mk16 = /* @__PURE__ */ mk(validClass$34sidenote_thres2);
-  var mk17 = /* @__PURE__ */ mk(validClass$34sidenote_thres1);
-  var mk18 = /* @__PURE__ */ mk(validClass$34sidenote_thres);
-  var mk19 = /* @__PURE__ */ mk(validClass$34doc$34);
+  var mk16 = /* @__PURE__ */ mk(validClass$34sidenote_body$34);
+  var mk17 = /* @__PURE__ */ mk(validClass$34sidenote_thres2);
+  var mk18 = /* @__PURE__ */ mk(validClass$34sidenote_thres1);
+  var mk19 = /* @__PURE__ */ mk(validClass$34sidenote_thres);
+  var mk20 = /* @__PURE__ */ mk(validClass$34doc$34);
   var initializeIsSymbol = {
     reflectSymbol: function() {
       return "initialize";
@@ -10163,9 +10177,9 @@
     var ask2 = ask(MonadAsk0);
     var pure24 = pure(Monad0.Applicative0());
     return function(dictMonadState) {
-      return function(id3) {
+      return function(id4) {
         return bind22(ask2)(function(ctx) {
-          return pure24(div2([classes([mk2]), style3(tell3([renderDisplayStyle(ctx.display), "margin: 0 0.2em", "padding: 0 0.2em", "color: red", "background-color: lightgray"]))])([text5(id3)]));
+          return pure24(div2([classes([mk2]), style3(tell3([renderDisplayStyle(ctx.display), "margin: 0 0.2em", "padding: 0 0.2em", "color: red", "background-color: lightgray"]))])([text5(id4)]));
         });
       };
     };
@@ -10209,15 +10223,15 @@
       handleQuery: defaultEval.handleQuery,
       initialize: defaultEval.initialize,
       finalize: defaultEval.finalize,
-      receive: function($242) {
-        return pure11(inj$prime1($242));
+      receive: function($243) {
+        return pure11(inj$prime1($243));
       },
       handleAction: on$prime3(toggle_is_openIsSymbol)($$const(modifying(monadStateHalogenM)(prop$prime({
         reflectSymbol: function() {
           return "is_open";
         }
-      })()()(strongFn))(not3)))(on$prime12(function($243) {
-        return put2(initialState($243));
+      })()()(strongFn))(not3)))(on$prime12(function($244) {
+        return put2(initialState($244));
       })(case_))
     });
     return mkComponent({
@@ -10260,42 +10274,42 @@
         if (v instanceof Group) {
           return bind22(ask2)(function(ctx) {
             return on$prime23($$const(bind22(map113(intersperse(text5(" ")))(local2(function(v1) {
-              var $200 = {};
-              for (var $201 in v1) {
-                if ({}.hasOwnProperty.call(v1, $201)) {
-                  $200[$201] = v1[$201];
+              var $201 = {};
+              for (var $202 in v1) {
+                if ({}.hasOwnProperty.call(v1, $202)) {
+                  $201[$202] = v1[$202];
                 }
                 ;
               }
               ;
-              $200.display = inj$primeU22;
-              return $200;
+              $201.display = inj$primeU22;
+              return $201;
             })(traverse12(renderDoc(dictMonadReader)(dictMonadState))(v.value1))))(function(kids) {
               return pure24(div2([classes([mk6, mk7]), style(renderDisplayStyle(ctx.display))])(kids));
             })))(on$prime32($$const(bind22(local2(function(v1) {
-              var $203 = {};
-              for (var $204 in v1) {
-                if ({}.hasOwnProperty.call(v1, $204)) {
-                  $203[$204] = v1[$204];
+              var $204 = {};
+              for (var $205 in v1) {
+                if ({}.hasOwnProperty.call(v1, $205)) {
+                  $204[$205] = v1[$205];
                 }
                 ;
               }
               ;
-              $203.display = inj$primeU3;
-              return $203;
+              $204.display = inj$primeU3;
+              return $204;
             })(traverse12(renderDoc(dictMonadReader)(dictMonadState))(v.value1)))(function(kids) {
               return pure24(div2([classes([mk6, mk8]), style3(tell3(["display: flex", "flex-direction: row", "gap: 0.5em"]))])(kids));
             })))(on$prime4($$const(bind22(local2(function(v1) {
-              var $206 = {};
-              for (var $207 in v1) {
-                if ({}.hasOwnProperty.call(v1, $207)) {
-                  $206[$207] = v1[$207];
+              var $207 = {};
+              for (var $208 in v1) {
+                if ({}.hasOwnProperty.call(v1, $208)) {
+                  $207[$208] = v1[$208];
                 }
                 ;
               }
               ;
-              $206.display = inj$primeU3;
-              return $206;
+              $207.display = inj$primeU3;
+              return $207;
             })(traverse12(renderDoc(dictMonadReader)(dictMonadState))(v.value1)))(function(kids) {
               return pure24(div2([classes([mk6, mk9]), style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5em"]))])(kids));
             })))(case_)))(v.value0);
@@ -10336,19 +10350,19 @@
         if (v instanceof Sidenote) {
           return bind22(ask2)(function(ctx) {
             return bind22(local2(function(v1) {
-              var $219 = {};
-              for (var $220 in v1) {
-                if ({}.hasOwnProperty.call(v1, $220)) {
-                  $219[$220] = v1[$220];
+              var $220 = {};
+              for (var $221 in v1) {
+                if ({}.hasOwnProperty.call(v1, $221)) {
+                  $220[$221] = v1[$221];
                 }
                 ;
               }
               ;
-              $219.display = inj$primeU22;
-              return $219;
-            })(renderSidenoteId2(v.value0)))(function(id3) {
+              $220.display = inj$primeU22;
+              return $220;
+            })(renderSidenoteId2(v.value0)))(function(id4) {
               return bind22(renderDoc(dictMonadReader)(dictMonadState)(v.value1))(function(label5) {
-                return pure24(div2([classes([mk14]), style(renderDisplayStyle(ctx.display))])([div2([style("display: inline;")])([label5]), text5(" "), div2([style3(tell3(["display: inline"]))])([id3])]));
+                return pure24(div2([classes([mk14]), style3(tell3([renderDisplayStyle(ctx.display)]))])([div2([style("display: inline;")])([label5]), text5(" "), a([style3(tell3([])), href4("#" + v.value0)])([id4])]));
               });
             });
           });
@@ -10359,11 +10373,11 @@
             return bind22(traverseFlipped1(collectSidenotes(v.value0))(function(sidenote) {
               return bind22(renderSidenoteId2(sidenote.id))(function(sidenote_id) {
                 return bind22(renderDoc(dictMonadReader)(dictMonadState)(sidenote.body))(function(sidenote_body) {
-                  return pure24(div2([classes([mk15]), style3(tell3(["display: flex", "flex-direction: row", "gap: 0.2em"]))])([sidenote_id, sidenote_body]));
+                  return pure24(div2([classes([mk15]), id3(sidenote.id), style3(tell3(["display: flex", "flex-direction: row", "gap: 0.2em"]))])([sidenote_id, div2([classes([mk16])])([sidenote_body])]));
                 });
               });
             }))(function(sidenotes) {
-              return pure24(div2([classes([mk16]), style3(tell3(["display: flex", "flex-direction: row", "gap: 1em"]))])([div2([classes([mk17]), style3(tell3([]))])([body4]), div2([classes([mk18]), style3(tell3(["display: flex", "flex-direction: column", "gap: 1em"]))])(sidenotes)]));
+              return pure24(div2([classes([mk17]), style3(tell3(["display: flex", "flex-direction: row", "justify-content: space-between"]))])([div2([classes([mk18]), style3(tell3(["width: 500px"]))])([body4]), div2([classes([mk19]), style3(tell3(["width: 250px", "display: flex", "flex-direction: column", "gap: 1em"]))])(sidenotes)]));
             });
           });
         }
@@ -10375,9 +10389,9 @@
   var renderDoc1 = /* @__PURE__ */ renderDoc(/* @__PURE__ */ monadReaderReaderT(/* @__PURE__ */ monadStateT(monadIdentity)))(/* @__PURE__ */ monadStateReaderT(/* @__PURE__ */ monadStateStateT(monadIdentity)));
   var theDocComponent = /* @__PURE__ */ function() {
     var render = function(v) {
-      return mapAction_ComponentHTML(function($244) {
-        return expandCons2(expandCons2($244));
-      })(div2([classes([mk19]), style3(tell3(["width: 100%"]))])([flip(evalState)(v.env)(flip(runReaderT)(v.ctx)(renderDoc1(v.doc)))]));
+      return mapAction_ComponentHTML(function($245) {
+        return expandCons2(expandCons2($245));
+      })(div2([classes([mk20]), style3(tell3(["width: 100%"]))])([flip(evalState)(v.env)(flip(runReaderT)(v.ctx)(renderDoc1(v.doc)))]));
     };
     var initialState = function(v) {
       return {
@@ -10395,8 +10409,8 @@
     var $$eval = mkEval({
       handleQuery: defaultEval.handleQuery,
       finalize: defaultEval.finalize,
-      receive: function($245) {
-        return pure11(inj$prime1($245));
+      receive: function($246) {
+        return pure11(inj$prime1($246));
       },
       initialize: pure11(inj$primeU2(initializeIsSymbol)),
       handleAction: on$prime3(initializeIsSymbol)($$const(function() {
@@ -10411,8 +10425,8 @@
               return bind11(fetch3("namedDocs/" + (v1.value0 + ".json"))({
                 method: GET2.value
               }))(function(response) {
-                var $234 = !response.ok;
-                if ($234) {
+                var $235 = !response.ok;
+                if ($235) {
                   var v2 = inj$prime22(div2([])([text5("error on fetch: " + response.statusText)]));
                   return go2(insert9(v1.value0)(v2)(namedDocs))($$delete6(v1.value0)(refs));
                 }
@@ -10439,13 +10453,13 @@
         };
         return bind15(get(monadStateHalogenM))(function(v1) {
           return bind15(liftAff1(go2(empty3)(collectRefs(v1.doc))))(function(namedDocs$prime) {
-            return assign3(function($246) {
-              return prop$prime1(prop$prime22($246));
+            return assign3(function($247) {
+              return prop$prime1(prop$prime22($247));
             })(namedDocs$prime);
           });
         });
-      }()))(on$prime12(function($247) {
-        return put2(initialState($247));
+      }()))(on$prime12(function($248) {
+        return put2(initialState($248));
       })(case_))
     });
     return mkComponent({
@@ -10513,7 +10527,7 @@
       return val;
     };
   };
-  var mk20 = /* @__PURE__ */ mk(validClass$34app$34);
+  var mk21 = /* @__PURE__ */ mk(validClass$34app$34);
   var tell4 = /* @__PURE__ */ tell(/* @__PURE__ */ monadTellWriterT(monoidArray)(monadIdentity));
   var docIsSymbol2 = {
     reflectSymbol: function() {
@@ -10555,7 +10569,7 @@
   var inj$prime23 = /* @__PURE__ */ inj$prime4(updateIsSymbol);
   var component = /* @__PURE__ */ function() {
     var render = function(v) {
-      return div2([classes([mk20]), style3(tell4(["margin: auto", "width: 800px"]))])([slot_3($$Proxy.value)(unit)(theDocComponent)({
+      return div2([classes([mk21]), style3(tell4(["margin: auto", "width: 800px"]))])([slot_3($$Proxy.value)(unit)(theDocComponent)({
         doc: v.doc,
         viewMode: v.viewMode
       })]);

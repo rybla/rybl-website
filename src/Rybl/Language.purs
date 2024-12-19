@@ -5,7 +5,6 @@ import Prelude
 import Data.Argonaut (class DecodeJson, class EncodeJson)
 import Data.Argonaut.Decode.Generic (genericDecodeJson)
 import Data.Argonaut.Encode.Generic (genericEncodeJson)
-import Data.Array.ST (STArray)
 import Data.Array.ST as ArrayST
 import Data.Array.ST as STArray
 import Data.Eq.Generic (genericEq)
@@ -97,7 +96,7 @@ collectSidenotes d0 =
 collectRefs :: Doc -> Set Ref
 collectRefs d0 =
   ( ArrayST.run do
-      refs :: STArray _ String <- STArray.new
+      refs <- STArray.new
       let
         go d = do
           case d of

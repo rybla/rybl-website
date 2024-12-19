@@ -207,10 +207,16 @@ renderDoc (Sidenote id_ label_ _body) = do
   label <- renderDoc label_
   pure $
     HH.div
-      [ HP.classes [ Class.mk @"sidenote_label" ], HP.style $ renderDisplayStyle ctx.display ]
+      [ HP.classes [ Class.mk @"sidenote_label" ]
+      , Style.style $ tell [ renderDisplayStyle ctx.display ]
+      ]
       [ HH.div [ HP.style "display: inline;" ] [ label ]
       , HH.text " "
-      , HH.div [ Style.style $ tell [ "display: inline" ] ] [ id ]
+      , HH.a
+          [ Style.style $ tell []
+          , HP.href $ "#" <> id_
+          ]
+          [ id ]
       ]
 
 renderDoc (SidenotesThreshold body_) = do
@@ -220,23 +226,28 @@ renderDoc (SidenotesThreshold body_) = do
     sidenote_body <- renderDoc sidenote.body
     pure $
       HH.div
-        [ HP.classes [ Class.mk @"sidenote" ], Style.style $ tell [ "display: flex", "flex-direction: row", "gap: 0.2em" ] ]
+        [ HP.classes [ Class.mk @"sidenote" ]
+        , HP.id sidenote.id
+        , Style.style $ tell [ "display: flex", "flex-direction: row", "gap: 0.2em" ]
+        ]
         [ sidenote_id
-        , sidenote_body
+        , HH.div
+            [ HP.classes [ Class.mk @"sidenote_body" ] ]
+            [ sidenote_body ]
         ]
   pure $
     HH.div
       [ HP.classes [ Class.mk @"sidenote_threshold" ]
-      , Style.style $ tell [ "display: flex", "flex-direction: row", "gap: 1em" ]
+      , Style.style $ tell [ "display: flex", "flex-direction: row", "justify-content: space-between" ]
       ]
       [ HH.div
           [ HP.classes [ Class.mk @"sidenote_threshold_body" ]
-          , Style.style $ tell []
+          , Style.style $ tell [ "width: 500px" ]
           ]
           [ body ]
       , HH.div
           [ HP.classes [ Class.mk @"sidenote_threshold_sidenotes" ]
-          , Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 1em" ]
+          , Style.style $ tell [ "width: 250px", "display: flex", "flex-direction: column", "gap: 1em" ]
           ]
           sidenotes
       ]
