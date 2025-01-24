@@ -7,15 +7,6 @@ import Web.HTML.Common (ClassName(..))
 
 class IsSymbol x <= ValidClass x
 
--- instance (IsSymbol x, ValidClass x) => ValidClass x
--- else instance (IsSymbol x, UnknownClass x) => ValidClass x
-
--- class IsSymbol x <= UnknownClass x
-
--- instance (IsSymbol x, Warn (Beside (Text "unknown class: ") (QuoteLabel x))) => UnknownClass x
-
--- class IsSymbol x <= ValidClass x
-
 mk :: forall @x. ValidClass x => ClassName
 mk = ClassName (reflectSymbol (Proxy @x))
 
