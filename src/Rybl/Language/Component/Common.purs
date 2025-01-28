@@ -41,21 +41,7 @@ type Ctx =
             , error_on_load :: PlainHTML
             )
         )
-  , display :: Display
-  , mb_target_sidenote_id :: Maybe Id
   }
-
-type Display = Variant (block :: U, inline :: U)
-
-renderDisplayStyle :: Display -> String
-renderDisplayStyle = case_
-  # on' @"block" (const "display: block; ")
-  # on' @"inline" (const "display: inline; ")
-
-renderDisplayStyle_flex :: Display -> String
-renderDisplayStyle_flex = case_
-  # on' @"block" (const "display: flex; ")
-  # on' @"inline" (const "display: inline-flex; ")
 
 type Env =
   { widgetIndex :: Int

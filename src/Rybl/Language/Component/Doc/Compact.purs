@@ -35,7 +35,7 @@ import Rybl.Data.Variant (case_, expand, expandCons, inj', inj'U, on')
 import Rybl.Halogen.Class as Class
 import Rybl.Halogen.Style as Style
 import Rybl.Language (Doc(..), Ref)
-import Rybl.Language.Component.Common (Ctx, Env, HTML, Input, State, Action, renderDisplayStyle)
+import Rybl.Language.Component.Common (Ctx, Env, HTML, Input, State, Action)
 import Rybl.Utility (bug, prop', todo, (##), ($@=))
 import Type.Prelude (Proxy(..))
 
@@ -60,7 +60,7 @@ renderDoc (Paragraph doc) = do
         body
 
 renderDoc (Sentence doc) = do
-  body <- doc.body # traverse renderDoc # map (foldMap (\e -> [ e, HH.text "." ]))
+  body <- doc.body # traverse renderDoc # map (foldMap (\e -> [ e, HH.text ". " ]))
   -- TODO: any other special styling for sentences?
   pure
     $ HH.div
@@ -71,20 +71,21 @@ renderDoc (Sidenote doc) = do
   pure
     $ HH.div
         []
-        []
+        (todo "")
 
 renderDoc (Ref doc) = do
   pure
     $ HH.div
         []
-        []
+        (todo "")
 
 -- TODO: use doc.style 
 renderDoc (String doc) = do
   ctx <- ask
   pure
     $ HH.div
-        [ HP.classes [ Class.mk @"string" ], HP.style $ renderDisplayStyle ctx.display ]
+        -- [ HP.classes [ Class.mk @"string" ], HP.style $ renderDisplayStyle ctx.display ]
+        []
         [ HH.text doc.value ]
 
 renderDoc (Error doc) = do
@@ -93,7 +94,8 @@ renderDoc (Error doc) = do
   e <- doc.body # renderDoc
   pure
     $ HH.div
-        [ HP.classes [ Class.mk @"error" ], HP.style $ "background-color: #ffcccb; " <> renderDisplayStyle ctx.display ]
+        -- [ HP.classes [ Class.mk @"error" ], HP.style $ "background-color: #ffcccb; " <> renderDisplayStyle ctx.display ]
+        []
         [ e ]
 
 -- renderDoc (Group sty ds) = do
@@ -268,15 +270,15 @@ renderDoc (Link link_) = todo ""
 --           sidenotes
 --       ]
 
-renderSidenoteId :: forall m. MonadReader Ctx m => MonadState Env m => String -> m HTML
-renderSidenoteId id = do
-  ctx <- ask
-  pure $
-    HH.div
-      [ HP.classes [ Class.mk @"sidenote_id" ]
-      , Style.style $ tell [ renderDisplayStyle ctx.display, "margin: 0 0.2em", "padding: 0 0.2em", "color: red", "background-color: lightgray" ]
-      ]
-      [ HH.text id ]
+-- renderSidenoteId :: forall m. MonadReader Ctx m => MonadState Env m => String -> m HTML
+-- renderSidenoteId id = do
+--   ctx <- ask
+--   pure $
+--     HH.div
+--       [ HP.classes [ Class.mk @"sidenote_id" ]
+--       -- , Style.style $ tell [ renderDisplayStyle ctx.display, "margin: 0 0.2em", "padding: 0 0.2em", "color: red", "background-color: lightgray" ]
+--       ]
+--       [ HH.text id ]
 
 --------------------------------------------------------------------------------
 -- theExpanderComponent
@@ -319,10 +321,10 @@ renderSidenoteId id = do
 -- Misc
 --------------------------------------------------------------------------------
 
-mapAction_ComponentHTML
-  :: forall action action' slots m
-   . (action -> action')
-  -> ComponentHTML action slots m
-  -> ComponentHTML action' slots m
-mapAction_ComponentHTML f = bimap (map f) f
+-- mapAction_ComponentHTML
+--   :: forall action action' slots m
+--    . (action -> action')
+--   -> ComponentHTML action slots m
+--   -> ComponentHTML action' slots m
+-- mapAction_ComponentHTML f = bimap (map f) f
 

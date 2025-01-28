@@ -2,43 +2,36 @@ module Rybl.Language.Component.Basic where
 
 import Prelude
 
-import Control.Bind (bindFlipped)
-import Control.Monad.Reader (class MonadReader, ask, local, runReaderT)
+import Control.Monad.Reader (runReaderT)
 import Control.Monad.State (class MonadState, evalState, get, put)
 import Control.Monad.Writer (tell)
 import Data.Argonaut (JsonDecodeError)
 import Data.Argonaut.Decode (fromJsonString)
-import Data.Argonaut.Encode (toJsonString)
-import Data.Array as Array
 import Data.Bifunctor (bimap)
 import Data.Either (Either(..))
 import Data.Either.Nested (type (\/))
 import Data.Lens ((%=), (.=))
 import Data.Map (Map)
 import Data.Map as Map
-import Data.Maybe (Maybe(..), fromMaybe')
+import Data.Maybe (Maybe(..))
 import Data.Set (Set)
 import Data.Set as Set
-import Data.Traversable (foldMap, traverse)
 import Data.Unfoldable (none)
 import Effect.Aff (Aff)
 import Fetch (fetch)
 import Fetch as Fetch
-import Halogen (Component, defaultEval, mkComponent, mkEval, raise) as H
+import Halogen (Component, defaultEval, mkComponent, mkEval) as H
 import Halogen (ComponentHTML, liftAff)
 import Halogen.HTML (div) as H
 import Halogen.HTML as HH
-import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import JSURI (encodeURI)
-import Rybl.Data.Variant (case_, expand, expandCons, inj', inj'U, on')
+import Rybl.Data.Variant (case_, expandCons, inj', inj'U, on')
 import Rybl.Halogen.Class as Class
 import Rybl.Halogen.Style as Style
-import Rybl.Language (Doc(..), Ref)
-import Rybl.Language.Component.Common (Ctx, Env, HTML, Input, State, Action, renderDisplayStyle)
+import Rybl.Language (Doc, Ref)
+import Rybl.Language.Component.Common (Env, Input, State)
 import Rybl.Language.Component.Doc.Compact as Rybl.Language.Component.Doc.Compact
-import Rybl.Utility (bug, prop', todo, (##), ($@=))
-import Type.Prelude (Proxy(..))
+import Rybl.Utility (prop', todo)
 
 --------------------------------------------------------------------------------
 -- theDocComponent
