@@ -2,24 +2,10 @@ module Rybl.Halogen.Style where
 
 import Prelude
 
-import Control.Monad.Error.Class (throwError)
-import Control.Monad.Writer (Writer, execWriter, tell)
-import Data.Argonaut (class DecodeJson, class EncodeJson, JsonDecodeError(..), decodeJson, encodeJson)
+import Control.Monad.Writer (Writer, execWriter)
 import Data.Array as Array
-import Data.Either.Nested (type (\/))
-import Data.Int as Int
-import Data.List (List)
-import Data.Symbol (class IsSymbol, reflectSymbol)
 import Halogen.HTML.Properties (IProp)
 import Halogen.HTML.Properties as HP
-import Partial.Unsafe (unsafeCrashWith)
-import Prim.Row (class Cons, class Nub, class Union)
-import Prim.RowList (class RowToList, RowList)
-import Prim.RowList as RL
-import Record as Record
-import Rybl.Data.Variant (reflectVariantKey)
-import Rybl.Utility (class RowKeys, Literal(..), literal, rowKeys)
-import Type.Proxy (Proxy(..))
 
 type U = Unit
 
@@ -38,6 +24,7 @@ class RenderStyle a where
 type RenderStyleF a = a -> Array String
 type RenderF a = a -> String
 
+{-
 --------------------------------------------------------------------------------
 -- Errors
 --------------------------------------------------------------------------------
@@ -136,7 +123,6 @@ instance Cast Percent Ratio where
 instance Cast Ratio Percent where
   cast (Ratio x) = Percent $ cast $ x * 100.0
 
-{-
 --------------------------------------------------------------------------------
 -- CSS Properties
 --------------------------------------------------------------------------------
@@ -238,11 +224,11 @@ animation' args = animation
 -- word_wrap
 -- writing_mode
 -- z_index
--}
 
 --------------------------------------------------------------------------------
 -- Utilities
 --------------------------------------------------------------------------------
 
+-}
 neutral :: String -> Array String -> String
 neutral f as = f <> "(" <> Array.intercalate ", " as <> ")"

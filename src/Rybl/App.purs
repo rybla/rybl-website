@@ -2,11 +2,8 @@ module Rybl.App where
 
 import Prelude
 
-import Control.Monad.State (get)
 import Control.Monad.Writer (tell)
-import Data.Argonaut (encodeJson)
 import Data.Argonaut.Decode (fromJsonString)
-import Data.Argonaut.Encode (toJsonString)
 import Data.Either (either)
 import Data.Lens ((.=))
 import Data.Maybe (Maybe(..))
@@ -20,12 +17,13 @@ import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
 import Halogen.Query.Event as HQE
 import Halogen.VDom.Driver as HVD
-import JSURI (decodeURI, encodeURI)
+import JSURI (decodeURI)
 import Rybl.Data.Variant (case_, inj', on')
 import Rybl.Halogen.Class as Class
 import Rybl.Halogen.Style as Style
 import Rybl.Language as Rybl.Language
 import Rybl.Language.Component.Basic as Rybl.Language.Component
+import Rybl.Language.Component.Common as Rybl.Language.Component.Common
 import Rybl.Utility (prop')
 import Type.Proxy (Proxy(..))
 import Web.HTML as Web.HTML
@@ -44,7 +42,7 @@ component = H.mkComponent { initialState, eval, render }
   where
   initialState _ =
     { doc: Rybl.Language.Ref "index" :: Rybl.Language.Doc
-    , viewMode: inj' @"unknown" unit :: Rybl.Language.ViewMode
+    , viewMode: inj' @"unknown" unit :: Rybl.Language.Component.Common.ViewMode
     }
 
   eval = H.mkEval H.defaultEval
@@ -96,7 +94,24 @@ component = H.mkComponent { initialState, eval, render }
 
   render { doc, viewMode } =
     HH.div
-      [ HP.classes [ Class.mk @"app" ], Style.style $ tell [ "margin: auto", "width: 800px" ] ]
-      [ HH.slot_ (Proxy @"doc") unit Rybl.Language.Component.theDocComponent { doc, viewMode }
+      [ HP.classes [ Class.mk @"app" ]
+      , Style.style $ tell [ "margin: auto", "width: 800px", "display: flex", "flex-direction: column", "gap: 0.5rem" ]
+      ]
+      [ HH.div
+          [ Style.style $ tell [ "font-size: 2rem", "padding: 0 1rem" ] ]
+          [ HH.text "rybl" ]
+      , HH.div
+          [ Style.style $ tell [ "padding: 0 1rem", "display: flex", "flex-flow: row wrap", "gap: 0.5rem", "line-height: 1.5" ] ]
+          let
+            item_style = tell [ "padding: 0.5em", "border: 1px solid black", "width: 4em" ]
+          in
+            [ HH.div [ Style.style item_style ] [ HH.text "index" ]
+            , HH.div [ Style.style item_style ] [ HH.text "about" ]
+            , HH.div [ Style.style item_style ] [ HH.text "links" ]
+            , HH.div [ Style.style item_style ] [ HH.text "contact" ]
+            ]
+      , HH.div
+          [ Style.style $ tell [ "margin-top: 0.5rem", "padding: 0.5rem", "border: 0.5rem solid black", "box-shadow: 0 0 1rem 0 black" ] ]
+          [ HH.slot_ (Proxy @"doc") unit Rybl.Language.Component.theDocComponent { doc, viewMode } ]
       ]
 

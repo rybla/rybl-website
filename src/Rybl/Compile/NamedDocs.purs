@@ -12,7 +12,7 @@ namedDocs :: Map String Doc
 namedDocs = Map.fromFoldable
   [ "index" /\ Ref "example_index_4"
   , "example_index_4" /\
-      (Link $ inj' @"ref" { label: "this is a ref to the example_index_3", ref: "example_index_3" })
+      Link (inj' @"ref" { label: "this is a ref to the example_index_3", ref: "example_index_3" })
   , "example_index_3" /\
       Group (inj'U @"column")
         [ Group (inj'U @"flow")

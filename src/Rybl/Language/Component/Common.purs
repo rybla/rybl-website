@@ -10,8 +10,15 @@ import Halogen (ComponentHTML)
 import Halogen as H
 import Halogen.HTML (PlainHTML)
 import Rybl.Data.Variant (Variant, case_, on')
-import Rybl.Language (Doc, ViewMode, Id)
+import Rybl.Language (Doc, Id)
 import Rybl.Utility (U)
+
+type ViewMode = Variant
+  ( unknown :: U
+  , mobile :: U
+  , wide_desktop :: U
+  , narrow_desktop :: U
+  )
 
 type Input =
   { doc :: Doc

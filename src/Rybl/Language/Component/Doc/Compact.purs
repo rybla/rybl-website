@@ -1,4 +1,4 @@
-module Rybl.Language.Component.Basic where
+module Rybl.Language.Component.Doc.Compact where
 
 import Prelude
 
@@ -38,102 +38,6 @@ import Rybl.Language (Doc(..), Ref)
 import Rybl.Language.Component.Common (Ctx, Env, HTML, Input, State, Action, renderDisplayStyle)
 import Rybl.Utility (bug, prop', todo, (##), ($@=))
 import Type.Prelude (Proxy(..))
-
---------------------------------------------------------------------------------
--- theDocComponent
---------------------------------------------------------------------------------
-
-theDocComponent :: forall query output. H.Component query Input output Aff
-theDocComponent = H.mkComponent { initialState, eval, render }
-  where
-  initialState { doc, viewMode } =
-    { doc
-    , viewMode
-    , ctx:
-        { namedDocs: Map.empty
-        , display: inj'U @"block"
-        , mb_target_sidenote_id: none
-        }
-    , env:
-        { widgetIndex: 0 }
-    } :: State
-
-  eval = H.mkEval H.defaultEval
-    { receive = pure <<< inj' @"receive"
-    , initialize = pure $ inj'U @"initialize"
-    , handleAction = handleAction
-    }
-
-  handleAction = case_
-    # on' @"receive"
-        ( \input -> do
-            put $ initialState input
-            handleAction (inj' @"initialize" unit)
-        )
-    # on' @"initialize"
-        ( const do
-            do -- load namedDocs
-              let
-                go :: Map Ref _ -> Set Ref -> Aff (Map Ref _)
-                go namedDocs refs = case refs # Set.findMin of
-                  Nothing -> pure namedDocs
-                  Just ref -> do
-                    response <-
-                      fetch ("namedDocs/" <> ref <> ".json")
-                        { method: Fetch.GET }
-                    if not response.ok then do
-                      let
-                        v = inj' @"error_on_load" $
-                          HH.div
-                            []
-                            [ HH.text $ "error on fetch: " <> response.statusText ]
-                      go
-                        (namedDocs # Map.insert ref v)
-                        (refs # Set.delete ref)
-                    else do
-                      str :: String <- response.text # liftAff
-                      case fromJsonString str :: JsonDecodeError \/ Doc of
-                        Left err -> do
-                          let
-                            v = inj' @"error_on_load" $
-                              HH.div
-                                []
-                                [ HH.text $ "error on decode: " <> show err ]
-                          go
-                            (namedDocs # Map.insert ref v)
-                            (refs # Set.delete ref)
-                        Right doc' -> do
-                          let v = inj' @"loaded" doc'
-                          go
-                            (namedDocs # Map.insert ref v)
-                            (todo "(refs # Set.union (doc' # collectRefs) # Set.delete ref)")
-              { doc } <- get
-              namedDocs' <- go Map.empty (doc # todo "collectRefs") # liftAff
-              prop' @"ctx" <<< prop' @"namedDocs" .= namedDocs'
-        )
-    # on' @"modify_env" (prop' @"env" %= _)
-    # on' @"modify_ctx" (prop' @"ctx" %= _)
-
-  render { doc, ctx, env } =
-    H.div
-      [ HP.classes [ Class.mk @"doc" ]
-      , Style.style $ tell [ "width: 100%" ]
-      ]
-      [ renderDoc doc
-          # flip runReaderT ctx
-          # flip evalState env
-      ]
-      # mapAction_ComponentHTML (expandCons @"receive" >>> expandCons @"initialize")
-
-nextSlotIndex :: forall m. MonadState Env m => m Int
-nextSlotIndex = do
-  { widgetIndex } <- get
-  prop' @"widgetIndex" %= (_ + 1)
-  pure widgetIndex
-
---------------------------------------------------------------------------------
--- renderDoc
---------------------------------------------------------------------------------
 
 renderDoc :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
 
