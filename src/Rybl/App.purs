@@ -4,6 +4,7 @@ import Prelude
 
 import Control.Monad.Writer (tell)
 import Data.Argonaut.Decode (fromJsonString)
+import Data.Argonaut.Decode.Error (printJsonDecodeError)
 import Data.Either (either)
 import Data.Lens ((.=))
 import Data.Maybe (Maybe(..))
@@ -81,12 +82,21 @@ component = H.mkComponent { initialState, eval, render }
                   Nothing -> pure unit
                   Just doc_str_ -> do
                     doc <- case doc_str_ # decodeURI of
-                      Nothing -> pure $ Rybl.Language.Error $ Rybl.Language.String $ "decodeURI error"
+                      Nothing -> pure $ Rybl.Language.Error
+                        { label: "decodeURI error"
+                        , body: Rybl.Language.String { style: inj' @"code" unit, value: "doc_str = " <> "\"\"\"" <> doc_str_ <> "\"\"\"" }
+                        }
                       Just doc_str -> do
                         pure $
                           doc_str
                             # fromJsonString
-                            # either (\err -> Rybl.Language.String $ "JsonDecodeError: " <> show err) identity
+                            # either
+                                ( \err -> Rybl.Language.Error
+                                    { label: "JsonDecodeError"
+                                    , body: Rybl.Language.String { style: inj' @"code" unit, value: "err = " <> "\"\"\"" <> printJsonDecodeError err <> "\"\"\"" }
+                                    }
+                                )
+                                identity
                     prop' @"doc" .= doc
             -- TODO: update .viewMode
             pure unit

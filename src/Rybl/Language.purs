@@ -11,6 +11,7 @@ import Data.Maybe (Maybe)
 import Data.Ord.Generic (genericCompare)
 import Data.Show.Generic (genericShow)
 import Rybl.Data.Variant (Variant)
+import Rybl.Utility (U)
 
 type Ref = String
 type Id = String
@@ -40,7 +41,7 @@ data Doc
       )
   | Sidenote { label :: Doc, body :: Doc }
   | Ref Ref
-  | String String
+  | String { style :: StringStyle, value :: String }
   | Error { label :: String, body :: Doc }
 
 derive instance Generic Doc _
@@ -59,6 +60,12 @@ instance EncodeJson Doc where
 
 instance DecodeJson Doc where
   decodeJson x = genericDecodeJson x
+
+type StringStyle = Variant
+  ( plain :: U
+  , emphasis :: U
+  , code :: U
+  )
 
 -- type GroupStyle = Variant (row :: U, column :: U, flow :: U)
 

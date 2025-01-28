@@ -79,12 +79,13 @@ renderDoc (Ref doc) = do
         []
         []
 
+-- TODO: use doc.style 
 renderDoc (String doc) = do
   ctx <- ask
   pure
     $ HH.div
         [ HP.classes [ Class.mk @"string" ], HP.style $ renderDisplayStyle ctx.display ]
-        [ HH.text doc ]
+        [ HH.text doc.value ]
 
 renderDoc (Error doc) = do
   ctx <- ask
