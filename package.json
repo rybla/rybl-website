@@ -1,6 +1,7 @@
 {
   "name": "rybl-website",
   "scripts": {
+    "build.spago": "spago build",
     "compile": "bun compile.ts",
     "bundle": "bun bundle.ts",
     "build": "bun run compile && bun run bundle",

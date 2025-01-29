@@ -14,9 +14,9 @@ import Data.Lens ((%=), (.=))
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(..))
+import Data.Newtype (unwrap)
 import Data.Set (Set)
 import Data.Set as Set
-import Data.Unfoldable (none)
 import Effect.Aff (Aff)
 import Fetch (fetch)
 import Fetch as Fetch
@@ -28,10 +28,10 @@ import Halogen.HTML.Properties as HP
 import Rybl.Data.Variant (case_, expandCons, inj', inj'U, on')
 import Rybl.Halogen.Class as Class
 import Rybl.Halogen.Style as Style
-import Rybl.Language (Doc, Ref)
+import Rybl.Language (Doc, RefId, collectRefIds)
 import Rybl.Language.Component.Common (Env, Input, State)
 import Rybl.Language.Component.Doc.Compact as Rybl.Language.Component.Doc.Compact
-import Rybl.Utility (prop', todo)
+import Rybl.Utility (prop')
 
 --------------------------------------------------------------------------------
 -- theDocComponent
@@ -44,12 +44,13 @@ theDocComponent = H.mkComponent { initialState, eval, render }
     { doc
     , viewMode
     , ctx:
-        { namedDocs: Map.empty
-        , display: inj'U @"block"
-        , mb_target_sidenote_id: none
+        { namedDocs: Map.empty :: Map RefId _
+        , section_path: mempty
         }
     , env:
-        { widgetIndex: 0 }
+        { widget_index: 0
+        , section_index: 0
+        }
     } :: State
 
   eval = H.mkEval H.defaultEval
@@ -68,12 +69,12 @@ theDocComponent = H.mkComponent { initialState, eval, render }
         ( const do
             do -- load namedDocs
               let
-                go :: Map Ref _ -> Set Ref -> Aff (Map Ref _)
-                go namedDocs refs = case refs # Set.findMin of
+                go :: Map RefId _ -> Set RefId -> Aff (Map RefId _)
+                go namedDocs refIds = case refIds # Set.findMin of
                   Nothing -> pure namedDocs
-                  Just ref -> do
+                  Just refId -> do
                     response <-
-                      fetch ("namedDocs/" <> ref <> ".json")
+                      fetch ("namedDocs/" <> unwrap refId <> ".json")
                         { method: Fetch.GET }
                     if not response.ok then do
                       let
@@ -82,8 +83,8 @@ theDocComponent = H.mkComponent { initialState, eval, render }
                             []
                             [ HH.text $ "error on fetch: " <> response.statusText ]
                       go
-                        (namedDocs # Map.insert ref v)
-                        (refs # Set.delete ref)
+                        (namedDocs # Map.insert refId v)
+                        (refIds # Set.delete refId)
                     else do
                       str :: String <- response.text # liftAff
                       case fromJsonString str :: JsonDecodeError \/ Doc of
@@ -94,15 +95,15 @@ theDocComponent = H.mkComponent { initialState, eval, render }
                                 []
                                 [ HH.text $ "error on decode: " <> show err ]
                           go
-                            (namedDocs # Map.insert ref v)
-                            (refs # Set.delete ref)
+                            (namedDocs # Map.insert refId v)
+                            (refIds # Set.delete refId)
                         Right doc' -> do
                           let v = inj' @"loaded" doc'
                           go
-                            (namedDocs # Map.insert ref v)
-                            (todo "(refs # Set.union (doc' # collectRefs) # Set.delete ref)")
+                            (namedDocs # Map.insert refId v)
+                            (refIds # Set.union (doc' # collectRefIds) # Set.delete refId)
               { doc } <- get
-              namedDocs' <- go Map.empty (doc # todo "collectRefs") # liftAff
+              namedDocs' <- go Map.empty (doc # collectRefIds) # liftAff
               prop' @"ctx" <<< prop' @"namedDocs" .= namedDocs'
         )
     # on' @"modify_env" (prop' @"env" %= _)
@@ -113,17 +114,17 @@ theDocComponent = H.mkComponent { initialState, eval, render }
       [ HP.classes [ Class.mk @"doc" ]
       , Style.style $ tell [ "width: 100%" ]
       ]
-      [ Rybl.Language.Component.Doc.Compact.renderDoc doc
+      ( Rybl.Language.Component.Doc.Compact.renderDoc doc
           # flip runReaderT ctx
           # flip evalState env
-      ]
+      )
       # mapAction_ComponentHTML (expandCons @"receive" >>> expandCons @"initialize")
 
 nextSlotIndex :: forall m. MonadState Env m => m Int
 nextSlotIndex = do
-  { widgetIndex } <- get
-  prop' @"widgetIndex" %= (_ + 1)
-  pure widgetIndex
+  { widget_index } <- get
+  prop' @"widget_index" %= (_ + 1)
+  pure widget_index
 
 --------------------------------------------------------------------------------
 -- Misc

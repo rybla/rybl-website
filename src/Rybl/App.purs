@@ -8,6 +8,7 @@ import Data.Argonaut.Decode.Error (printJsonDecodeError)
 import Data.Either (either)
 import Data.Lens ((.=))
 import Data.Maybe (Maybe(..))
+import Data.Newtype (wrap)
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Class.Console as Console
@@ -42,7 +43,7 @@ component :: forall query input output. H.Component query input output Aff
 component = H.mkComponent { initialState, eval, render }
   where
   initialState _ =
-    { doc: Rybl.Language.Ref "index" :: Rybl.Language.Doc
+    { doc: Rybl.Language.Ref { refId: wrap "index" } :: Rybl.Language.Doc
     , viewMode: inj' @"unknown" unit :: Rybl.Language.Component.Common.ViewMode
     }
 
@@ -105,23 +106,27 @@ component = H.mkComponent { initialState, eval, render }
   render { doc, viewMode } =
     HH.div
       [ HP.classes [ Class.mk @"app" ]
-      , Style.style $ tell [ "margin: auto", "width: 800px", "display: flex", "flex-direction: column", "gap: 0.5rem" ]
+      , Style.style $ tell [ "margin: auto", "width: 600px", "display: flex", "flex-direction: column", "gap: 0.5rem" ]
       ]
+      -- [ HH.div
+      --     [ Style.style $ tell [ "font-size: 2rem", "padding: 0 1rem" ] ]
+      --     [ HH.text "rybl" ]
+      -- , HH.div
+      --     [ Style.style $ tell [ "padding: 0 1rem", "display: flex", "flex-flow: row wrap", "gap: 0.5rem", "line-height: 1.5" ] ]
+      --     let
+      --       item_style = tell [ "padding: 0.5em", "border: 1px solid black", "width: 4em" ]
+      --     in
+      --       [ HH.div [ Style.style item_style ] [ HH.text "index" ]
+      --       , HH.div [ Style.style item_style ] [ HH.text "about" ]
+      --       , HH.div [ Style.style item_style ] [ HH.text "links" ]
+      --       , HH.div [ Style.style item_style ] [ HH.text "contact" ]
+      --       ]
+      -- , HH.div
+      --     [ Style.style $ tell [ "margin-top: 0.5rem", "padding: 0.5rem", "border: 0.5rem solid black", "box-shadow: 0 0 1rem 0 black" ] ]
+      --     [ HH.slot_ (Proxy @"doc") unit Rybl.Language.Component.theDocComponent { doc, viewMode } ]
+      -- ]
       [ HH.div
-          [ Style.style $ tell [ "font-size: 2rem", "padding: 0 1rem" ] ]
-          [ HH.text "rybl" ]
-      , HH.div
-          [ Style.style $ tell [ "padding: 0 1rem", "display: flex", "flex-flow: row wrap", "gap: 0.5rem", "line-height: 1.5" ] ]
-          let
-            item_style = tell [ "padding: 0.5em", "border: 1px solid black", "width: 4em" ]
-          in
-            [ HH.div [ Style.style item_style ] [ HH.text "index" ]
-            , HH.div [ Style.style item_style ] [ HH.text "about" ]
-            , HH.div [ Style.style item_style ] [ HH.text "links" ]
-            , HH.div [ Style.style item_style ] [ HH.text "contact" ]
-            ]
-      , HH.div
-          [ Style.style $ tell [ "margin-top: 0.5rem", "padding: 0.5rem", "border: 0.5rem solid black", "box-shadow: 0 0 1rem 0 black" ] ]
+          [ Style.style $ tell [ "margin-top: 0.5rem", "padding: 0.5rem", "box-shadow: 0 0 0 0.1rem black" ] ]
           [ HH.slot_ (Proxy @"doc") unit Rybl.Language.Component.theDocComponent { doc, viewMode } ]
       ]
 

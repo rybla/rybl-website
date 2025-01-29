@@ -5,26 +5,27 @@ import Prelude
 import Data.Argonaut (class DecodeJson, class EncodeJson)
 import Data.Argonaut.Decode.Generic (genericDecodeJson)
 import Data.Argonaut.Encode.Generic (genericEncodeJson)
+import Data.Array.ST as ArrayST
 import Data.Eq.Generic (genericEq)
 import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe)
+import Data.Newtype (class Newtype)
 import Data.Ord.Generic (genericCompare)
+import Data.Set (Set)
+import Data.Set as Set
 import Data.Show.Generic (genericShow)
-import Rybl.Data.Variant (Variant)
+import Data.Traversable (traverse_)
+import Rybl.Data.Variant (Variant, inj', inj'U)
 import Rybl.Utility (U)
 
-type Ref = String
-type Id = String
+newtype RefId = RefId String
 
--- data Doc
---   = String String
---   | Error Doc
---   | Group GroupStyle (Array Doc)
---   | Ref Ref
---   | Link Link
---   | Expander ExpanderStyle Doc Doc
---   | Sidenote Id Doc Doc
---   | SidenotesThreshold Doc
+derive instance Newtype RefId _
+derive newtype instance Show RefId
+derive newtype instance Eq RefId
+derive newtype instance Ord RefId
+derive newtype instance EncodeJson RefId
+derive newtype instance DecodeJson RefId
 
 data Doc
   = Section { title :: Doc, body :: Array Doc }
@@ -34,13 +35,15 @@ data Doc
   | Sentence { body :: Array Doc }
   -- 
   | Link
-      ( Variant
-          ( external :: { label :: Doc, href :: String, mb_favicon_src :: Maybe String }
-          , ref :: { label :: Doc, ref :: Ref }
-          )
-      )
+      { label :: Doc
+      , src ::
+          Variant
+            ( external :: { href :: String, mb_favicon_src :: Maybe String }
+            , internal :: { refId :: RefId }
+            )
+      }
   | Sidenote { label :: Doc, body :: Doc }
-  | Ref Ref
+  | Ref { refId :: RefId }
   | String { style :: StringStyle, value :: String }
   | Error { label :: String, body :: Doc }
 
@@ -67,29 +70,49 @@ type StringStyle = Variant
   , code :: U
   )
 
--- type GroupStyle = Variant (row :: U, column :: U, flow :: U)
+kids_Doc :: Doc -> Array Doc
+kids_Doc (Section doc) = [ doc.title ] <> doc.body
+kids_Doc (Paragraph doc) = doc.body
+kids_Doc (Sentence doc) = doc.body
+kids_Doc (Link doc) = [ doc.label ]
+kids_Doc (Sidenote doc) = [ doc.label, doc.body ]
+kids_Doc (Ref _) = []
+kids_Doc (String _) = []
+kids_Doc (Error doc) = [ doc.body ]
 
--- type ExpanderStyle = Variant (inline :: U, block :: U)
+--------------------------------------------------------------------------------
+-- Doc constructors
+--------------------------------------------------------------------------------
 
--- kids_Doc :: Doc -> Array Doc
--- kids_Doc (String _) = []
--- kids_Doc (Error d) = [ d ]
--- kids_Doc (Group _ ds) = ds
--- kids_Doc (Ref _) = []
--- kids_Doc (Link _) = []
--- kids_Doc (Expander _ d1 d2) = [ d1, d2 ]
--- kids_Doc (Sidenote _ d1 d2) = [ d1, d2 ]
--- kids_Doc (SidenotesThreshold d) = [ d ]
+section :: Doc -> Array Doc -> Doc
+section title body = Section { title, body }
 
--- linearKids_Doc :: Doc -> Array Doc
--- linearKids_Doc (String _) = []
--- linearKids_Doc (Error d) = [ d ]
--- linearKids_Doc (Group _ ds) = ds
--- linearKids_Doc (Ref _) = []
--- linearKids_Doc (Link _) = []
--- linearKids_Doc (Expander _ d _) = [ d ]
--- linearKids_Doc (Sidenote _ d _) = [ d ]
--- linearKids_Doc (SidenotesThreshold d) = [ d ]
+paragraph :: Array Doc -> Doc
+paragraph body = Paragraph { body }
+
+sentence :: Array Doc -> Doc
+sentence body = Sentence { body }
+
+link_external :: Doc -> { href :: String, mb_favicon_src :: Maybe String } -> Doc
+link_external label external = Link { label, src: inj' @"external" external }
+
+link_internal :: Doc -> { refId :: RefId } -> Doc
+link_internal label internal = Link { label, src: inj' @"internal" internal }
+
+sidenote :: Doc -> Doc -> Doc
+sidenote label body = Sidenote { label, body }
+
+ref :: RefId -> Doc
+ref refId = Ref { refId }
+
+string :: String -> Doc
+string value = String { style: inj'U @"plain", value }
+
+string_style :: StringStyle -> String -> Doc
+string_style style value = String { style, value }
+
+error :: String -> Doc -> Doc
+error label body = Error { label, body }
 
 --------------------------------------------------------------------------------
 
@@ -108,15 +131,15 @@ type StringStyle = Variant
 --     go d0
 --     pure sidenotes
 
--- collectRefs :: Doc -> Set Ref
--- collectRefs d0 =
---   ( ArrayST.run do
---       refs <- STArray.new
---       let
---         go d = do
---           case d of
---             Ref ref -> refs # STArray.push ref # void
---             _ -> d # kids_Doc # traverse_ go
---       go d0
---       pure refs
---   ) # Set.fromFoldable
+collectRefIds :: Doc -> Set RefId
+collectRefIds d0 =
+  ( ArrayST.run do
+      refIds <- ArrayST.new
+      let
+        go doc = do
+          case doc of
+            Ref doc' -> refIds # ArrayST.push doc'.refId # void
+            _ -> doc # kids_Doc # traverse_ go
+      go d0
+      pure refIds
+  ) # Set.fromFoldable

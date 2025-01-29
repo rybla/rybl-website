@@ -3,14 +3,14 @@ module Rybl.Language.Component.Common where
 import Prelude
 
 import Data.Const (Const)
+import Data.List (List)
 import Data.Map (Map)
-import Data.Maybe (Maybe)
 import Effect.Aff (Aff)
 import Halogen (ComponentHTML)
 import Halogen as H
 import Halogen.HTML (PlainHTML)
-import Rybl.Data.Variant (Variant, case_, on')
-import Rybl.Language (Doc, Id)
+import Rybl.Data.Variant (Variant)
+import Rybl.Language (Doc, RefId)
 import Rybl.Utility (U)
 
 type ViewMode = Variant
@@ -34,17 +34,19 @@ type State =
 
 type Ctx =
   { namedDocs ::
-      Map String
+      Map RefId
         ( Variant
             ( loaded :: Doc
             , not_yet_loaded :: U
             , error_on_load :: PlainHTML
             )
         )
+  , section_path :: List { index :: Int, title :: Doc }
   }
 
 type Env =
-  { widgetIndex :: Int
+  { widget_index :: Int
+  , section_index :: Int
   }
 
 type Action = Variant

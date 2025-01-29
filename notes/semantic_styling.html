@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>semantic_styling</title>
+
+  <style>
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .paragraph {
+      /* display: inline-flex; */
+      /* flex-direction: column; */
+      /* flex-wrap: wrap; */
+      /* justify-content: flex-start; */
+      /* align-items: baseline; */
+      /* align-content: flex-start; */
+    }
+
+    .sentence {
+      display: inline;
+      /* flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      align-items: baseline;
+      align-content: flex-start; */
+    }
+
+    .interjection {
+      margin: 0.2rem;
+      padding: 0.2rem;
+      box-shadow: 0 0 0 0.1rem black;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="section">
+    <h1>This is a section</h1>
+    <div class="paragraph">
+      <div class="sentence">Lorem ipsum dolor sit amet consectetur
+        <div class="interjection">
+          XXX this is an example div in the middle of things. this is an example div in the middle of things. this is an
+          example div in the middle of things. this is an example div in the middle of things. this is an example div in
+          the middle of things. XXX
+        </div>
+        adipisicing elit.
+      </div>
+      <div class="sentence">Laudantium, architecto reprehenderit.</div>
+      <div class="sentence">Ea suscipit at enim neque soluta laborum voluptas deleniti.</div>
+      <div class="sentence">Odio quo esse, labore molestias culpa quia animi illum ad.</div>
+    </div>
+  </div>
+
+</body>
+
+</html>
