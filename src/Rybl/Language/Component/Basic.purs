@@ -20,7 +20,7 @@ import Data.Set as Set
 import Effect.Aff (Aff)
 import Fetch (fetch)
 import Fetch as Fetch
-import Halogen (Component, defaultEval, mkComponent, mkEval) as H
+import Halogen (Component, defaultEval, mkComponent, mkEval, tell) as H
 import Halogen (ComponentHTML, liftAff)
 import Halogen.HTML (div) as H
 import Halogen.HTML as HH
@@ -29,9 +29,10 @@ import Rybl.Data.Variant (case_, expandCons, inj', inj'U, on')
 import Rybl.Halogen.Class as Class
 import Rybl.Halogen.Style as Style
 import Rybl.Language (Doc, RefId, collectRefIds)
-import Rybl.Language.Component.Common (Env, Input, State)
+import Rybl.Language.Component.Common (Env, Input, State, mapAction_ComponentHTML)
 import Rybl.Language.Component.Doc.Compact as Rybl.Language.Component.Doc.Compact
 import Rybl.Utility (prop')
+import Type.Proxy (Proxy(..))
 
 --------------------------------------------------------------------------------
 -- theDocComponent
@@ -125,15 +126,4 @@ nextSlotIndex = do
   { widget_index } <- get
   prop' @"widget_index" %= (_ + 1)
   pure widget_index
-
---------------------------------------------------------------------------------
--- Misc
---------------------------------------------------------------------------------
-
-mapAction_ComponentHTML
-  :: forall action action' slots m
-   . (action -> action')
-  -> ComponentHTML action slots m
-  -> ComponentHTML action' slots m
-mapAction_ComponentHTML f = bimap (map f) f
 

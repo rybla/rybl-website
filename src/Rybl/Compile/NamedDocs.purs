@@ -3,6 +3,7 @@ module Rybl.Compile.NamedDocs where
 import Prelude
 
 import Data.Array as Array
+import Data.Foldable (fold)
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Newtype (wrap)
@@ -13,31 +14,46 @@ import Rybl.Language as Doc
 namedDocs :: Map String Doc
 namedDocs = Map.fromFoldable
   [ Tuple "index" $
-      Doc.ref (wrap "example_index_4")
+      Doc.ref (wrap "sidenote_example_1")
+  , Tuple "sidenote_example_1" $
+      Doc.section
+        (Doc.string "Sidenote Example #1")
+        [ Doc.paragraph
+            [ Doc.sentence
+                [ Doc.string "I wanted to say a "
+                , Doc.sidenote
+                    (Doc.string "thing")
+                    (Doc.paragraph [ Doc.sentence [ Doc.string "This is the longer thing that I wanted to say, because it didn't quite fit in that tiny little space that was provided." ] ])
+                , Doc.string ", but turns out it's a little too long to say right here."
+                ]
+            ]
+        ]
   , Tuple "example_index_4"
       $ Doc.section
           (Doc.string "This is example_index_4 which is the title of the doc")
-      $
-        [ Doc.paragraph
-            [ Doc.sentence
-                [ Doc.link_internal (Doc.string "This") { refId: wrap "example_index_3" }
-                , Doc.string " is a ref to the example_index_3."
-                ]
-            , Doc.sentence [ Doc.string "Isn't that great?" ]
-            , Doc.sentence [ Doc.string "Lorem ipsum dolor sit amet consectetur adipisicing elit." ]
-            , Doc.sentence [ Doc.string "Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!" ]
-            , Doc.sentence [ Doc.string "Lorem ipsum dolor sit amet consectetur adipisicing elit." ]
-            , Doc.sentence [ Doc.string "Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!" ]
-            ]
-        ] <>
-          make_section_tree 4 4
-            [ Doc.paragraph
-                [ Doc.sentence [ Doc.string "Lorem ipsum dolor sit amet consectetur adipisicing elit." ]
+      $ fold
+          [ [ Doc.paragraph
+                [ Doc.sentence
+                    [ Doc.link_internal (Doc.string "This") { refId: wrap "example_index_3" }
+                    , Doc.string " is a ref to the example_index_3."
+                    ]
+                , Doc.sentence [ Doc.string "Isn't that great?" ]
+                , Doc.sentence [ Doc.string "Lorem ipsum dolor sit amet consectetur adipisicing elit." ]
                 , Doc.sentence [ Doc.string "Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!" ]
                 , Doc.sentence [ Doc.string "Lorem ipsum dolor sit amet consectetur adipisicing elit." ]
                 , Doc.sentence [ Doc.string "Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!" ]
                 ]
             ]
+          , make_section_tree 4 4
+              [ Doc.paragraph
+                  [ Doc.sentence [ Doc.string "Lorem ipsum dolor sit amet consectetur adipisicing elit." ]
+                  , Doc.sentence [ Doc.string "Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!" ]
+                  , Doc.sentence [ Doc.string "Lorem ipsum dolor sit amet consectetur adipisicing elit." ]
+                  , Doc.sentence [ Doc.string "Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!" ]
+                  ]
+              ]
+          ]
+
   ]
 
 make_section_tree :: Int -> Int -> Array Doc -> Array Doc

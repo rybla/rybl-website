@@ -106,7 +106,7 @@ component = H.mkComponent { initialState, eval, render }
   render { doc, viewMode } =
     HH.div
       [ HP.classes [ Class.mk @"app" ]
-      , Style.style $ tell [ "margin: auto", "width: 600px", "display: flex", "flex-direction: column", "gap: 0.5rem" ]
+      , Style.style $ tell [ "margin: auto", "width: 800px", "display: flex", "flex-direction: column", "gap: 0.5rem" ]
       ]
       -- [ HH.div
       --     [ Style.style $ tell [ "font-size: 2rem", "padding: 0 1rem" ] ]
