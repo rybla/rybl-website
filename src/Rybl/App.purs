@@ -81,9 +81,17 @@ component = H.mkComponent { initialState, eval, render }
               Nothing -> Console.log "no url"
               Just url -> do
                 let urlSearchParams = url # Web.URL.searchParams
-                case urlSearchParams # Web.URLSearchParams.get "doc" of
-                  Nothing -> pure unit
-                  Just doc_str_ -> do
+                case unit of
+                  _ | Just ref_str_ <- urlSearchParams # Web.URLSearchParams.get "ref" -> do
+                    doc <- case ref_str_ # decodeURI of
+                      Nothing ->
+                        pure
+                          $ RL.error "decodeURI error"
+                          $ RL.string_style (inj' @"code" unit)
+                          $ "ref_str = " <> "\"\"\"" <> ref_str_ <> "\"\"\""
+                      Just ref_str -> pure $ RL.ref (wrap ref_str)
+                    prop' @"doc" .= doc
+                  _ | Just doc_str_ <- urlSearchParams # Web.URLSearchParams.get "doc" -> do
                     doc <- case doc_str_ # decodeURI of
                       Nothing -> pure $ RL.Error
                         { label: "decodeURI error"
@@ -92,7 +100,7 @@ component = H.mkComponent { initialState, eval, render }
                       Just doc_str -> do
                         pure $
                           doc_str
-                            # (fromJsonString :: _ -> _ String)
+                            # fromJsonString
                             # either
                                 ( \err -> RL.Error
                                     { label: "JsonDecodeError"
@@ -103,8 +111,9 @@ component = H.mkComponent { initialState, eval, render }
                                           ]
                                     }
                                 )
-                                (\doc_name -> RL.ref (wrap doc_name))
+                                identity
                     prop' @"doc" .= doc
+                  _ -> pure unit
             -- TODO: update .viewMode
             pure unit
         )

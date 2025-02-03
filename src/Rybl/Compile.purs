@@ -8,6 +8,7 @@ import Effect (Effect)
 import Effect.Aff (launchAff_)
 import Effect.Class.Console as Console
 import Rybl.Compile.NamedDocs (namedDocs)
+import Rybl.Compile.Preprocess (preprocessDoc)
 import Rybl.Constants (assets_dir, compile_input_dir, compile_output_dir, serve_dir)
 import Rybl.Node (writeTextFile)
 import Rybl.Node as Node
@@ -27,7 +28,8 @@ main = launchAff_ do
   Console.log "[compile] namedDocs"
   Node.initDir (compile_output_dir <> "/" <> "namedDocs")
   namedDocs # traverseWithIndex_ \x d -> do
-    writeTextFile (compile_output_dir <> "/" <> "namedDocs/" <> x <> ".json") (toJsonString d)
+    d' <- preprocessDoc d
+    writeTextFile (compile_output_dir <> "/" <> "namedDocs/" <> x <> ".json") (toJsonString d')
 
   Console.log "[compile] assets"
   Node.copy "favicon.ico" (compile_output_dir <> "/" <> "favicon.ico") { errorOnExist: true, force: false, recursive: false }

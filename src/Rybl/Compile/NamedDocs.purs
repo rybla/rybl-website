@@ -8,6 +8,7 @@ import Data.Map (Map)
 import Data.Map as Map
 import Data.Newtype (wrap)
 import Data.Tuple (Tuple(..))
+import Data.Unfoldable (none)
 import Rybl.Language (Doc)
 import Rybl.Language as Doc
 
@@ -22,7 +23,7 @@ namedDocs = Map.fromFoldable
             [ Doc.paragraph
                 [ Doc.sentence
                     [ Doc.string "Here is a link to an external page: "
-                    , Doc.link_external (Doc.string "google") { href: "https://www.google.com/", mb_favicon_src: pure "https://www.google.com/favicon.ico" }
+                    , Doc.link_external (Doc.string "google") { href: "https://www.google.com/", mb_favicon_src: none }
                     , Doc.string "."
                     ]
                 ]

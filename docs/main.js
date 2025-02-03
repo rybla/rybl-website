@@ -3720,30 +3720,30 @@
       fn.tag = tag;
       return fn;
     }
-    function nonCanceler2(error4) {
+    function nonCanceler2(error5) {
       return new Aff2(PURE, void 0);
     }
     function runEff(eff) {
       try {
         eff();
-      } catch (error4) {
+      } catch (error5) {
         setTimeout(function() {
-          throw error4;
+          throw error5;
         }, 0);
       }
     }
     function runSync(left2, right2, eff) {
       try {
         return right2(eff());
-      } catch (error4) {
-        return left2(error4);
+      } catch (error5) {
+        return left2(error5);
       }
     }
     function runAsync(left2, eff, k) {
       try {
         return eff(k)();
-      } catch (error4) {
-        k(left2(error4))();
+      } catch (error5) {
+        k(left2(error5))();
         return nonCanceler2;
       }
     }
@@ -3838,7 +3838,7 @@
             fibers = {};
             fiberId = 0;
             count = 0;
-            return function(error4) {
+            return function(error5) {
               return new Aff2(SYNC, function() {
                 for (var k2 in kills) {
                   if (kills.hasOwnProperty(k2)) {
@@ -4122,7 +4122,7 @@
           };
         };
       }
-      function kill2(error4, cb) {
+      function kill2(error5, cb) {
         return function() {
           if (status2 === COMPLETED) {
             cb(util.right(void 0))();
@@ -4137,18 +4137,18 @@
           })();
           switch (status2) {
             case SUSPENDED:
-              interrupt = util.left(error4);
+              interrupt = util.left(error5);
               status2 = COMPLETED;
               step3 = interrupt;
               run3(runTick);
               break;
             case PENDING:
               if (interrupt === null) {
-                interrupt = util.left(error4);
+                interrupt = util.left(error5);
               }
               if (bracketCount === 0) {
                 if (status2 === PENDING) {
-                  attempts = new Aff2(CONS, new Aff2(FINALIZER, step3(error4)), attempts, interrupt);
+                  attempts = new Aff2(CONS, new Aff2(FINALIZER, step3(error5)), attempts, interrupt);
                 }
                 status2 = RETURN;
                 step3 = null;
@@ -4158,7 +4158,7 @@
               break;
             default:
               if (interrupt === null) {
-                interrupt = util.left(error4);
+                interrupt = util.left(error5);
               }
               if (bracketCount === 0) {
                 status2 = RETURN;
@@ -4209,7 +4209,7 @@
       var early = new Error("[ParAff] Early exit");
       var interrupt = null;
       var root = EMPTY;
-      function kill2(error4, par2, cb2) {
+      function kill2(error5, par2, cb2) {
         var step3 = par2;
         var head3 = null;
         var tail2 = null;
@@ -4222,7 +4222,7 @@
             case FORKED:
               if (step3._3 === EMPTY) {
                 tmp = fibers[step3._1];
-                kills2[count++] = tmp.kill(error4, function(result) {
+                kills2[count++] = tmp.kill(error5, function(result) {
                   return function() {
                     count--;
                     if (count === 0) {
@@ -4454,8 +4454,8 @@
           fibers[fid].run();
         }
       }
-      function cancel(error4, cb2) {
-        interrupt = util.left(error4);
+      function cancel(error5, cb2) {
+        interrupt = util.left(error5);
         var innerKills;
         for (var kid in kills) {
           if (kills.hasOwnProperty(kid)) {
@@ -4468,7 +4468,7 @@
           }
         }
         kills = null;
-        var newKills = kill2(error4, root, cb2);
+        var newKills = kill2(error5, root, cb2);
         return function(killError) {
           return new Aff2(ASYNC, function(killCb) {
             return function() {
@@ -9483,6 +9483,14 @@
     ;
     throw new Error("Failed pattern match at Rybl.Language (line 73, column 1 - line 73, column 29): " + [v.constructor.name]);
   };
+  var error3 = function(label5) {
+    return function(body4) {
+      return new $$Error({
+        label: label5,
+        body: body4
+      });
+    };
+  };
   var collectRefIds = function(d0) {
     return fromFoldable6(run2(function __do2() {
       var refIds = newSTArray();
@@ -10209,7 +10217,6 @@
   });
   var show32 = /* @__PURE__ */ show(showString);
   var toJsonString2 = /* @__PURE__ */ toJsonString(encodeJsonRefId);
-  var toJsonString1 = /* @__PURE__ */ toJsonString(encodeJsonJString);
   var unwrap6 = /* @__PURE__ */ unwrap();
   var on$prime5 = /* @__PURE__ */ on$prime2({
     reflectSymbol: function() {
@@ -10226,8 +10233,8 @@
         return [text5("\u25A1")];
       }();
       return div2([style3(tell3(["display: inline"]))])(fold3([[div2([style3(tell3(["display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)", "padding-left: 0.3em"])), onClick($$const(new Right(unit)))])(fold3([marker, [text5(" ")], state3.label]))], function() {
-        var $105 = !state3.open;
-        if ($105) {
+        var $104 = !state3.open;
+        if ($104) {
           return [];
         }
         ;
@@ -10252,7 +10259,7 @@
         });
       }
       ;
-      throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 243, column 3 - line 243, column 46): " + [v.constructor.name]);
+      throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 244, column 3 - line 244, column 46): " + [v.constructor.name]);
     };
     var $$eval = mkEval({
       handleQuery: defaultEval.handleQuery,
@@ -10297,10 +10304,10 @@
                 })))(function(body4) {
                   return discard32(assign5(prop$prime22)(v2.section_index + 1 | 0))(function() {
                     var section_id = "section_" + fromMaybe$prime(impossible)($$encodeURIComponent(replace(" ")("_")(v.value0.title)));
-                    return pure16([div2([style3(tell3(["padding-top: 1rem;", "display: flex", "flex-direction: column", "gap: 0.5rem"])), id3(section_id)])([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: space-between", "align-items: flex-start", "gap: 1em", "font-size: " + (show4(max6(2 - toNumber(section_depth) * 0.2)(1)) + "em")]))])([div2([style3(tell3(["flex-grow: 0"]))])(fold3([[a([href4("#" + section_id)])([text5("\xA7")])], title3])), div2([style3(tell3(["flex-shrink: 0", "flex-grow: 1", "text-align: right"]))])([text5(intercalate6(".")(reverse2(map35(function($128) {
+                    return pure16([div2([style3(tell3(["padding-top: 1rem;", "display: flex", "flex-direction: column", "gap: 0.5rem"])), id3(section_id)])([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: space-between", "align-items: flex-start", "gap: 1em", "font-size: " + (show4(max6(2 - toNumber(section_depth) * 0.2)(1)) + "em")]))])([div2([style3(tell3(["flex-grow: 0"]))])(fold3([[a([href4("#" + section_id)])([text5("\xA7")])], title3])), div2([style3(tell3(["flex-shrink: 0", "flex-grow: 1", "text-align: right"]))])([text5(intercalate6(".")(reverse2(map35(function($127) {
                       return show12(function(v3) {
                         return v3 + 1 | 0;
-                      }($128));
+                      }($127));
                     })(new Cons(v2.section_index, map35(function(v3) {
                       return v3.index;
                     })(v1.section_path)))))), a([href4("#" + section_id)])([text5("\xA7")])])]), div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5rem"]))])(body4)])]);
@@ -10351,7 +10358,7 @@
               })(on$prime22($$const(pure16([div2([])([text5("loading refId " + show22(v.value0.refId))])])))(on$prime3(renderDoc(dictMonadReader)(dictMonadState))(case_)))(v2.value0);
             }
             ;
-            throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 130, column 3 - line 153, column 12): " + [v2.constructor.name]);
+            throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 131, column 3 - line 154, column 12): " + [v2.constructor.name]);
           });
         }
         ;
@@ -10374,9 +10381,9 @@
         if (v instanceof Link) {
           return on$prime4(function(src10) {
             return bind18(renderDoc(dictMonadReader)(dictMonadState)(v.value0.label))(function(label5) {
-              return pure16([a([style3(tell3(["display: inline-flex", "flex-direction: row", "align-items: baseline", "gap: 0.2em"])), href4("/index.html?doc=" + fromMaybe$prime(function(v1) {
+              return pure16([a([style3(tell3(["display: inline-flex", "flex-direction: row", "align-items: baseline", "gap: 0.2em"])), href4("/index.html?ref=" + fromMaybe$prime(function(v1) {
                 return bug("failed: encodeURI " + show32(toJsonString2(src10.refId)));
-              })($$encodeURI(toJsonString1(unwrap6(src10.refId)))))])([img([style3(tell3(["height: 0.8em"])), src9("/favicon.ico")]), div_(label5)])]);
+              })($$encodeURI(unwrap6(src10.refId))))])([img([style3(tell3(["height: 0.8em"])), src9("/favicon.ico")]), div_(label5)])]);
             });
           })(on$prime5(function(src10) {
             return bind18(renderDoc(dictMonadReader)(dictMonadState)(v.value0.label))(function(label5) {
@@ -10389,13 +10396,13 @@
                   return [img([style3(tell3(["height: 0.8em"])), src9(src10.mb_favicon_src.value0)]), div_(label5)];
                 }
                 ;
-                throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 193, column 17 - line 202, column 22): " + [src10.mb_favicon_src.constructor.name]);
+                throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 194, column 17 - line 203, column 22): " + [src10.mb_favicon_src.constructor.name]);
               }())]);
             });
           })(case_))(v.value0.src);
         }
         ;
-        throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 35, column 1 - line 35, column 86): " + [v.constructor.name]);
+        throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 36, column 1 - line 36, column 86): " + [v.constructor.name]);
       };
     };
   };
@@ -10674,7 +10681,8 @@
     }
   });
   var intercalate7 = /* @__PURE__ */ intercalate(foldableArray)(monoidString);
-  var fromJsonString3 = /* @__PURE__ */ fromJsonString(decodeJsonString);
+  var identity11 = /* @__PURE__ */ identity(categoryFn);
+  var fromJsonString3 = /* @__PURE__ */ fromJsonString(decodeJsonDoc);
   var assign4 = /* @__PURE__ */ assign(monadStateHalogenM);
   var prop$prime5 = /* @__PURE__ */ prop$prime(docIsSymbol2)()()(strongFn);
   var initializeIsSymbol2 = {
@@ -10703,8 +10711,8 @@
     var $lazy_handleAction = $runtime_lazy11("handleAction", "Rybl.App", function() {
       return on$prime7(updateIsSymbol)($$const(discard9(log5("[App.update]"))(function() {
         return bind16(liftEffect9(function __do2() {
-          var $57 = bind17(bind17(windowImpl)(location))(href3)();
-          return fromAbsolute($57);
+          var $68 = bind17(bind17(windowImpl)(location))(href3)();
+          return fromAbsolute($68);
         }))(function(mb_url) {
           return discard9(function() {
             if (mb_url instanceof Nothing) {
@@ -10713,42 +10721,60 @@
             ;
             if (mb_url instanceof Just) {
               var urlSearchParams = searchParams(mb_url.value0);
-              var v = get3("doc")(urlSearchParams);
-              if (v instanceof Nothing) {
-                return pure15(unit);
-              }
-              ;
-              if (v instanceof Just) {
+              var v = function(v1) {
+                var v2 = function(v3) {
+                  return pure15(unit);
+                };
+                var $58 = get3("doc")(urlSearchParams);
+                if ($58 instanceof Just) {
+                  return bind16(function() {
+                    var v3 = $$decodeURI($58.value0);
+                    if (v3 instanceof Nothing) {
+                      return pure15(new $$Error({
+                        label: "decodeURI error",
+                        body: string_style(inj$prime23(unit))("doc_str = " + ('"""' + ($58.value0 + '"""')))
+                      }));
+                    }
+                    ;
+                    if (v3 instanceof Just) {
+                      return pure15(either(function(err) {
+                        return new $$Error({
+                          label: "JsonDecodeError",
+                          body: section2("Errors")([string_style(inj$prime23(unit))(intercalate7("\n")(["doc_str = " + ('"""' + (v3.value0 + '"""'))])), string_style(inj$prime23(unit))(intercalate7("\n")(["err = " + ('"""' + (printJsonDecodeError(err) + '"""'))]))])
+                        });
+                      })(identity11)(fromJsonString3(v3.value0)));
+                    }
+                    ;
+                    throw new Error("Failed pattern match at Rybl.App (line 95, column 28 - line 114, column 41): " + [v3.constructor.name]);
+                  }())(function(doc) {
+                    return assign4(prop$prime5)(doc);
+                  });
+                }
+                ;
+                return v2(true);
+              };
+              var $63 = get3("ref")(urlSearchParams);
+              if ($63 instanceof Just) {
                 return bind16(function() {
-                  var v1 = $$decodeURI(v.value0);
+                  var v1 = $$decodeURI($63.value0);
                   if (v1 instanceof Nothing) {
-                    return pure15(new $$Error({
-                      label: "decodeURI error",
-                      body: string_style(inj$prime23(unit))("doc_str = " + ('"""' + (v.value0 + '"""')))
-                    }));
+                    return pure15(error3("decodeURI error")(string_style(inj$prime23(unit))("ref_str = " + ('"""' + ($63.value0 + '"""')))));
                   }
                   ;
                   if (v1 instanceof Just) {
-                    return pure15(either(function(err) {
-                      return new $$Error({
-                        label: "JsonDecodeError",
-                        body: section2("Errors")([string_style(inj$prime23(unit))(intercalate7("\n")(["doc_str = " + ('"""' + (v1.value0 + '"""'))])), string_style(inj$prime23(unit))(intercalate7("\n")(["err = " + ('"""' + (printJsonDecodeError(err) + '"""'))]))])
-                      });
-                    })(function(doc_name) {
-                      return ref2(wrap3(doc_name));
-                    })(fromJsonString3(v1.value0)));
+                    return pure15(ref2(wrap3(v1.value0)));
                   }
                   ;
-                  throw new Error("Failed pattern match at Rybl.App (line 87, column 28 - line 106, column 70): " + [v1.constructor.name]);
+                  throw new Error("Failed pattern match at Rybl.App (line 86, column 28 - line 92, column 67): " + [v1.constructor.name]);
                 }())(function(doc) {
                   return assign4(prop$prime5)(doc);
                 });
               }
               ;
-              throw new Error("Failed pattern match at Rybl.App (line 84, column 17 - line 107, column 40): " + [v.constructor.name]);
+              return v(true);
             }
             ;
-            throw new Error("Failed pattern match at Rybl.App (line 80, column 13 - line 107, column 40): " + [mb_url.constructor.name]);
+            throw new Error("Failed pattern match at Rybl.App (line 80, column 13 - line 116, column 33): " + [mb_url.constructor.name]);
           }())(function() {
             return pure15(unit);
           });

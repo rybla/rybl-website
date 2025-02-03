@@ -5,6 +5,7 @@ import Prelude
 import Control.Monad.Reader (class MonadReader, ask, local)
 import Control.Monad.State (class MonadState, get)
 import Control.Monad.Writer (tell)
+import Data.Argonaut (encodeJson)
 import Data.Argonaut.Encode (toJsonString)
 import Data.Array as Array
 import Data.Either (Either(..))
@@ -213,7 +214,7 @@ renderDoc (Link doc) = doc.src ## case_
                     , "align-items: baseline"
                     , "gap: 0.2em"
                     ]
-                , HP.href $ "/index.html?doc=" <> (src.refId # unwrap # toJsonString # encodeURI # fromMaybe' \_ -> bug $ "failed: encodeURI " <> show (src.refId # toJsonString))
+                , HP.href $ "/index.html?ref=" <> (src.refId # unwrap # encodeURI # fromMaybe' \_ -> bug $ "failed: encodeURI " <> show (src.refId # toJsonString))
                 ]
                 [ HH.img
                     [ Style.style $ tell [ "height: 0.8em" ]
