@@ -6,6 +6,7 @@ import Control.Monad.Writer (tell)
 import Data.Argonaut.Decode (fromJsonString)
 import Data.Argonaut.Decode.Error (printJsonDecodeError)
 import Data.Either (either)
+import Data.Foldable (intercalate)
 import Data.Lens ((.=))
 import Data.Maybe (Maybe(..))
 import Data.Newtype (wrap)
@@ -23,9 +24,10 @@ import JSURI (decodeURI)
 import Rybl.Data.Variant (case_, inj', on')
 import Rybl.Halogen.Class as Class
 import Rybl.Halogen.Style as Style
-import Rybl.Language as Rybl.Language
-import Rybl.Language.Component.Basic as Rybl.Language.Component
-import Rybl.Language.Component.Common as Rybl.Language.Component.Common
+import Rybl.Language (Doc)
+import Rybl.Language as RL
+import Rybl.Language.Component.Basic as RC
+import Rybl.Language.Component.Common (ViewMode)
 import Rybl.Utility (prop')
 import Type.Proxy (Proxy(..))
 import Web.HTML as Web.HTML
@@ -43,8 +45,8 @@ component :: forall query input output. H.Component query input output Aff
 component = H.mkComponent { initialState, eval, render }
   where
   initialState _ =
-    { doc: Rybl.Language.Ref { refId: wrap "index" } :: Rybl.Language.Doc
-    , viewMode: inj' @"unknown" unit :: Rybl.Language.Component.Common.ViewMode
+    { doc: RL.Ref { refId: wrap "index" } :: Doc
+    , viewMode: inj' @"unknown" unit :: ViewMode
     }
 
   eval = H.mkEval H.defaultEval
@@ -83,21 +85,25 @@ component = H.mkComponent { initialState, eval, render }
                   Nothing -> pure unit
                   Just doc_str_ -> do
                     doc <- case doc_str_ # decodeURI of
-                      Nothing -> pure $ Rybl.Language.Error
+                      Nothing -> pure $ RL.Error
                         { label: "decodeURI error"
-                        , body: Rybl.Language.String { style: inj' @"code" unit, value: "doc_str = " <> "\"\"\"" <> doc_str_ <> "\"\"\"" }
+                        , body: RL.string_style (inj' @"code" unit) $ "doc_str = " <> "\"\"\"" <> doc_str_ <> "\"\"\""
                         }
                       Just doc_str -> do
                         pure $
                           doc_str
-                            # fromJsonString
+                            # (fromJsonString :: _ -> _ String)
                             # either
-                                ( \err -> Rybl.Language.Error
+                                ( \err -> RL.Error
                                     { label: "JsonDecodeError"
-                                    , body: Rybl.Language.String { style: inj' @"code" unit, value: "err = " <> "\"\"\"" <> printJsonDecodeError err <> "\"\"\"" }
+                                    , body:
+                                        RL.section "Errors"
+                                          [ RL.string_style (inj' @"code" unit) $ intercalate "\n" [ "doc_str = " <> "\"\"\"" <> doc_str <> "\"\"\"" ]
+                                          , RL.string_style (inj' @"code" unit) $ intercalate "\n" [ "err = " <> "\"\"\"" <> printJsonDecodeError err <> "\"\"\"" ]
+                                          ]
                                     }
                                 )
-                                identity
+                                (\doc_name -> RL.ref (wrap doc_name))
                     prop' @"doc" .= doc
             -- TODO: update .viewMode
             pure unit
@@ -123,10 +129,10 @@ component = H.mkComponent { initialState, eval, render }
       --       ]
       -- , HH.div
       --     [ Style.style $ tell [ "margin-top: 0.5rem", "padding: 0.5rem", "border: 0.5rem solid black", "box-shadow: 0 0 1rem 0 black" ] ]
-      --     [ HH.slot_ (Proxy @"doc") unit Rybl.Language.Component.theDocComponent { doc, viewMode } ]
+      --     [ HH.slot_ (Proxy @"doc") unit RyblComponent.theDocComponent { doc, viewMode } ]
       -- ]
       [ HH.div
           [ Style.style $ tell [ "margin-top: 0.5rem", "padding: 0.5rem" ] ]
-          [ HH.slot_ (Proxy @"doc") unit Rybl.Language.Component.theDocComponent { doc, viewMode } ]
+          [ HH.slot_ (Proxy @"doc") unit RC.theDocComponent { doc, viewMode } ]
       ]
 

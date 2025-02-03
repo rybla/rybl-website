@@ -45,7 +45,7 @@ type Ctx =
             , error_on_load :: PlainHTML
             )
         )
-  , section_path :: List { index :: Int, title :: Doc }
+  , section_path :: List { index :: Int, title :: String }
   }
 
 type WidgetIndex = Int

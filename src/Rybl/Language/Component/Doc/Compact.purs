@@ -15,6 +15,7 @@ import Data.List as List
 import Data.Map as Map
 import Data.Maybe (Maybe(..), fromMaybe')
 import Data.Newtype (unwrap)
+import Data.String as String
 import Data.Traversable (foldMap, traverse)
 import Effect.Aff (Aff)
 import Effect.Class.Console as Console
@@ -22,13 +23,13 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import JSURI (encodeURI)
-import Rybl.Data.Variant (case_, on')
-import Rybl.Halogen.Style (Style)
+import JSURI (encodeURI, encodeURIComponent)
+import Rybl.Data.Variant (case_, match, on')
 import Rybl.Halogen.Style as Style
 import Rybl.Language (Doc(..))
+import Rybl.Language as RL
 import Rybl.Language.Component.Common (Ctx, Env, HTML, next_widget_index, mapAction_ComponentHTML)
-import Rybl.Utility (bug, prop', (##))
+import Rybl.Utility (bug, impossible, prop', (##))
 import Type.Proxy (Proxy(..))
 
 renderDoc :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m (Array HTML)
@@ -37,15 +38,30 @@ renderDoc (Section doc) = do
   { section_path } <- ask
   { section_index } <- get
   let section_depth = section_path # length
-  title <- renderDoc doc.title
+  title <- renderDoc $ RL.string doc.title
   body <-
     local (prop' @"section_path" %~ List.Cons { index: section_index, title: doc.title }) do
       prop' @"section_index" .= 0
       doc.body # traverse renderDoc # map Array.fold
   prop' @"section_index" .= section_index + 1
+  let
+    section_id =
+      -- "section_" <>
+      --   ( List.Cons section_index (section_path # map _.index)
+      --       # map ((_ + 1) >>> show)
+      --       # List.reverse
+      --       # List.intercalate "_"
+      --   )
+      "section_" <>
+        ( doc.title
+            # String.replace (String.Pattern " ") (String.Replacement "_")
+            # encodeURIComponent >>> fromMaybe' impossible
+        )
   pure
     [ HH.div
-        [ Style.style $ tell [ "padding-top: 1rem;", "display: flex", "flex-direction: column", "gap: 0.5rem" ] ]
+        [ Style.style $ tell [ "padding-top: 1rem;", "display: flex", "flex-direction: column", "gap: 0.5rem" ]
+        , HP.id section_id
+        ]
         [ HH.div
             [ Style.style $ tell
                 [ "display: flex"
@@ -53,20 +69,27 @@ renderDoc (Section doc) = do
                 , "justify-content: space-between"
                 , "align-items: flex-start"
                 , "gap: 1em"
-                , "font-size: " <> show ((2.0 - (Int.toNumber section_depth * 0.2)) `max` 1.0) <> "rem"
+                , "font-size: " <> show ((2.0 - (Int.toNumber section_depth * 0.2)) `max` 1.0) <> "em"
                 ]
             ]
             [ HH.div
-                [ Style.style $ tell [ "flex-grow: 0" ] ]
-                title
+                [ Style.style $ tell [ "flex-grow: 0" ] ] $ fold $
+                [ [ HH.a
+                      [ HP.href $ "#" <> section_id ]
+                      [ HH.text $ "§" ]
+                  ]
+                , title
+                ]
             , HH.div
                 [ Style.style $ tell [ "flex-shrink: 0", "flex-grow: 1", "text-align: right" ] ]
                 [ HH.text
-                    $ ("§" <> _)
-                    $ List.intercalate "."
-                    $ List.reverse
-                    $ map ((_ + 1) >>> show)
                     $ List.Cons section_index (section_path # map _.index)
+                        # map ((_ + 1) >>> show)
+                        # List.reverse
+                        # List.intercalate "."
+                , HH.a
+                    [ HP.href $ "#" <> section_id ]
+                    [ HH.text $ "§" ]
                 ]
             ]
         , HH.div
@@ -132,7 +155,16 @@ renderDoc (Ref doc) = do
 renderDoc (String doc) = do
   pure
     [ HH.div
-        [ Style.style $ tell [ "display: inline" ] ]
+        [ Style.style do
+            tell [ "display: inline" ]
+            doc.style # match
+              { plain: mempty
+              , emphasis: const do
+                  tell [ "font-weight: bold" ]
+              , code: const do
+                  tell [ "font-family: monospace" ]
+              }
+        ]
         [ HH.text doc.value ]
     ]
 
@@ -220,7 +252,7 @@ theSidenoteExpanderComponent = H.mkComponent { initialState, eval, render }
       HH.div
         [ Style.style $ tell [ "display: inline" ] ] $ fold $
         [ [ HH.div
-              [ Style.style $ tell [ "display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)" ]
+              [ Style.style $ tell [ "display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)", "padding-left: 0.3em" ]
               , HE.onClick $ const $ Right unit
               ] $ fold $
               [ marker
@@ -231,11 +263,11 @@ theSidenoteExpanderComponent = H.mkComponent { initialState, eval, render }
         , if not state.open then []
           else
             [ HH.div
-                [ Style.style $ tell [ "margin: 0.5rem", "padding: 0.5rem", "box-shadow: 0 0 0 1px black", "background-color: rgba(0, 0, 0, 0.1)" ] ]
+                [ Style.style $ tell [ "margin: 0.5rem", "padding: 0.5rem", "box-shadow: 0 0 0.5em 0 rgba(0, 0, 0, 0.5)", "background-color: rgba(0, 0, 0, 0.1)" ] ]
                 state.body
             ]
         , [ HH.div
-              [ Style.style $ tell [ "display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)" ]
+              [ Style.style $ tell [ "display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)", "padding-right: 0.3em" ]
               , HE.onClick $ const $ Right unit
               ] $ fold $
               [ [ HH.text " " ]

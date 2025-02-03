@@ -16,11 +16,9 @@ namedDocs = Map.fromFoldable
   [ Tuple "index" $
       Doc.ref (wrap "full_example_1")
   , Tuple "full_example_1" $
-      Doc.section
-        (Doc.string "Full Example #1")
+      Doc.section "Full Example #1"
         [ Doc.paragraph [ Doc.sentence [ Doc.string "This is a paragraph before a section." ] ]
-        , Doc.section
-            (Doc.string "Links")
+        , Doc.section "Links"
             [ Doc.paragraph
                 [ Doc.sentence
                     [ Doc.string "Here is a link to an external page: "
@@ -36,8 +34,7 @@ namedDocs = Map.fromFoldable
                     ]
                 ]
             ]
-        , Doc.section
-            (Doc.string "Sidenotes")
+        , Doc.section "Sidenotes"
             [ Doc.paragraph
                 [ Doc.sentence
                     [ Doc.string "I wanted to say a "
@@ -49,6 +46,10 @@ namedDocs = Map.fromFoldable
                 , Doc.sentence [ Doc.string "And this is another sentence." ]
                 ]
             ]
+        , Doc.section "Tree"
+            ( make_section_tree 4 4
+                [ Doc.paragraph [ Doc.sentence [ Doc.string "Test" ] ] ]
+            )
         ]
   , Tuple "lorem_ipsum" $
       Doc.paragraph
@@ -58,8 +59,7 @@ namedDocs = Map.fromFoldable
         , Doc.sentence [ Doc.string "Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!" ]
         ]
   , Tuple "sidenote_example_1" $
-      Doc.section
-        (Doc.string "Sidenote Example #1")
+      Doc.section "Sidenote Example #1"
         [ Doc.paragraph
             [ Doc.sentence
                 [ Doc.string "I wanted to say a "
@@ -71,8 +71,7 @@ namedDocs = Map.fromFoldable
             ]
         ]
   , Tuple "example_index_4"
-      $ Doc.section
-          (Doc.string "This is example_index_4 which is the title of the doc")
+      $ Doc.section "This is example_index_4 which is the title of the doc"
       $ fold
           [ [ Doc.paragraph
                 [ Doc.sentence
@@ -104,7 +103,6 @@ make_section_tree depth breadth body =
   else
     body <>
       Array.replicate breadth
-        ( Doc.section
-            (Doc.string "Section Title")
+        ( Doc.section "Section Title"
             (body <> make_section_tree (depth - 1) breadth body)
         )

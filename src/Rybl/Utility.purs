@@ -22,10 +22,13 @@ type U = Unit
 infixl 0 applyFlipped as ##
 
 todo :: forall b3. String -> b3
-todo msg = unsafeCrashWith $ "TODO: " <> msg
+todo msg = unsafeCrashWith $ "[[TODO]]\n" <> msg
 
 bug :: forall b3. String -> b3
-bug msg = unsafeCrashWith $ "BUG: " <> msg
+bug msg = unsafeCrashWith $ "[[BUG]]\n" <> msg
+
+impossible :: forall a. Unit -> a
+impossible _ = bug "impossible"
 
 prop' :: forall @l r1 r2 r a b. IsSymbol l => Cons l a r r1 => Cons l b r r2 => (forall p. Strong p => p a b -> p (Record r1) (Record r2))
 prop' = Data.Lens.Record.prop (Proxy @l)
@@ -76,4 +79,3 @@ instance Ord (Literal xs) where
 
 literal :: forall @x xs_ xs. IsSymbol x => Cons x Unit xs_ xs => Literal xs
 literal = Literal (inj' @x unit)
-

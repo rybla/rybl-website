@@ -28,7 +28,7 @@ derive newtype instance EncodeJson RefId
 derive newtype instance DecodeJson RefId
 
 data Doc
-  = Section { title :: Doc, body :: Array Doc }
+  = Section { title :: String, body :: Array Doc }
   -- 
   | Paragraph { body :: Array Doc }
   -- 
@@ -71,7 +71,7 @@ type StringStyle = Variant
   )
 
 kids_Doc :: Doc -> Array Doc
-kids_Doc (Section doc) = [ doc.title ] <> doc.body
+kids_Doc (Section doc) = [ string doc.title ] <> doc.body
 kids_Doc (Paragraph doc) = doc.body
 kids_Doc (Sentence doc) = doc.body
 kids_Doc (Link doc) = [ doc.label ]
@@ -84,7 +84,7 @@ kids_Doc (Error doc) = [ doc.body ]
 -- Doc constructors
 --------------------------------------------------------------------------------
 
-section :: Doc -> Array Doc -> Doc
+section :: String -> Array Doc -> Doc
 section title body = Section { title, body }
 
 paragraph :: Array Doc -> Doc
