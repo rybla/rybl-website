@@ -5,7 +5,6 @@ import Prelude
 import Control.Monad.Reader (class MonadReader, ask, local)
 import Control.Monad.State (class MonadState, get)
 import Control.Monad.Writer (tell)
-import Data.Argonaut (encodeJson)
 import Data.Argonaut.Encode (toJsonString)
 import Data.Array as Array
 import Data.Either (Either(..))
@@ -47,12 +46,6 @@ renderDoc (Section doc) = do
   prop' @"section_index" .= section_index + 1
   let
     section_id =
-      -- "section_" <>
-      --   ( List.Cons section_index (section_path # map _.index)
-      --       # map ((_ + 1) >>> show)
-      --       # List.reverse
-      --       # List.intercalate "_"
-      --   )
       "section_" <>
         ( doc.title
             # String.replace (String.Pattern " ") (String.Replacement "_")
@@ -71,6 +64,7 @@ renderDoc (Section doc) = do
                 , "align-items: flex-start"
                 , "gap: 1em"
                 , "font-size: " <> show ((2.0 - (Int.toNumber section_depth * 0.2)) `max` 1.0) <> "em"
+                , "box-shadow: 0 1px 0 0 black"
                 ]
             ]
             [ HH.div

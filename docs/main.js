@@ -10259,7 +10259,7 @@
         });
       }
       ;
-      throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 244, column 3 - line 244, column 46): " + [v.constructor.name]);
+      throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 238, column 3 - line 238, column 46): " + [v.constructor.name]);
     };
     var $$eval = mkEval({
       handleQuery: defaultEval.handleQuery,
@@ -10304,7 +10304,7 @@
                 })))(function(body4) {
                   return discard32(assign5(prop$prime22)(v2.section_index + 1 | 0))(function() {
                     var section_id = "section_" + fromMaybe$prime(impossible)($$encodeURIComponent(replace(" ")("_")(v.value0.title)));
-                    return pure16([div2([style3(tell3(["padding-top: 1rem;", "display: flex", "flex-direction: column", "gap: 0.5rem"])), id3(section_id)])([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: space-between", "align-items: flex-start", "gap: 1em", "font-size: " + (show4(max6(2 - toNumber(section_depth) * 0.2)(1)) + "em")]))])([div2([style3(tell3(["flex-grow: 0"]))])(fold3([[a([href4("#" + section_id)])([text5("\xA7")])], title3])), div2([style3(tell3(["flex-shrink: 0", "flex-grow: 1", "text-align: right"]))])([text5(intercalate6(".")(reverse2(map35(function($127) {
+                    return pure16([div2([style3(tell3(["padding-top: 1rem;", "display: flex", "flex-direction: column", "gap: 0.5rem"])), id3(section_id)])([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: space-between", "align-items: flex-start", "gap: 1em", "font-size: " + (show4(max6(2 - toNumber(section_depth) * 0.2)(1)) + "em"), "box-shadow: 0 1px 0 0 black"]))])([div2([style3(tell3(["flex-grow: 0"]))])(fold3([[a([href4("#" + section_id)])([text5("\xA7")])], title3])), div2([style3(tell3(["flex-shrink: 0", "flex-grow: 1", "text-align: right"]))])([text5(intercalate6(".")(reverse2(map35(function($127) {
                       return show12(function(v3) {
                         return v3 + 1 | 0;
                       }($127));
@@ -10358,7 +10358,7 @@
               })(on$prime22($$const(pure16([div2([])([text5("loading refId " + show22(v.value0.refId))])])))(on$prime3(renderDoc(dictMonadReader)(dictMonadState))(case_)))(v2.value0);
             }
             ;
-            throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 131, column 3 - line 154, column 12): " + [v2.constructor.name]);
+            throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 125, column 3 - line 148, column 12): " + [v2.constructor.name]);
           });
         }
         ;
@@ -10396,13 +10396,13 @@
                   return [img([style3(tell3(["height: 0.8em"])), src9(src10.mb_favicon_src.value0)]), div_(label5)];
                 }
                 ;
-                throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 194, column 17 - line 203, column 22): " + [src10.mb_favicon_src.constructor.name]);
+                throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 188, column 17 - line 197, column 22): " + [src10.mb_favicon_src.constructor.name]);
               }())]);
             });
           })(case_))(v.value0.src);
         }
         ;
-        throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 36, column 1 - line 36, column 86): " + [v.constructor.name]);
+        throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 35, column 1 - line 35, column 86): " + [v.constructor.name]);
       };
     };
   };
