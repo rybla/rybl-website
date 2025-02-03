@@ -27,6 +27,11 @@ derive newtype instance Ord RefId
 derive newtype instance EncodeJson RefId
 derive newtype instance DecodeJson RefId
 
+-- TODO: code blocks
+-- TODO: lists (nested)
+-- TODO: quote blocks
+-- TODO: media (images/videos/models/etc)
+-- TODO: math
 data Doc
   = Section { title :: String, body :: Array Doc }
   -- 
