@@ -2,6 +2,7 @@ module Rybl.Utility where
 
 import Prelude
 
+import Control.Bind (bindFlipped)
 import Data.Foldable (class Foldable)
 import Data.Function (applyFlipped)
 import Data.Lens.Record as Data.Lens.Record
@@ -29,6 +30,9 @@ bug msg = unsafeCrashWith $ "[[BUG]]\n" <> msg
 
 impossible :: forall a. Unit -> a
 impossible _ = bug "impossible"
+
+bind' :: forall m a b. Bind m => (a -> m b) -> m a -> m b
+bind' = bindFlipped
 
 prop' :: forall @l r1 r2 r a b. IsSymbol l => Cons l a r r1 => Cons l b r r2 => (forall p. Strong p => p a b -> p (Record r1) (Record r2))
 prop' = Data.Lens.Record.prop (Proxy @l)

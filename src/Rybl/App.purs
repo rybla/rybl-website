@@ -21,6 +21,8 @@ import Halogen.HTML.Properties as HP
 import Halogen.Query.Event as HQE
 import Halogen.VDom.Driver as HVD
 import JSURI (decodeURI)
+import Rybl.Data.Fix (Fix(..))
+import Rybl.Data.Fix as Fix
 import Rybl.Data.Variant (case_, inj', on')
 import Rybl.Halogen.Class as Class
 import Rybl.Halogen.Style as Style
@@ -45,7 +47,7 @@ component :: forall query input output. H.Component query input output Aff
 component = H.mkComponent { initialState, eval, render }
   where
   initialState _ =
-    { doc: RL.Ref { refId: wrap "index" } :: Doc
+    { doc: RL.Ref { refId: wrap "index" } # Fix.wrap :: Doc
     , viewMode: inj' @"unknown" unit :: ViewMode
     }
 
@@ -93,23 +95,23 @@ component = H.mkComponent { initialState, eval, render }
                     prop' @"doc" .= doc
                   _ | Just doc_str_ <- urlSearchParams # Web.URLSearchParams.get "doc" -> do
                     doc <- case doc_str_ # decodeURI of
-                      Nothing -> pure $ RL.Error
-                        { label: "decodeURI error"
-                        , body: RL.string_style (inj' @"code" unit) $ "doc_str = " <> "\"\"\"" <> doc_str_ <> "\"\"\""
-                        }
+                      Nothing -> pure $ Fix $
+                        RL.Error
+                          { label: "decodeURI error" }
+                          (RL.string_style (inj' @"code" unit) $ "doc_str = " <> "\"\"\"" <> doc_str_ <> "\"\"\"")
                       Just doc_str -> do
                         pure $
                           doc_str
                             # fromJsonString
                             # either
-                                ( \err -> RL.Error
-                                    { label: "JsonDecodeError"
-                                    , body:
-                                        RL.section "Errors"
+                                ( \err -> Fix $
+                                    RL.Error
+                                      { label: "JsonDecodeError" }
+                                      ( RL.section "Errors"
                                           [ RL.string_style (inj' @"code" unit) $ intercalate "\n" [ "doc_str = " <> "\"\"\"" <> doc_str <> "\"\"\"" ]
                                           , RL.string_style (inj' @"code" unit) $ intercalate "\n" [ "err = " <> "\"\"\"" <> printJsonDecodeError err <> "\"\"\"" ]
                                           ]
-                                    }
+                                      )
                                 )
                                 identity
                     prop' @"doc" .= doc

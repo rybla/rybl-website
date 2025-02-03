@@ -6,15 +6,15 @@ import Data.Argonaut (class DecodeJson, class EncodeJson)
 import Data.Argonaut.Decode.Generic (genericDecodeJson)
 import Data.Argonaut.Encode.Generic (genericEncodeJson)
 import Data.Array.ST as ArrayST
-import Data.Eq.Generic (genericEq)
 import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
-import Data.Ord.Generic (genericCompare)
 import Data.Set (Set)
 import Data.Set as Set
 import Data.Show.Generic (genericShow)
-import Data.Traversable (traverse_)
+import Data.Traversable (class Foldable, class Traversable)
+import Rybl.Data.Fix (Fix)
+import Rybl.Data.Fix as Fix
 import Rybl.Data.Variant (Variant, inj', inj'U)
 import Rybl.Utility (U)
 
@@ -27,47 +27,57 @@ derive newtype instance Ord RefId
 derive newtype instance EncodeJson RefId
 derive newtype instance DecodeJson RefId
 
--- TODO: code blocks
--- TODO: lists (nested)
--- TODO: quote blocks
--- TODO: media (images/videos/models/etc)
--- TODO: math
-data Doc
-  = Section { title :: String, body :: Array Doc }
+type Doc = Fix Doc_
+
+data Doc_ self
+  = Section { title :: String } (Array self)
   -- 
-  | Paragraph { body :: Array Doc }
+  | Paragraph {} (Array self)
   -- 
-  | Sentence { body :: Array Doc }
+  | Sentence {} (Array self)
   --
   | Link
-      { label :: Doc
-      , src ::
+      { src ::
           Variant
             ( external :: { href :: String, mb_favicon_src :: Maybe String }
             , internal :: { refId :: RefId }
             )
       }
-  | Sidenote { label :: Doc, body :: Doc }
+      self
+  | Sidenote {} self self
   | Ref { refId :: RefId }
   | String { style :: StringStyle, value :: String }
-  | Error { label :: String, body :: Doc }
+  | CodeBlock { value :: String }
+  | QuoteBlock {} self
+  | MathBlock { value :: String }
+  -- TODO: media (images/videos/models/etc)
+  | Media
+      ( Variant
+          ( image :: { src :: String }
+          )
+      )
+  | Error { label :: String } self
 
-derive instance Generic Doc _
+derive instance Generic (Doc_ self) _
 
-instance Show Doc where
+instance Show self => Show (Doc_ self) where
   show x = genericShow x
 
-instance Eq Doc where
-  eq x = genericEq x
+-- instance Eq self => Eq (Doc_ self) where
+--   eq x = genericEq x
 
-instance Ord Doc where
-  compare x = genericCompare x
+-- instance Ord self => Ord (Doc_ self) where
+--   compare x = genericCompare x
 
-instance EncodeJson Doc where
+instance EncodeJson self => EncodeJson (Doc_ self) where
   encodeJson x = genericEncodeJson x
 
-instance DecodeJson Doc where
+instance DecodeJson self => DecodeJson (Doc_ self) where
   decodeJson x = genericDecodeJson x
+
+derive instance Functor Doc_
+derive instance Foldable Doc_
+derive instance Traversable Doc_
 
 type StringStyle = Variant
   ( plain :: U
@@ -75,49 +85,39 @@ type StringStyle = Variant
   , code :: U
   )
 
-kids_Doc :: Doc -> Array Doc
-kids_Doc (Section doc) = [ string doc.title ] <> doc.body
-kids_Doc (Paragraph doc) = doc.body
-kids_Doc (Sentence doc) = doc.body
-kids_Doc (Link doc) = [ doc.label ]
-kids_Doc (Sidenote doc) = [ doc.label, doc.body ]
-kids_Doc (Ref _) = []
-kids_Doc (String _) = []
-kids_Doc (Error doc) = [ doc.body ]
-
 --------------------------------------------------------------------------------
 -- Doc constructors
 --------------------------------------------------------------------------------
 
 section :: String -> Array Doc -> Doc
-section title body = Section { title, body }
+section title body = Fix.wrap $ Section { title } body
 
 paragraph :: Array Doc -> Doc
-paragraph body = Paragraph { body }
+paragraph body = Fix.wrap $ Paragraph {} body
 
 sentence :: Array Doc -> Doc
-sentence body = Sentence { body }
+sentence body = Fix.wrap $ Sentence {} body
 
 link_external :: Doc -> { href :: String, mb_favicon_src :: Maybe String } -> Doc
-link_external label external = Link { label, src: inj' @"external" external }
+link_external label external = Fix.wrap $ Link { src: inj' @"external" external } label
 
 link_internal :: Doc -> { refId :: RefId } -> Doc
-link_internal label internal = Link { label, src: inj' @"internal" internal }
+link_internal label internal = Fix.wrap $ Link { src: inj' @"internal" internal } label
 
 sidenote :: Doc -> Doc -> Doc
-sidenote label body = Sidenote { label, body }
+sidenote label body = Fix.wrap $ Sidenote {} label body
 
 ref :: RefId -> Doc
-ref refId = Ref { refId }
+ref refId = Fix.wrap $ Ref { refId }
 
 string :: String -> Doc
-string value = String { style: inj'U @"plain", value }
+string value = Fix.wrap $ String { style: inj'U @"plain", value }
 
 string_style :: StringStyle -> String -> Doc
-string_style style value = String { style, value }
+string_style style value = Fix.wrap $ String { style, value }
 
 error :: String -> Doc -> Doc
-error label body = Error { label, body }
+error label body = Fix.wrap $ Error { label } body
 
 --------------------------------------------------------------------------------
 
@@ -137,14 +137,14 @@ error label body = Error { label, body }
 --     pure sidenotes
 
 collectRefIds :: Doc -> Set RefId
-collectRefIds d0 =
-  ( ArrayST.run do
-      refIds <- ArrayST.new
-      let
-        go doc = do
-          case doc of
-            Ref doc' -> refIds # ArrayST.push doc'.refId # void
-            _ -> doc # kids_Doc # traverse_ go
-      go d0
-      pure refIds
-  ) # Set.fromFoldable
+collectRefIds doc0 =
+  ArrayST.run
+    ( do
+        refIds <- ArrayST.new
+        doc0 # Fix.traverse_upwards_ case _ of
+          Ref doc -> refIds # ArrayST.push doc.refId # void
+          _ -> pure unit
+        pure refIds
+    )
+    # Set.fromFoldable
+

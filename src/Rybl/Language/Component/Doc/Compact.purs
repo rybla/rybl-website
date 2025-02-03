@@ -24,9 +24,10 @@ import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import JSURI (encodeURI, encodeURIComponent)
+import Rybl.Data.Fix (Fix(..))
 import Rybl.Data.Variant (case_, match, on')
 import Rybl.Halogen.Style as Style
-import Rybl.Language (Doc(..))
+import Rybl.Language (Doc, Doc_(..))
 import Rybl.Language as RL
 import Rybl.Language.Component.Common (Ctx, Env, HTML, next_widget_index, mapAction_ComponentHTML)
 import Rybl.Utility (bug, impossible, prop', (##))
@@ -34,7 +35,7 @@ import Type.Proxy (Proxy(..))
 
 renderDoc :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m (Array HTML)
 
-renderDoc (Section doc) = do
+renderDoc (Fix (Section doc body_)) = do
   { section_path } <- ask
   { section_index } <- get
   let section_depth = section_path # length
@@ -42,7 +43,7 @@ renderDoc (Section doc) = do
   body <-
     local (prop' @"section_path" %~ List.Cons { index: section_index, title: doc.title }) do
       prop' @"section_index" .= 0
-      doc.body # traverse renderDoc # map Array.fold
+      body_ # traverse renderDoc # map Array.fold
   prop' @"section_index" .= section_index + 1
   let
     section_id =
@@ -93,25 +94,25 @@ renderDoc (Section doc) = do
         ]
     ]
 
-renderDoc (Paragraph doc) = do
-  body <- doc.body # traverse renderDoc # map (foldMap \x -> [ x, [ HH.text " " ] ]) # map Array.fold
+renderDoc (Fix (Paragraph doc body_)) = do
+  body <- body_ # traverse renderDoc # map (foldMap \x -> [ x, [ HH.text " " ] ]) # map Array.fold
   pure
     [ HH.div
         [ Style.style $ tell [] ]
         body
     ]
 
-renderDoc (Sentence doc) = do
-  body <- doc.body # traverse renderDoc # map Array.fold
+renderDoc (Fix (Sentence doc body_)) = do
+  body <- body_ # traverse renderDoc # map Array.fold
   pure
     [ HH.div
         [ Style.style $ tell [ "display: inline" ] ]
         body
     ]
 
-renderDoc (Sidenote doc) = do
-  label <- doc.label # renderDoc
-  body <- doc.body # renderDoc
+renderDoc (Fix (Sidenote doc label body)) = do
+  label <- label # renderDoc
+  body <- body # renderDoc
   widget_index <- next_widget_index
   pure
     [ HH.slot_ (Proxy @"SidenoteExpander") widget_index theSidenoteExpanderComponent
@@ -120,7 +121,7 @@ renderDoc (Sidenote doc) = do
         }
     ]
 
-renderDoc (Ref doc) = do
+renderDoc (Fix (Ref doc)) = do
   { namedDocs } <- ask
   case namedDocs # Map.lookup doc.refId of
     Nothing -> pure
@@ -147,7 +148,48 @@ renderDoc (Ref doc) = do
               ]
           )
 
-renderDoc (String doc) = do
+renderDoc (Fix (CodeBlock doc)) = do
+  pure
+    [ HH.div
+        [ Style.style do tell [ "background-color: rgba(0, 0, 0, 0.1)", "display: flex", "flex-direction: row", "justify-content: center", "padding: 0.5rem" ] ]
+        [ HH.pre
+            []
+            [ HH.text doc.value ]
+        ]
+    ]
+
+renderDoc (Fix (QuoteBlock doc body_)) = do
+  body <- body_ # renderDoc
+  pure
+    [ HH.div
+        [ Style.style do tell [ "background-color: rgba(0, 0, 0, 0.1)", "display: flex", "flex-direction: row", "justify-content: center", "padding: 0.5rem" ] ]
+        body
+    ]
+
+renderDoc (Fix (MathBlock doc)) = do
+  pure
+    [ HH.div
+        [ Style.style do tell [ "background-color: rgba(0, 0, 0, 0.1)", "display: flex", "flex-direction: row", "justify-content: center", "padding: 0.5rem" ] ]
+        [ HH.div
+            []
+            [ HH.text $ "MATH: " <> doc.value ]
+        ]
+    ]
+
+renderDoc (Fix (Media form)) = form # match
+  { image: \doc ->
+      pure
+        [ HH.div
+            []
+            [ HH.img
+                [ Style.style do tell [ "width: 100%" ]
+                , HP.src doc.src
+                ]
+            ]
+        ]
+  }
+
+renderDoc (Fix (String doc)) = do
   pure
     [ HH.div
         [ Style.style do
@@ -163,18 +205,18 @@ renderDoc (String doc) = do
         [ HH.text doc.value ]
     ]
 
-renderDoc (Error doc) = do
-  e <- doc.body # renderDoc
+renderDoc (Fix (Error doc body_)) = do
+  e <- body_ # renderDoc
   pure
     [ HH.div
         [ Style.style $ tell [ "background-color: #ffcccb" ] ]
         e
     ]
 
-renderDoc (Link doc) = doc.src ## case_
+renderDoc (Fix (Link doc label_)) = doc.src ## case_
   # on' @"external"
       ( \src -> do
-          label <- doc.label # renderDoc
+          label <- label_ # renderDoc
           pure
             [ HH.a
                 [ Style.style $ tell
@@ -199,7 +241,7 @@ renderDoc (Link doc) = doc.src ## case_
       )
   # on' @"internal"
       ( \src -> do
-          label <- doc.label # renderDoc
+          label <- label_ # renderDoc
           pure
             [ HH.a
                 [ Style.style $ tell
