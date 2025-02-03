@@ -33,7 +33,7 @@ data Doc
   | Paragraph { body :: Array Doc }
   -- 
   | Sentence { body :: Array Doc }
-  -- 
+  --
   | Link
       { label :: Doc
       , src ::

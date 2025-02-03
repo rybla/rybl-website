@@ -3,7 +3,7 @@ module Rybl.Language.Component.Doc.Compact where
 import Prelude
 
 import Control.Monad.Reader (class MonadReader, ask, local)
-import Control.Monad.State (class MonadState, get, gets)
+import Control.Monad.State (class MonadState, get)
 import Control.Monad.Writer (tell)
 import Data.Argonaut.Encode (toJsonString)
 import Data.Array as Array
@@ -16,15 +16,15 @@ import Data.Map as Map
 import Data.Maybe (Maybe(..), fromMaybe')
 import Data.Newtype (unwrap)
 import Data.Traversable (foldMap, traverse)
-import Data.Tuple (Tuple)
-import Data.Tuple.Nested ((/\))
+import Effect.Aff (Aff)
 import Effect.Class.Console as Console
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import JSURI (encodeURI)
-import Rybl.Data.Variant (case_, inj', on')
+import Rybl.Data.Variant (case_, on')
+import Rybl.Halogen.Style (Style)
 import Rybl.Halogen.Style as Style
 import Rybl.Language (Doc(..))
 import Rybl.Language.Component.Common (Ctx, Env, HTML, next_widget_index, mapAction_ComponentHTML)
@@ -45,7 +45,7 @@ renderDoc (Section doc) = do
   prop' @"section_index" .= section_index + 1
   pure
     [ HH.div
-        [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 0.5rem" ] ]
+        [ Style.style $ tell [ "padding-top: 1rem;", "display: flex", "flex-direction: column", "gap: 0.5rem" ] ]
         [ HH.div
             [ Style.style $ tell
                 [ "display: flex"
@@ -53,7 +53,7 @@ renderDoc (Section doc) = do
                 , "justify-content: space-between"
                 , "align-items: flex-start"
                 , "gap: 1em"
-                , "font-size: " <> show ((4.0 - (Int.toNumber section_depth * 0.2)) `max` 1.0) <> "rem"
+                , "font-size: " <> show ((2.0 - (Int.toNumber section_depth * 0.2)) `max` 1.0) <> "rem"
                 ]
             ]
             [ HH.div
@@ -196,6 +196,7 @@ renderDoc (Link doc) = doc.src ## case_
 -- theSidenoteExpanderComponent
 --------------------------------------------------------------------------------
 
+theSidenoteExpanderComponent :: H.Component _ _ _ Aff
 theSidenoteExpanderComponent = H.mkComponent { initialState, eval, render }
   where
   initialState input =
@@ -213,38 +214,35 @@ theSidenoteExpanderComponent = H.mkComponent { initialState, eval, render }
     prop' @"open" %= not
 
   render state =
-    HH.div
-      [ Style.style $ tell [ "display: inline" ] ] $
-      [ [ HH.div
-            [ Style.style $ tell [ "display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.2)", "padding: 0 0.2em" ]
-            , HE.onClick $ const $ Right unit
-            ] $
-            [ [ HH.div
-                  [ Style.style $ tell
-                      [ "display: inline-flex"
-                      , "justify-content: center"
-                      , "align-items: center"
-                      , "flex-direction: row"
-                      , "width: 1.1em"
-                      , "height: 1em"
-                      , "overflow: visible"
-                      , "line-height: 0"
-                      ]
-                  ]
-                  if state.open then [ HH.text "⬤" ] else [ HH.text "◯" ]
+    let
+      marker = if state.open then [ HH.text "■" ] else [ HH.text "□" ]
+    in
+      HH.div
+        [ Style.style $ tell [ "display: inline" ] ] $ fold $
+        [ [ HH.div
+              [ Style.style $ tell [ "display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)" ]
+              , HE.onClick $ const $ Right unit
+              ] $ fold $
+              [ marker
+              , [ HH.text " " ]
+              , state.label
               ]
-            , [ HH.text " " ]
-            , state.label
-            ]
-              # fold
-        ]
-      , if not state.open then []
-        else
-          [ HH.div
-              [ Style.style $ tell [ "margin: 0.5rem", "padding: 0.5rem", "box-shadow: 0 0 0 0.1rem black" ] ]
-              state.body
           ]
-      ] # fold
+        , if not state.open then []
+          else
+            [ HH.div
+                [ Style.style $ tell [ "margin: 0.5rem", "padding: 0.5rem", "box-shadow: 0 0 0 1px black", "background-color: rgba(0, 0, 0, 0.1)" ] ]
+                state.body
+            ]
+        , [ HH.div
+              [ Style.style $ tell [ "display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)" ]
+              , HE.onClick $ const $ Right unit
+              ] $ fold $
+              [ [ HH.text " " ]
+              , marker
+              ]
+          ]
+        ]
 
 --------------------------------------------------------------------------------
 -- theExpanderComponent

@@ -14,7 +14,49 @@ import Rybl.Language as Doc
 namedDocs :: Map String Doc
 namedDocs = Map.fromFoldable
   [ Tuple "index" $
-      Doc.ref (wrap "sidenote_example_1")
+      Doc.ref (wrap "full_example_1")
+  , Tuple "full_example_1" $
+      Doc.section
+        (Doc.string "Full Example #1")
+        [ Doc.paragraph [ Doc.sentence [ Doc.string "This is a paragraph before a section." ] ]
+        , Doc.section
+            (Doc.string "Links")
+            [ Doc.paragraph
+                [ Doc.sentence
+                    [ Doc.string "Here is a link to an external page: "
+                    , Doc.link_external (Doc.string "google") { href: "https://www.google.com/", mb_favicon_src: pure "https://www.google.com/favicon.ico" }
+                    , Doc.string "."
+                    ]
+                ]
+            , Doc.paragraph
+                [ Doc.sentence
+                    [ Doc.string "And now here's a link to an internal page: "
+                    , Doc.link_internal (Doc.string "lorem ipsum") { refId: wrap "lorem_ipsum" }
+                    , Doc.string "."
+                    ]
+                ]
+            ]
+        , Doc.section
+            (Doc.string "Sidenotes")
+            [ Doc.paragraph
+                [ Doc.sentence
+                    [ Doc.string "I wanted to say a "
+                    , Doc.sidenote
+                        (Doc.string "thing")
+                        (Doc.paragraph [ Doc.sentence [ Doc.string "This is the longer thing that I wanted to say, because it didn't quite fit in that tiny little space that was provided." ] ])
+                    , Doc.string ", but turns out it's a little too long to say right here."
+                    ]
+                , Doc.sentence [ Doc.string "And this is another sentence." ]
+                ]
+            ]
+        ]
+  , Tuple "lorem_ipsum" $
+      Doc.paragraph
+        [ Doc.sentence [ Doc.string "Lorem ipsum dolor sit amet consectetur adipisicing elit." ]
+        , Doc.sentence [ Doc.string "Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!" ]
+        , Doc.sentence [ Doc.string "Lorem ipsum dolor sit amet consectetur adipisicing elit." ]
+        , Doc.sentence [ Doc.string "Iure facilis, consequuntur necessitatibus aliquid ex nemo quos dolore, dicta ea possimus ratione cupiditate magni, saepe nulla odio odit aperiam incidunt eligendi!" ]
+        ]
   , Tuple "sidenote_example_1" $
       Doc.section
         (Doc.string "Sidenote Example #1")

@@ -106,7 +106,7 @@ component = H.mkComponent { initialState, eval, render }
   render { doc, viewMode } =
     HH.div
       [ HP.classes [ Class.mk @"app" ]
-      , Style.style $ tell [ "margin: auto", "width: 800px", "display: flex", "flex-direction: column", "gap: 0.5rem" ]
+      , Style.style $ tell [ "margin: auto", "max-width: 800px", "display: flex", "flex-direction: column", "gap: 0.5rem" ]
       ]
       -- [ HH.div
       --     [ Style.style $ tell [ "font-size: 2rem", "padding: 0 1rem" ] ]
@@ -126,7 +126,7 @@ component = H.mkComponent { initialState, eval, render }
       --     [ HH.slot_ (Proxy @"doc") unit Rybl.Language.Component.theDocComponent { doc, viewMode } ]
       -- ]
       [ HH.div
-          [ Style.style $ tell [ "margin-top: 0.5rem", "padding: 0.5rem", "box-shadow: 0 0 0 0.1rem black" ] ]
+          [ Style.style $ tell [ "margin-top: 0.5rem", "padding: 0.5rem" ] ]
           [ HH.slot_ (Proxy @"doc") unit Rybl.Language.Component.theDocComponent { doc, viewMode } ]
       ]
 

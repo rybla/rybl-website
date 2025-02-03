@@ -9988,6 +9988,7 @@
   var not3 = /* @__PURE__ */ not(heytingAlgebraBoolean);
   var discard7 = /* @__PURE__ */ discard(discardUnit);
   var discard12 = /* @__PURE__ */ discard7(bindHalogenM);
+  var log4 = /* @__PURE__ */ log3(/* @__PURE__ */ monadEffectHalogenM(monadEffectAff));
   var modifying2 = /* @__PURE__ */ modifying(monadStateHalogenM);
   var prop$prime3 = /* @__PURE__ */ prop$prime({
     reflectSymbol: function() {
@@ -10051,23 +10052,23 @@
       return "external";
     }
   });
-  var theSidenoteExpanderComponent = function(dictMonadEffect) {
-    var log5 = log3(monadEffectHalogenM(dictMonadEffect));
+  var theSidenoteExpanderComponent = /* @__PURE__ */ function() {
     var render = function(state3) {
-      return div2([style3(tell3(["display: inline"]))])(fold3([[div2([style3(tell3(["display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.2)", "padding: 0 0.2em"])), onClick($$const(new Right(unit)))])(fold3([[div2([style3(tell3(["display: inline-flex", "justify-content: center", "align-items: center", "flex-direction: row", "width: 1.1em", "height: 1em", "overflow: visible", "line-height: 0"]))])(function() {
+      var marker = function() {
         if (state3.open) {
-          return [text5("\u2B24")];
+          return [text5("\u25A0")];
         }
         ;
-        return [text5("\u25EF")];
-      }())], [text5(" ")], state3.label]))], function() {
-        var $97 = !state3.open;
-        if ($97) {
+        return [text5("\u25A1")];
+      }();
+      return div2([style3(tell3(["display: inline"]))])(fold3([[div2([style3(tell3(["display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)"])), onClick($$const(new Right(unit)))])(fold3([marker, [text5(" ")], state3.label]))], function() {
+        var $95 = !state3.open;
+        if ($95) {
           return [];
         }
         ;
-        return [div2([style3(tell3(["margin: 0.5rem", "padding: 0.5rem", "box-shadow: 0 0 0 0.1rem black"]))])(state3.body)];
-      }()]));
+        return [div2([style3(tell3(["margin: 0.5rem", "padding: 0.5rem", "box-shadow: 0 0 0 1px black", "background-color: rgba(0, 0, 0, 0.1)"]))])(state3.body)];
+      }(), [div2([style3(tell3(["display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)"])), onClick($$const(new Right(unit)))])(fold3([[text5(" ")], marker]))]]));
     };
     var initialState = function(input3) {
       return {
@@ -10082,12 +10083,12 @@
       }
       ;
       if (v instanceof Right) {
-        return discard12(log5("toggling expander"))(function() {
+        return discard12(log4("toggling expander"))(function() {
           return modifying2(prop$prime3)(not3);
         });
       }
       ;
-      throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 210, column 3 - line 210, column 46): " + [v.constructor.name]);
+      throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 211, column 3 - line 211, column 46): " + [v.constructor.name]);
     };
     var $$eval = mkEval({
       handleQuery: defaultEval.handleQuery,
@@ -10101,8 +10102,7 @@
       "eval": $$eval,
       render
     });
-  };
-  var theSidenoteExpanderComponent1 = /* @__PURE__ */ theSidenoteExpanderComponent(monadEffectAff);
+  }();
   var renderDoc = function(dictMonadReader) {
     var MonadAsk0 = dictMonadReader.MonadAsk0();
     var Monad0 = MonadAsk0.Monad0();
@@ -10132,12 +10132,12 @@
                   return map210(fold13)(traverse12(renderDoc(dictMonadReader)(dictMonadState))(v.value0.body));
                 })))(function(body4) {
                   return discard23(assign5(prop$prime22)(v2.section_index + 1 | 0))(function() {
-                    return pure16([div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5rem"]))])([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: space-between", "align-items: flex-start", "gap: 1em", "font-size: " + (show4(max6(4 - toNumber(section_depth) * 0.2)(1)) + "rem")]))])([div2([style3(tell3(["flex-grow: 0"]))])(title3), div2([style3(tell3(["flex-shrink: 0", "flex-grow: 1", "text-align: right"]))])([text5(function(v3) {
+                    return pure16([div2([style3(tell3(["padding-top: 1rem;", "display: flex", "flex-direction: column", "gap: 0.5rem"]))])([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: space-between", "align-items: flex-start", "gap: 1em", "font-size: " + (show4(max6(2 - toNumber(section_depth) * 0.2)(1)) + "rem")]))])([div2([style3(tell3(["flex-grow: 0"]))])(title3), div2([style3(tell3(["flex-shrink: 0", "flex-grow: 1", "text-align: right"]))])([text5(function(v3) {
                       return "\xA7" + v3;
-                    }(intercalate6(".")(reverse2(map35(function($120) {
+                    }(intercalate6(".")(reverse2(map35(function($118) {
                       return show12(function(v3) {
                         return v3 + 1 | 0;
-                      }($120));
+                      }($118));
                     })(new Cons(v2.section_index, map35(function(v3) {
                       return v3.index;
                     })(v1.section_path)))))))])]), div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5rem"]))])(body4)])]);
@@ -10166,7 +10166,7 @@
           return bind18(renderDoc(dictMonadReader)(dictMonadState)(v.value0.label))(function(label5) {
             return bind18(renderDoc(dictMonadReader)(dictMonadState)(v.value0.body))(function(body4) {
               return bind18(next_widget_index2)(function(widget_index) {
-                return pure16([slot_2($$Proxy.value)(widget_index)(theSidenoteExpanderComponent1)({
+                return pure16([slot_2($$Proxy.value)(widget_index)(theSidenoteExpanderComponent)({
                   label: map113(mapAction_ComponentHTML(Left.create))(label5),
                   body: map113(mapAction_ComponentHTML(Left.create))(body4)
                 })]);
@@ -10494,7 +10494,7 @@
   };
   var discard9 = /* @__PURE__ */ discard(discardUnit)(bindHalogenM);
   var monadEffectHalogenM2 = /* @__PURE__ */ monadEffectHalogenM(monadEffectAff);
-  var log4 = /* @__PURE__ */ log3(monadEffectHalogenM2);
+  var log5 = /* @__PURE__ */ log3(monadEffectHalogenM2);
   var bind16 = /* @__PURE__ */ bind(bindHalogenM);
   var liftEffect9 = /* @__PURE__ */ liftEffect(monadEffectHalogenM2);
   var bind17 = /* @__PURE__ */ bind(bindEffect);
@@ -10518,7 +10518,7 @@
   var inj$prime32 = /* @__PURE__ */ inj$prime4(updateIsSymbol);
   var component = /* @__PURE__ */ function() {
     var render = function(v) {
-      return div2([classes([mk3]), style3(tell5(["margin: auto", "width: 800px", "display: flex", "flex-direction: column", "gap: 0.5rem"]))])([div2([style3(tell5(["margin-top: 0.5rem", "padding: 0.5rem", "box-shadow: 0 0 0 0.1rem black"]))])([slot_3($$Proxy.value)(unit)(theDocComponent)({
+      return div2([classes([mk3]), style3(tell5(["margin: auto", "max-width: 800px", "display: flex", "flex-direction: column", "gap: 0.5rem"]))])([div2([style3(tell5(["margin-top: 0.5rem", "padding: 0.5rem"]))])([slot_3($$Proxy.value)(unit)(theDocComponent)({
         doc: v.doc,
         viewMode: v.viewMode
       })])]);
@@ -10532,14 +10532,14 @@
       };
     };
     var $lazy_handleAction = $runtime_lazy11("handleAction", "Rybl.App", function() {
-      return on$prime7(updateIsSymbol)($$const(discard9(log4("[App.update]"))(function() {
+      return on$prime7(updateIsSymbol)($$const(discard9(log5("[App.update]"))(function() {
         return bind16(liftEffect9(function __do2() {
           var $56 = bind17(bind17(windowImpl)(location))(href3)();
           return fromAbsolute($56);
         }))(function(mb_url) {
           return discard9(function() {
             if (mb_url instanceof Nothing) {
-              return log4("no url");
+              return log5("no url");
             }
             ;
             if (mb_url instanceof Just) {
@@ -10588,7 +10588,7 @@
             return pure15(unit);
           });
         });
-      })))(on$prime7(initializeIsSymbol2)($$const(discard9(log4("[App.initialize]"))(function() {
+      })))(on$prime7(initializeIsSymbol2)($$const(discard9(log5("[App.initialize]"))(function() {
         return bind16(liftEffect9(bind17(windowImpl)(document)))(function(document2) {
           return discard9($$void9(subscribe2(eventListener2(popstate)(toEventTarget(document2))($$const(pure23(inj$prime32(unit)))))))(function() {
             return $lazy_handleAction(67)(inj$prime32(unit));
