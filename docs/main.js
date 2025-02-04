@@ -10760,7 +10760,7 @@
           return [];
         }
         ;
-        return [div2([style3(tell3(["margin: 0.5rem", "padding: 0.5rem", "box-shadow: 0 0 0.5em 0 rgba(0, 0, 0, 0.5)", "background-color: rgba(0, 0, 0, 0.1)"]))])(state3.body)];
+        return [div2([style3(tell3(["margin: 1.0em", "padding: 0.5em", "border: 2px dashed black", "background-color: rgba(0, 0, 0, 0.1)"]))])(state3.body)];
       }(), [div2([style3(tell3(["display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)", "padding-right: 0.3em"])), onClick($$const(new Right(unit)))])(fold3([[text5(" ")], marker]))]]));
     };
     var initialState = function(input3) {
@@ -10781,7 +10781,7 @@
         });
       }
       ;
-      throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 280, column 3 - line 280, column 46): " + [v.constructor.name]);
+      throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 283, column 3 - line 283, column 46): " + [v.constructor.name]);
     };
     var $$eval = mkEval({
       handleQuery: defaultEval.handleQuery,
@@ -10826,13 +10826,13 @@
                 })))(function(body4) {
                   return discard32(assign5(prop$prime22)(v2.section_index + 1 | 0))(function() {
                     var section_id = "section_" + fromMaybe$prime(impossible)($$encodeURIComponent(replace(" ")("_")(v.value0.value0.title)));
-                    return pure17([div2([style3(tell3(["padding-top: 1rem;", "display: flex", "flex-direction: column", "gap: 0.5rem"])), id3(section_id)])([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: space-between", "align-items: flex-start", "gap: 1em", "font-size: " + (show4(max6(2 - toNumber(section_depth) * 0.2)(1)) + "em"), "box-shadow: 0 1px 0 0 black"]))])([div2([style3(tell3(["flex-grow: 0"]))])(fold3([[a([href4("#" + section_id)])([text5("\xA7")])], title3])), div2([style3(tell3(["flex-shrink: 0", "flex-grow: 1", "text-align: right"]))])([text5(intercalate6(".")(reverse2(map36(function($151) {
+                    return pure17([div2([style3(tell3(["padding-top: 1em;", "display: flex", "flex-direction: column", "gap: 0.5em"])), id3(section_id)])([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: space-between", "align-items: flex-start", "gap: 1em", "font-size: " + (show4(max6(2 - toNumber(section_depth) * 0.2)(1)) + "em"), "box-shadow: 0 1px 0 0 black"]))])([div2([style3(tell3(["flex-grow: 0"]))])(fold3([[a([href4("#" + section_id)])([text5("\xA7")])], title3])), div2([style3(tell3(["flex-shrink: 0", "flex-grow: 1", "text-align: right"]))])([text5(intercalate6(".")(reverse2(map36(function($151) {
                       return show12(function(v3) {
                         return v3 + 1 | 0;
                       }($151));
                     })(new Cons(v2.section_index, map36(function(v3) {
                       return v3.index;
-                    })(v1.section_path)))))), a([href4("#" + section_id)])([text5("\xA7")])])]), div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5rem"]))])(body4)])]);
+                    })(v1.section_path)))))), a([href4("#" + section_id)])([text5("\xA7")])])]), div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5em"]))])(body4)])]);
                   });
                 });
               });
@@ -10855,12 +10855,12 @@
         }
         ;
         if (v.value0 instanceof Sidenote) {
-          return bind18(renderDoc(dictMonadReader)(dictMonadState)(v.value0.value1))(function(label1) {
-            return bind18(renderDoc(dictMonadReader)(dictMonadState)(v.value0.value2))(function(body1) {
+          return bind18(renderDoc(dictMonadReader)(dictMonadState)(v.value0.value1))(function(label5) {
+            return bind18(renderDoc(dictMonadReader)(dictMonadState)(v.value0.value2))(function(body4) {
               return bind18(next_widget_index2)(function(widget_index) {
                 return pure17([slot_2($$Proxy.value)(widget_index)(theSidenoteExpanderComponent)({
-                  label: map113(mapAction_ComponentHTML(Left.create))(label1),
-                  body: map113(mapAction_ComponentHTML(Left.create))(body1)
+                  label: map113(mapAction_ComponentHTML(Left.create))(label5),
+                  body: map113(mapAction_ComponentHTML(Left.create))(body4)
                 })]);
               });
             });
@@ -10885,17 +10885,17 @@
         }
         ;
         if (v.value0 instanceof CodeBlock) {
-          return pure17([div2([style3(tell3(["background-color: rgba(0, 0, 0, 0.1)", "display: flex", "flex-direction: row", "justify-content: center", "padding: 0.5rem"]))])([pre([])([text5(v.value0.value0.value)])])]);
+          return pure17([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: center"]))])([pre([style3(tell3(["padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll"]))])([text5(v.value0.value0.value)])])]);
         }
         ;
         if (v.value0 instanceof QuoteBlock) {
           return bind18(renderDoc(dictMonadReader)(dictMonadState)(v.value0.value1))(function(body4) {
-            return pure17([div2([style3(tell3(["background-color: rgba(0, 0, 0, 0.1)", "display: flex", "flex-direction: row", "justify-content: center", "padding: 0.5rem"]))])(body4)]);
+            return pure17([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: center"]))])([div2([style3(tell3(["margin: 0 1em", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)"]))])(body4)])]);
           });
         }
         ;
         if (v.value0 instanceof MathBlock) {
-          return pure17([div2([style3(tell3(["background-color: rgba(0, 0, 0, 0.1)", "display: flex", "flex-direction: row", "justify-content: center", "padding: 0.5rem"]))])([div2([])([text5("MATH: " + v.value0.value0.value)])])]);
+          return pure17([div2([style3(tell3(["background-color: rgba(0, 0, 0, 0.1)", "display: flex", "flex-direction: row", "justify-content: center", "padding: 0.5em"]))])([div2([])([text5("MATH: " + v.value0.value0.value)])])]);
         }
         ;
         if (v.value0 instanceof Media) {
@@ -10940,7 +10940,7 @@
                   return [img([style3(tell3(["height: 0.8em"])), src9(src10.mb_favicon_src.value0)]), div_(label5)];
                 }
                 ;
-                throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 230, column 17 - line 239, column 22): " + [src10.mb_favicon_src.constructor.name]);
+                throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 233, column 17 - line 242, column 22): " + [src10.mb_favicon_src.constructor.name]);
               }())]);
             });
           })(case_))(v.value0.value0.src);

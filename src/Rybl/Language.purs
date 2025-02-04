@@ -119,6 +119,18 @@ string_style style value = Fix.wrap $ String { style, value }
 error :: String -> Doc -> Doc
 error label body = Fix.wrap $ Error { label } body
 
+codeBlock :: String -> Doc
+codeBlock value = Fix.wrap $ CodeBlock { value }
+
+quoteBlock :: Doc -> Doc
+quoteBlock body = Fix.wrap $ QuoteBlock {} body
+
+mathBlock :: String -> Doc
+mathBlock value = Fix.wrap $ MathBlock { value }
+
+media_image :: String -> Doc
+media_image src = Fix.wrap $ Media $ inj' @"image" { src }
+
 --------------------------------------------------------------------------------
 
 -- collectSidenotes :: Doc -> Array { id :: Id, label :: Doc, body :: Doc }

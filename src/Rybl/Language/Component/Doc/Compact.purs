@@ -54,7 +54,7 @@ renderDoc (Fix (Section doc body_)) = do
         )
   pure
     [ HH.div
-        [ Style.style $ tell [ "padding-top: 1rem;", "display: flex", "flex-direction: column", "gap: 0.5rem" ]
+        [ Style.style $ tell [ "padding-top: 1em;", "display: flex", "flex-direction: column", "gap: 0.5em" ]
         , HP.id section_id
         ]
         [ HH.div
@@ -89,12 +89,12 @@ renderDoc (Fix (Section doc body_)) = do
                 ]
             ]
         , HH.div
-            [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 0.5rem" ] ]
+            [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
             body
         ]
     ]
 
-renderDoc (Fix (Paragraph doc body_)) = do
+renderDoc (Fix (Paragraph _doc body_)) = do
   body <- body_ # traverse renderDoc # map (foldMap \x -> [ x, [ HH.text " " ] ]) # map Array.fold
   pure
     [ HH.div
@@ -102,7 +102,7 @@ renderDoc (Fix (Paragraph doc body_)) = do
         body
     ]
 
-renderDoc (Fix (Sentence doc body_)) = do
+renderDoc (Fix (Sentence _doc body_)) = do
   body <- body_ # traverse renderDoc # map Array.fold
   pure
     [ HH.div
@@ -110,9 +110,9 @@ renderDoc (Fix (Sentence doc body_)) = do
         body
     ]
 
-renderDoc (Fix (Sidenote doc label body)) = do
-  label <- label # renderDoc
-  body <- body # renderDoc
+renderDoc (Fix (Sidenote _doc label_ body_)) = do
+  label <- label_ # renderDoc
+  body <- body_ # renderDoc
   widget_index <- next_widget_index
   pure
     [ HH.slot_ (Proxy @"SidenoteExpander") widget_index theSidenoteExpanderComponent
@@ -151,27 +151,30 @@ renderDoc (Fix (Ref doc)) = do
 renderDoc (Fix (CodeBlock doc)) = do
   pure
     [ HH.div
-        [ Style.style do tell [ "background-color: rgba(0, 0, 0, 0.1)", "display: flex", "flex-direction: row", "justify-content: center", "padding: 0.5rem" ] ]
+        [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
         [ HH.pre
-            []
+            [ Style.style do tell [ "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
             [ HH.text doc.value ]
         ]
     ]
 
-renderDoc (Fix (QuoteBlock doc body_)) = do
+renderDoc (Fix (QuoteBlock _doc body_)) = do
   body <- body_ # renderDoc
   pure
     [ HH.div
-        [ Style.style do tell [ "background-color: rgba(0, 0, 0, 0.1)", "display: flex", "flex-direction: row", "justify-content: center", "padding: 0.5rem" ] ]
-        body
+        [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
+        [ HH.div
+            [ Style.style do tell [ "margin: 0 1em", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)" ] ]
+            body
+        ]
     ]
 
 renderDoc (Fix (MathBlock doc)) = do
   pure
     [ HH.div
-        [ Style.style do tell [ "background-color: rgba(0, 0, 0, 0.1)", "display: flex", "flex-direction: row", "justify-content: center", "padding: 0.5rem" ] ]
-        [ HH.div
-            []
+        [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
+        [ HH.pre
+            [ Style.style do tell [ "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
             [ HH.text $ "MATH: " <> doc.value ]
         ]
     ]
@@ -205,7 +208,7 @@ renderDoc (Fix (String doc)) = do
         [ HH.text doc.value ]
     ]
 
-renderDoc (Fix (Error doc body_)) = do
+renderDoc (Fix (Error _doc body_)) = do
   e <- body_ # renderDoc
   pure
     [ HH.div
@@ -285,11 +288,12 @@ theSidenoteExpanderComponent = H.mkComponent { initialState, eval, render }
   render state =
     let
       marker = if state.open then [ HH.text "■" ] else [ HH.text "□" ]
+      bgcolor = "rgba(0, 0, 0, 0.1)"
     in
       HH.div
         [ Style.style $ tell [ "display: inline" ] ] $ fold $
         [ [ HH.div
-              [ Style.style $ tell [ "display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)", "padding-left: 0.3em" ]
+              [ Style.style $ tell [ "display: inline", "user-select: none", "cursor: pointer", "background-color: " <> bgcolor, "padding-left: 0.3em" ]
               , HE.onClick $ const $ Right unit
               ] $ fold $
               [ marker
@@ -300,7 +304,14 @@ theSidenoteExpanderComponent = H.mkComponent { initialState, eval, render }
         , if not state.open then []
           else
             [ HH.div
-                [ Style.style $ tell [ "margin: 0.5rem", "padding: 0.5rem", "box-shadow: 0 0 0.5em 0 rgba(0, 0, 0, 0.5)", "background-color: rgba(0, 0, 0, 0.1)" ] ]
+                [ Style.style $ tell
+                    [ "margin: 1.0em"
+                    , "padding: 0.5em"
+                    -- , "box-shadow: 0 0 0.5em 0 rgba(0, 0, 0, 0.5)" -- shadow
+                    , "border: 2px dashed black"
+                    , "background-color: " <> bgcolor
+                    ]
+                ]
                 state.body
             ]
         , [ HH.div

@@ -7,10 +7,11 @@ import Data.Foldable (fold)
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Newtype (wrap)
+import Data.String as String
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (none)
 import Rybl.Data.Variant (inj')
-import Rybl.Language (Doc, link_external, link_internal, paragraph, ref, section, sentence, sidenote, string, string_style)
+import Rybl.Language (Doc, codeBlock, link_external, link_internal, mathBlock, media_image, paragraph, quoteBlock, ref, section, sentence, sidenote, string, string_style)
 
 namedDocs :: Map String Doc
 namedDocs = Map.fromFoldable
@@ -59,6 +60,43 @@ namedDocs = Map.fromFoldable
                     ]
                 , sentence [ string "And this is another sentence." ]
                 ]
+            ]
+        , section "Codeblocks"
+            [ paragraph
+                [ sentence [ string "The following is a pretty narrow code block." ] ]
+            , codeBlock $
+                """
+merge :: Ord a => [a] -> [a] -> [a]
+merge xs [] = xs
+merge [] ys = ys
+merge (x:xs) (y:ys)
+  | x <= y = x : merge xs (y:ys)
+  | otherwise = y : merge (x:xs) ys
+""" # String.trim
+            , paragraph
+                [ sentence [ string "The following is a very wise code block." ] ]
+            , codeBlock $
+                """
+big_list = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3]
+""" # String.trim
+            ]
+        , section "Quoteblocks"
+            [ paragraph
+                [ sentence [ string "The following is a quote block." ] ]
+            , quoteBlock $
+                paragraph [ string "I certainly believe this: that it is better to be impetuous than cautious, because Fortune is a woman, and if you want to keep her under it is necessary to beat her and force her down. It is clear that she more often allows herself to be won over by impetuous men than by those who proceed coldly. And so, like a woman, Fortune is always the friend of young men, for they are less cautious, more ferocious, and command her with more audacity." ]
+            ]
+        , section "Mathblocks"
+            [ paragraph
+                [ sentence [ string "The following is a math block." ] ]
+            , mathBlock $
+                """
+f(x) = \lim_{h \to 0} \frac{A(x+h) - A(x)}{h}
+""" # String.trim
+            ]
+        , section "Media"
+            [ paragraph [ string "The following is an image." ]
+            , media_image "https://media.4-paws.org/9/c/9/7/9c97c38666efa11b79d94619cc1db56e8c43d430/Molly_006-2829x1886-2726x1886-1920x1328.jpg"
             ]
         , section "Tree"
             ( make_section_tree 4 4
