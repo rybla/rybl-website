@@ -37,14 +37,7 @@ type State =
   }
 
 type Ctx =
-  { namedDocs ::
-      Map RefId
-        ( Variant
-            ( loaded :: Doc
-            , not_yet_loaded :: U
-            , error_on_load :: PlainHTML
-            )
-        )
+  { namedDocs :: Map RefId Doc
   , section_path :: List { index :: Int, title :: String }
   }
 

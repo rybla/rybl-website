@@ -21,8 +21,6 @@ import Halogen.HTML.Properties as HP
 import Halogen.Query.Event as HQE
 import Halogen.VDom.Driver as HVD
 import JSURI (decodeURI)
-import Rybl.Data.Fix (Fix(..))
-import Rybl.Data.Fix as Fix
 import Rybl.Data.Variant (case_, inj', inj'U, on')
 import Rybl.Halogen.Class as Class
 import Rybl.Halogen.Style as Style

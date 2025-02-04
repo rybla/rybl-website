@@ -8,7 +8,7 @@ import Control.Monad.Writer (tell)
 import Data.Argonaut.Encode (toJsonString)
 import Data.Array as Array
 import Data.Either (Either(..))
-import Data.Foldable (fold, length)
+import Data.Foldable (fold, intercalate, length)
 import Data.Int as Int
 import Data.Lens ((%=), (%~), (.=))
 import Data.List as List
@@ -27,7 +27,7 @@ import JSURI (encodeURI, encodeURIComponent)
 import Rybl.Data.Fix (Fix(..))
 import Rybl.Data.Variant (case_, match, on')
 import Rybl.Halogen.Style as Style
-import Rybl.Language (Doc, Doc_(..))
+import Rybl.Language (Doc, Doc_(..), Resource)
 import Rybl.Language as RL
 import Rybl.Language.Component.Common (Ctx, Env, HTML, next_widget_index, mapAction_ComponentHTML)
 import Rybl.Utility (bug, impossible, prop', (##))
@@ -122,31 +122,11 @@ renderDoc (Fix (Sidenote _opts _args label_ body_)) = do
     ]
 
 renderDoc (Fix (Ref _opts args)) = do
-  { namedDocs } <- ask
-  case namedDocs # Map.lookup args.refId of
-    Nothing -> pure
-      [ HH.div
-          []
-          [ HH.text $ "missing refId: " <> show args.refId ]
-      ]
-    Just a -> a ## case_
-      # on' @"loaded" renderDoc
-      # on' @"not_yet_loaded"
-          ( const $ pure
-              [ HH.div
-                  []
-                  [ HH.text $ "loading refId " <> show args.refId ]
-              ]
-          )
-      # on' @"error_on_load"
-          ( \err -> pure
-              [ HH.div
-                  [ Style.style $ tell [ "display: flex", "flex-direction: column", "background-color: #ffcccb" ] ]
-                  [ HH.text $ "error when loading refId " <> show args.refId
-                  , err # HH.fromPlainHTML
-                  ]
-              ]
-          )
+  pure
+    [ HH.div
+        [ Style.style do tell [ "background-color: black", "color: white", "padding: 0.5em" ] ]
+        [ HH.text $ "Ref " <> show args.refId ]
+    ]
 
 renderDoc (Fix (CodeBlock _opts args)) = do
   pure
@@ -168,8 +148,9 @@ renderDoc (Fix (QuoteBlock _opts _args body_)) = do
                 tell
                   [ "margin: 0 1em"
                   , "padding: 0.5em"
-                  , "border-left: 1px solid black"
+                  , "border-left: 4px solid black"
                   , "background-color: rgba(0, 0, 0, 0.1)"
+                  , "border-radius: 1em"
                   ]
             ]
             body
@@ -186,13 +167,26 @@ renderDoc (Fix (MathBlock _opts args)) = do
         ]
     ]
 
-renderDoc (Fix (Image _opts args _caption)) = do
+renderDoc (Fix (Image opts args caption__)) = do
+  caption_ <- caption__ # traverse renderDoc
+  resource_ <- opts.source # traverse renderResource
   pure
     [ HH.div
-        []
-        [ HH.img
-            [ Style.style do tell [ "width: 100%" ]
-            , HP.src args.url
+        [ Style.style do tell [ "width: 100%", "display: flex", "flex-direction: column", "justify-content: center" ] ] $ fold
+        [ [ HH.img
+              [ Style.style do tell [ "width: 100%" ]
+              , HP.src args.url
+              ]
+          ]
+        , caption_ # maybe [] \caption ->
+            [ HH.div
+                [ Style.style $ do tell [ "margin: 0 0.5em", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)" ] ]
+                caption
+            ]
+        , resource_ # maybe [] \resource ->
+            [ HH.div
+                [ Style.style $ do tell [ "margin: 0 1em", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)" ] ]
+                [ resource ]
             ]
         ]
     ]
@@ -264,6 +258,26 @@ renderDoc (Fix (InternalLink _opts args label_)) = do
         , HH.div_ label
         ]
     ]
+
+renderResource
+  :: forall m
+   . MonadReader Ctx m
+  => MonadState Env m
+  => Resource
+  -> m HTML
+renderResource res = do
+  pure
+    $ HH.div []
+    $ intercalate [ HH.text " • " ]
+        [ res.name # maybe [] \name -> [ HH.text $ name ]
+        , res.date # maybe [] \date -> [ HH.i_ [ HH.text "accessed " ], HH.text $ date ]
+        , res.source # maybe []
+            ( match
+                { url: \url -> [ HH.a [ HP.href url ] [ HH.text url ] ]
+                , misc: \str -> [ HH.text str ]
+                }
+            )
+        ]
 
 --------------------------------------------------------------------------------
 -- theSidenoteExpanderComponent

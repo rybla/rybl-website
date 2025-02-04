@@ -9,6 +9,7 @@ import Data.Map as Map
 import Data.Newtype (wrap)
 import Data.String as String
 import Data.Tuple (Tuple(..))
+import Rybl.Data.Variant (inj', inj'U)
 import Rybl.Language (Doc, codeBlock, external_link, internal_link, mathBlock, image, paragraph, quoteBlock, ref, section, sentence, sidenote, string)
 
 namedDocs :: Map String Doc
@@ -21,13 +22,13 @@ namedDocs = Map.fromFoldable
             [ paragraph {}
                 [ sentence {}
                     [ string {} "This is an emphasized string: "
-                    , string {} "roar"
+                    , string { style: inj'U @"emphasis" # pure } "roar"
                     ]
                 ]
             , paragraph {}
                 [ sentence {}
                     [ string {} "This is a code string: "
-                    , string {} "x&&2 and one Class123 + $"
+                    , string { style: inj'U @"code" # pure } "x&&2 and one Class123 + $"
                     ]
                 ]
             ]
@@ -94,7 +95,11 @@ f(x) = \lim_{h \to 0} \frac{A(x+h) - A(x)}{h}
             ]
         , section {} "Media"
             [ paragraph {} [ string {} "The following is an image." ]
-            , image {} "https://media.4-paws.org/9/c/9/7/9c97c38666efa11b79d94619cc1db56e8c43d430/Molly_006-2829x1886-2726x1886-1920x1328.jpg"
+            , image
+                { caption: pure $ string {} "This is an image of a cute cat. Isn't it so cute? Really, it is."
+                , source: pure $ { name: pure "The Cat Pic", date: pure "Today", source: pure $ inj' @"url" "https://media.4-paws.org/9/c/9/7/9c97c38666efa11b79d94619cc1db56e8c43d430/Molly_006-2829x1886-2726x1886-1920x1328.jpg" }
+                }
+                "https://media.4-paws.org/9/c/9/7/9c97c38666efa11b79d94619cc1db56e8c43d430/Molly_006-2829x1886-2726x1886-1920x1328.jpg"
             ]
         , section {} "Tree"
             ( make_section_tree 4 4
