@@ -35,7 +35,7 @@ import Type.Proxy (Proxy(..))
 
 renderDoc :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m (Array HTML)
 
-renderDoc (Fix (Section opts args body_)) = do
+renderDoc (Fix (Section _opts args body_)) = do
   { section_path } <- ask
   { section_index } <- get
   let section_depth = section_path # length
@@ -94,7 +94,7 @@ renderDoc (Fix (Section opts args body_)) = do
         ]
     ]
 
-renderDoc (Fix (Paragraph opts args body_)) = do
+renderDoc (Fix (Paragraph _opts _args body_)) = do
   body <- body_ # traverse renderDoc # map (foldMap \x -> [ x, [ HH.text " " ] ]) # map Array.fold
   pure
     [ HH.div
@@ -102,7 +102,7 @@ renderDoc (Fix (Paragraph opts args body_)) = do
         body
     ]
 
-renderDoc (Fix (Sentence opts args body_)) = do
+renderDoc (Fix (Sentence _opts _args body_)) = do
   body <- body_ # traverse renderDoc # map Array.fold
   pure
     [ HH.div
@@ -110,7 +110,7 @@ renderDoc (Fix (Sentence opts args body_)) = do
         body
     ]
 
-renderDoc (Fix (Sidenote opts args label_ body_)) = do
+renderDoc (Fix (Sidenote _opts _args label_ body_)) = do
   label <- label_ # renderDoc
   body <- body_ # renderDoc
   widget_index <- next_widget_index
@@ -121,7 +121,7 @@ renderDoc (Fix (Sidenote opts args label_ body_)) = do
         }
     ]
 
-renderDoc (Fix (Ref opts args)) = do
+renderDoc (Fix (Ref _opts args)) = do
   { namedDocs } <- ask
   case namedDocs # Map.lookup args.refId of
     Nothing -> pure
@@ -148,7 +148,7 @@ renderDoc (Fix (Ref opts args)) = do
               ]
           )
 
-renderDoc (Fix (CodeBlock opts args)) = do
+renderDoc (Fix (CodeBlock _opts args)) = do
   pure
     [ HH.div
         [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
@@ -158,7 +158,7 @@ renderDoc (Fix (CodeBlock opts args)) = do
         ]
     ]
 
-renderDoc (Fix (QuoteBlock opts args body_)) = do
+renderDoc (Fix (QuoteBlock _opts _args body_)) = do
   body <- body_ # renderDoc
   pure
     [ HH.div
@@ -176,7 +176,7 @@ renderDoc (Fix (QuoteBlock opts args body_)) = do
         ]
     ]
 
-renderDoc (Fix (MathBlock opts args)) = do
+renderDoc (Fix (MathBlock _opts args)) = do
   pure
     [ HH.div
         [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
@@ -186,7 +186,7 @@ renderDoc (Fix (MathBlock opts args)) = do
         ]
     ]
 
-renderDoc (Fix (Image opts args caption)) = do
+renderDoc (Fix (Image _opts args _caption)) = do
   pure
     [ HH.div
         []
@@ -214,7 +214,7 @@ renderDoc (Fix (String opts args)) = do
         [ HH.text args.value ]
     ]
 
-renderDoc (Fix (Error opts args body_)) = do
+renderDoc (Fix (Error _opts _args body_)) = do
   e <- body_ # renderDoc
   pure
     [ HH.div
