@@ -160,23 +160,47 @@ renderDoc (Fix (CodeBlock _opts args)) = do
           [ HH.text args.value ]
       ]
 
-renderDoc (Fix (QuoteBlock _opts _args body_)) = do
+renderDoc (Fix (QuoteBlock opts _args body_)) = do
   body <- body_ # renderDoc
-  pure $
-    HH.div
-      [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
-      [ HH.div
-          [ Style.style do
-              tell
-                [ "margin: 0 1em"
-                , "padding: 0.5em"
-                , "border-left: 4px solid black"
-                , "background-color: color-mix(in hsl, teal, transparent 90%)"
-                , "border-radius: 1em"
-                ]
+  resource_ <- opts.source # traverse renderResource
+  pure
+    $ HH.div
+        [ Style.style do tell [ "display: flex", "flex-direction: column" ] ]
+    $ fold
+        [ [ HH.div
+              [ Style.style do
+                  tell
+                    [ "margin: 0 1em"
+                    , "padding: 0.5em"
+                    , "border-left: 4px solid black"
+                    , "background-color: color-mix(in hsl, teal, transparent 90%)"
+                    , "border-radius: 1em"
+                    ]
+              ]
+              [ body ]
           ]
-          [ body ]
-      ]
+        , resource_ # maybe [] \resource ->
+            [ HH.div
+                [ Style.style $ do
+                    tell
+                      [ "padding-left: 40%"
+                      , "padding-right: 10%"
+                      , "display: flex"
+                      , "flex-direction: column"
+                      , "align-items: flex-end"
+                      ]
+                ]
+                [ HH.div
+                    [ Style.style $ do
+                        tell
+                          [ "padding: 0.5em"
+                          , "background-color: color-mix(in hsl, saddlebrown, transparent 80%)"
+                          ]
+                    ]
+                    [ resource ]
+                ]
+            ]
+        ]
 
 renderDoc (Fix (MathBlock _opts args)) = do
   pure $
@@ -206,8 +230,24 @@ renderDoc (Fix (Image opts args caption__)) = do
             ]
         , resource_ # maybe [] \resource ->
             [ HH.div
-                [ Style.style $ do tell [ "margin: 0 1em", "padding: 0.5em", "background-color: color-mix(in hsl, saddlebrown, transparent 80%)" ] ]
-                [ resource ]
+                [ Style.style $ do
+                    tell
+                      [ "padding-left: 40%"
+                      , "padding-right: 10%"
+                      , "display: flex"
+                      , "flex-direction: column"
+                      , "align-items: flex-end"
+                      ]
+                ]
+                [ HH.div
+                    [ Style.style $ do
+                        tell
+                          [ "padding: 0.5em"
+                          , "background-color: color-mix(in hsl, saddlebrown, transparent 80%)"
+                          ]
+                    ]
+                    [ resource ]
+                ]
             ]
         ]
 
@@ -279,7 +319,7 @@ renderDoc (Fix (InternalLink _opts args label_)) = do
 renderResource :: forall m. MonadReader Ctx m => MonadState Env m => Resource -> m HTML
 renderResource (Resource opts args) = do
   pure
-    $ HH.div_
+    $ HH.div [ Style.style do tell [ "word-wrap: word-break" ] ]
     $ Array.intersperse (HH.text " • ")
     $ fold
         [ [ HH.text $ args.name ]
@@ -287,7 +327,10 @@ renderResource (Resource opts args) = do
         , opts.content # maybe []
             ( match
                 { url: \url ->
-                    [ HH.a [ HP.href url, Style.style do tell [ "word-wrap: word-break" ] ]
+                    [ HH.a
+                        [ HP.href url
+                        , Style.style do tell [ "word-wrap: word-break" ]
+                        ]
                         [ HH.text url ]
                     ]
                 , misc: \str -> [ HH.text str ]
@@ -296,48 +339,58 @@ renderResource (Resource opts args) = do
         ]
 
 renderTableOfContents :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
-renderTableOfContents doc = do
-  let
-    tree :: Tree _
-    tree = doc # Fix.fold case _ of
-      Page opts args body -> Branch { id: opts.id, title: args.title } body
-      Section opts args body -> Branch { id: opts.id, title: args.title } body
-      _ -> Leaf
+renderTableOfContents doc =
+  do
+    let
+      tree :: Tree _
+      tree = doc # Fix.fold case _ of
+        Page opts args body -> Branch { id: opts.id, title: args.title } body
+        Section opts args body -> Branch { id: opts.id, title: args.title } body
+        _ -> Leaf
 
-    prune :: Tree _ -> Tree _
-    prune Leaf = Leaf
-    prune (Branch a kids) = Branch a $ kids # map prune # Array.filter (not <<< isLeaf)
+      prune :: Tree _ -> Tree _
+      prune Leaf = Leaf
+      prune (Branch a kids) = Branch a $ kids # map prune # Array.filter (not <<< isLeaf)
 
-  let
-    go :: Tree _ -> Array HTML
-    go Leaf = []
-    go (Branch node kids) | null kids =
-      [ HH.div_
-          [ HH.a
-              ([ node.id # maybe [] \id -> [ HP.href $ "#" <> id ] ] # fold)
-              [ HH.text node.title ]
-          ]
-      ]
-    go (Branch node kids_) =
-      let
-        kids = kids_ # map go
-      in
-        [ HH.div
-            [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
-            [ HH.div_
-                [ HH.a
-                    ([ node.id # maybe [] \id -> [ HP.href $ "#" <> id ] ] # fold)
-                    [ HH.text node.title ]
-                ]
-            , HH.div
-                [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em", "padding-left: 1em" ] ]
-                (kids # fold)
+    let
+      go :: Tree _ -> Array HTML
+      go Leaf = []
+      go (Branch node kids) | null kids =
+        [ HH.div_
+            [ HH.a
+                ([ node.id # maybe [] \id -> [ HP.href $ "#" <> id ] ] # fold)
+                [ HH.text node.title ]
             ]
         ]
+      go (Branch node kids_) =
+        let
+          kids = kids_ # map go
+        in
+          [ HH.div
+              [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
+              [ HH.div_
+                  [ HH.a
+                      ([ node.id # maybe [] \id -> [ HP.href $ "#" <> id ] ] # fold)
+                      [ HH.text node.title ]
+                  ]
+              , HH.div
+                  [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em", "padding-left: 1em" ] ]
+                  (kids # fold)
+              ]
+          ]
 
-  pure $
-    HH.div_
-      (go $ prune $ tree)
+    pure
+      $ HH.div
+          [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
+      $ fold
+          [ go $ prune $ tree
+          , [ HH.div_
+                [ HH.a
+                    [ HP.href "#bibliography" ]
+                    [ HH.text "Bibliography" ]
+                ]
+            ]
+          ]
 
 renderSectionTitle :: forall m. Monad m => _ -> m HTML
 renderSectionTitle { section_depth, section_index, id, title } =
@@ -388,7 +441,9 @@ renderBibliography doc = do
       }
   pure $
     HH.div
-      [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 1em" ] ]
+      [ HP.id "bibliography"
+      , Style.style do tell [ "display: flex", "flex-direction: column", "gap: 1em" ]
+      ]
       [ title
       , HH.div
           [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]

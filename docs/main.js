@@ -11340,7 +11340,7 @@
         });
       }
       ;
-      throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 414, column 3 - line 414, column 46): " + [v.constructor.name]);
+      throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 469, column 3 - line 469, column 46): " + [v.constructor.name]);
     };
     var $$eval = mkEval({
       handleQuery: defaultEval.handleQuery,
@@ -11387,7 +11387,7 @@
             })(map36(prune)(v.value1)));
           }
           ;
-          throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 307, column 5 - line 307, column 30): " + [v.constructor.name]);
+          throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 351, column 7 - line 351, column 32): " + [v.constructor.name]);
         };
         var go2 = function(v) {
           if (v instanceof Leaf2) {
@@ -11407,9 +11407,9 @@
             })(v.value0.id)]))([text5(v.value0.title)])]), div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5em", "padding-left: 1em"]))])(fold3(kids))])];
           }
           ;
-          throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 312, column 5 - line 312, column 31): " + [v.constructor.name]);
+          throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 356, column 7 - line 356, column 33): " + [v.constructor.name]);
         };
-        return pure24(div_(go2(prune(tree))));
+        return pure24(div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5em"]))])(fold3([go2(prune(tree)), [div_([a([href4("#bibliography")])([text5("Bibliography")])])]])));
       };
     };
   };
@@ -11425,7 +11425,7 @@
     var pure24 = pure(dictMonadReader.MonadAsk0().Monad0().Applicative0());
     return function(dictMonadState) {
       return function(v) {
-        return pure24(div_(intersperse(text5(" \u2022 "))(fold3([[text5(v.value1.name)], maybe([])(function(date) {
+        return pure24(div2([style3(tell3(["word-wrap: word-break"]))])(intersperse(text5(" \u2022 "))(fold3([[text5(v.value1.name)], maybe([])(function(date) {
           return [span_([i_([text5("accessed ")]), text5(date)])];
         })(v.value0.date), maybe([])(match2({
           url: function(url2) {
@@ -11461,7 +11461,7 @@
             title: text5("Bibliography"),
             id: "bibliography"
           }))(function(title3) {
-            return pure24(div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 1em"]))])([title3, div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5em"]))])(resources)]));
+            return pure24(div2([id3("bibliography"), style3(tell3(["display: flex", "flex-direction: column", "gap: 1em"]))])([title3, div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5em"]))])(resources)]));
           });
         });
       };
@@ -11572,7 +11572,11 @@
         ;
         if (v.value0 instanceof QuoteBlock) {
           return bind18(renderDoc(dictMonadReader)(dictMonadState)(v.value0.value2))(function(body4) {
-            return pure24(div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: center"]))])([div2([style3(tell3(["margin: 0 1em", "padding: 0.5em", "border-left: 4px solid black", "background-color: color-mix(in hsl, teal, transparent 90%)", "border-radius: 1em"]))])([body4])]));
+            return bind18(traverse32(renderResource2)(v.value0.value0.source))(function(resource_) {
+              return pure24(div2([style3(tell3(["display: flex", "flex-direction: column"]))])(fold3([[div2([style3(tell3(["margin: 0 1em", "padding: 0.5em", "border-left: 4px solid black", "background-color: color-mix(in hsl, teal, transparent 90%)", "border-radius: 1em"]))])([body4])], maybe([])(function(resource) {
+                return [div2([style3(tell3(["padding-left: 40%", "padding-right: 10%", "display: flex", "flex-direction: column", "align-items: flex-end"]))])([div2([style3(tell3(["padding: 0.5em", "background-color: color-mix(in hsl, saddlebrown, transparent 80%)"]))])([resource])])];
+              })(resource_)])));
+            });
           });
         }
         ;
@@ -11586,7 +11590,7 @@
               return pure24(div2([style3(tell3(["width: 100%", "display: flex", "flex-direction: column", "justify-content: center"]))])(fold3([[img([style3(tell3(["width: 100%"])), src9(v.value0.value1.url)])], maybe([])(function(caption2) {
                 return [div2([style3(tell3(["margin: 0 0.5em", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)"]))])([caption2])];
               })(caption_2), maybe([])(function(resource) {
-                return [div2([style3(tell3(["margin: 0 1em", "padding: 0.5em", "background-color: color-mix(in hsl, saddlebrown, transparent 80%)"]))])([resource])];
+                return [div2([style3(tell3(["padding-left: 40%", "padding-right: 10%", "display: flex", "flex-direction: column", "align-items: flex-end"]))])([div2([style3(tell3(["padding: 0.5em", "background-color: color-mix(in hsl, saddlebrown, transparent 80%)"]))])([resource])])];
               })(resource_)])));
             });
           });
@@ -11618,7 +11622,7 @@
                 return [img([style3(tell3(["height: 0.8em"])), src9(v.value0.value0.favicon_url.value0)]), div_([label5])];
               }
               ;
-              throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 249, column 7 - line 258, column 12): " + [v.value0.value0.favicon_url.constructor.name]);
+              throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 289, column 7 - line 298, column 12): " + [v.value0.value0.favicon_url.constructor.name]);
             }()));
           });
         }
