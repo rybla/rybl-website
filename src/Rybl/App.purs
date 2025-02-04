@@ -23,7 +23,7 @@ import Halogen.VDom.Driver as HVD
 import JSURI (decodeURI)
 import Rybl.Data.Fix (Fix(..))
 import Rybl.Data.Fix as Fix
-import Rybl.Data.Variant (case_, inj', on')
+import Rybl.Data.Variant (case_, inj', inj'U, on')
 import Rybl.Halogen.Class as Class
 import Rybl.Halogen.Style as Style
 import Rybl.Language (Doc)
@@ -47,7 +47,7 @@ component :: forall query input output. H.Component query input output Aff
 component = H.mkComponent { initialState, eval, render }
   where
   initialState _ =
-    { doc: RL.Ref { refId: wrap "index" } # Fix.wrap :: Doc
+    { doc: RL.ref {} (wrap "index") :: Doc
     , viewMode: inj' @"unknown" unit :: ViewMode
     }
 
@@ -88,28 +88,32 @@ component = H.mkComponent { initialState, eval, render }
                     doc <- case ref_str_ # decodeURI of
                       Nothing ->
                         pure
-                          $ RL.error "decodeURI error"
-                          $ RL.string_style (inj' @"code" unit)
+                          $ RL.error {} "decodeURI error"
+                          $ RL.string { style: inj'U @"code" # pure }
                           $ "ref_str = " <> "\"\"\"" <> ref_str_ <> "\"\"\""
-                      Just ref_str -> pure $ RL.ref (wrap ref_str)
+                      Just ref_str -> pure $ RL.ref {} (wrap ref_str)
                     prop' @"doc" .= doc
                   _ | Just doc_str_ <- urlSearchParams # Web.URLSearchParams.get "doc" -> do
                     doc <- case doc_str_ # decodeURI of
-                      Nothing -> pure $ Fix $
-                        RL.Error
-                          { label: "decodeURI error" }
-                          (RL.string_style (inj' @"code" unit) $ "doc_str = " <> "\"\"\"" <> doc_str_ <> "\"\"\"")
+                      Nothing -> pure $
+                        RL.error {}
+                          "decodeURI error"
+                          ( RL.string { style: inj'U @"code" # pure } $
+                              "doc_str = " <> "\"\"\"" <> doc_str_ <> "\"\"\""
+                          )
                       Just doc_str -> do
                         pure $
                           doc_str
                             # fromJsonString
                             # either
-                                ( \err -> Fix $
-                                    RL.Error
-                                      { label: "JsonDecodeError" }
-                                      ( RL.section "Errors"
-                                          [ RL.string_style (inj' @"code" unit) $ intercalate "\n" [ "doc_str = " <> "\"\"\"" <> doc_str <> "\"\"\"" ]
-                                          , RL.string_style (inj' @"code" unit) $ intercalate "\n" [ "err = " <> "\"\"\"" <> printJsonDecodeError err <> "\"\"\"" ]
+                                ( \err ->
+                                    RL.error {}
+                                      "JsonDecodeError"
+                                      ( RL.section {} "Errors"
+                                          [ RL.string { style: inj'U @"code" # pure } $ intercalate "\n"
+                                              [ "doc_str = " <> "\"\"\"" <> doc_str <> "\"\"\"" ]
+                                          , RL.string { style: inj'U @"code" # pure } $ intercalate "\n"
+                                              [ "err = " <> "\"\"\"" <> printJsonDecodeError err <> "\"\"\"" ]
                                           ]
                                       )
                                 )

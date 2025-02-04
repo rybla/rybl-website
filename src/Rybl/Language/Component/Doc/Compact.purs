@@ -13,7 +13,7 @@ import Data.Int as Int
 import Data.Lens ((%=), (%~), (.=))
 import Data.List as List
 import Data.Map as Map
-import Data.Maybe (Maybe(..), fromMaybe')
+import Data.Maybe (Maybe(..), fromMaybe', maybe)
 import Data.Newtype (unwrap)
 import Data.String as String
 import Data.Traversable (foldMap, traverse)
@@ -35,20 +35,20 @@ import Type.Proxy (Proxy(..))
 
 renderDoc :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m (Array HTML)
 
-renderDoc (Fix (Section doc body_)) = do
+renderDoc (Fix (Section opts args body_)) = do
   { section_path } <- ask
   { section_index } <- get
   let section_depth = section_path # length
-  title <- renderDoc $ RL.string doc.title
+  title <- renderDoc $ RL.string {} args.title
   body <-
-    local (prop' @"section_path" %~ List.Cons { index: section_index, title: doc.title }) do
+    local (prop' @"section_path" %~ List.Cons { index: section_index, title: args.title }) do
       prop' @"section_index" .= 0
       body_ # traverse renderDoc # map Array.fold
   prop' @"section_index" .= section_index + 1
   let
     section_id =
       "section_" <>
-        ( doc.title
+        ( args.title
             # String.replace (String.Pattern " ") (String.Replacement "_")
             # encodeURIComponent >>> fromMaybe' impossible
         )
@@ -94,7 +94,7 @@ renderDoc (Fix (Section doc body_)) = do
         ]
     ]
 
-renderDoc (Fix (Paragraph _doc body_)) = do
+renderDoc (Fix (Paragraph opts args body_)) = do
   body <- body_ # traverse renderDoc # map (foldMap \x -> [ x, [ HH.text " " ] ]) # map Array.fold
   pure
     [ HH.div
@@ -102,7 +102,7 @@ renderDoc (Fix (Paragraph _doc body_)) = do
         body
     ]
 
-renderDoc (Fix (Sentence _doc body_)) = do
+renderDoc (Fix (Sentence opts args body_)) = do
   body <- body_ # traverse renderDoc # map Array.fold
   pure
     [ HH.div
@@ -110,7 +110,7 @@ renderDoc (Fix (Sentence _doc body_)) = do
         body
     ]
 
-renderDoc (Fix (Sidenote _doc label_ body_)) = do
+renderDoc (Fix (Sidenote opts args label_ body_)) = do
   label <- label_ # renderDoc
   body <- body_ # renderDoc
   widget_index <- next_widget_index
@@ -121,13 +121,13 @@ renderDoc (Fix (Sidenote _doc label_ body_)) = do
         }
     ]
 
-renderDoc (Fix (Ref doc)) = do
+renderDoc (Fix (Ref opts args)) = do
   { namedDocs } <- ask
-  case namedDocs # Map.lookup doc.refId of
+  case namedDocs # Map.lookup args.refId of
     Nothing -> pure
       [ HH.div
           []
-          [ HH.text $ "missing refId: " <> show doc.refId ]
+          [ HH.text $ "missing refId: " <> show args.refId ]
       ]
     Just a -> a ## case_
       # on' @"loaded" renderDoc
@@ -135,30 +135,30 @@ renderDoc (Fix (Ref doc)) = do
           ( const $ pure
               [ HH.div
                   []
-                  [ HH.text $ "loading refId " <> show doc.refId ]
+                  [ HH.text $ "loading refId " <> show args.refId ]
               ]
           )
       # on' @"error_on_load"
           ( \err -> pure
               [ HH.div
                   [ Style.style $ tell [ "display: flex", "flex-direction: column", "background-color: #ffcccb" ] ]
-                  [ HH.text $ "error when loading refId " <> show doc.refId
+                  [ HH.text $ "error when loading refId " <> show args.refId
                   , err # HH.fromPlainHTML
                   ]
               ]
           )
 
-renderDoc (Fix (CodeBlock doc)) = do
+renderDoc (Fix (CodeBlock opts args)) = do
   pure
     [ HH.div
         [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
         [ HH.pre
             [ Style.style do tell [ "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
-            [ HH.text doc.value ]
+            [ HH.text args.value ]
         ]
     ]
 
-renderDoc (Fix (QuoteBlock _doc body_)) = do
+renderDoc (Fix (QuoteBlock opts args body_)) = do
   body <- body_ # renderDoc
   pure
     [ HH.div
@@ -176,46 +176,45 @@ renderDoc (Fix (QuoteBlock _doc body_)) = do
         ]
     ]
 
-renderDoc (Fix (MathBlock doc)) = do
+renderDoc (Fix (MathBlock opts args)) = do
   pure
     [ HH.div
         [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
         [ HH.pre
             [ Style.style do tell [ "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
-            [ HH.text $ "MATH: " <> doc.value ]
+            [ HH.text $ "MATH: " <> args.value ]
         ]
     ]
 
-renderDoc (Fix (Media form)) = form # match
-  { image: \doc ->
-      pure
-        [ HH.div
-            []
-            [ HH.img
-                [ Style.style do tell [ "width: 100%" ]
-                , HP.src doc.src
-                ]
+renderDoc (Fix (Image opts args caption)) = do
+  pure
+    [ HH.div
+        []
+        [ HH.img
+            [ Style.style do tell [ "width: 100%" ]
+            , HP.src args.url
             ]
         ]
-  }
+    ]
 
-renderDoc (Fix (String doc)) = do
+renderDoc (Fix (String opts args)) = do
   pure
     [ HH.div
         [ Style.style do
             tell [ "display: inline" ]
-            doc.style # match
-              { plain: mempty
-              , emphasis: const do
-                  tell [ "font-weight: bold" ]
-              , code: const do
-                  tell [ "font-family: monospace" ]
-              }
+            opts.style # maybe (pure unit)
+              ( match
+                  { emphasis: const do
+                      tell [ "font-weight: bold" ]
+                  , code: const do
+                      tell [ "font-family: monospace" ]
+                  }
+              )
         ]
-        [ HH.text doc.value ]
+        [ HH.text args.value ]
     ]
 
-renderDoc (Fix (Error _doc body_)) = do
+renderDoc (Fix (Error opts args body_)) = do
   e <- body_ # renderDoc
   pure
     [ HH.div
@@ -223,53 +222,48 @@ renderDoc (Fix (Error _doc body_)) = do
         e
     ]
 
-renderDoc (Fix (Link doc label_)) = doc.src ## case_
-  # on' @"external"
-      ( \src -> do
-          label <- label_ # renderDoc
-          pure
-            [ HH.a
-                [ Style.style $ tell
-                    [ "display: inline-flex"
-                    , "flex-direction: row"
-                    , "align-items: baseline"
-                    , "gap: 0.2em"
-                    ]
-                , HP.href src.href
-                ]
-                case src.mb_favicon_src of
-                  Nothing ->
-                    [ HH.div_ label ]
-                  Just favicon_src ->
-                    [ HH.img
-                        [ Style.style $ tell [ "height: 0.8em" ]
-                        , HP.src favicon_src
-                        ]
-                    , HH.div_ label
-                    ]
+renderDoc (Fix (ExternalLink opts args label_)) = do
+  label <- label_ # renderDoc
+  pure
+    [ HH.a
+        [ Style.style $ tell
+            [ "display: inline-flex"
+            , "flex-direction: row"
+            , "align-items: baseline"
+            , "gap: 0.2em"
             ]
-      )
-  # on' @"internal"
-      ( \src -> do
-          label <- label_ # renderDoc
-          pure
-            [ HH.a
-                [ Style.style $ tell
-                    [ "display: inline-flex"
-                    , "flex-direction: row"
-                    , "align-items: baseline"
-                    , "gap: 0.2em"
-                    ]
-                , HP.href $ "/index.html?ref=" <> (src.refId # unwrap # encodeURI # fromMaybe' \_ -> bug $ "failed: encodeURI " <> show (src.refId # toJsonString))
+        , HP.href args.url
+        ]
+        case opts.favicon_url of
+          Nothing ->
+            [ HH.div_ label ]
+          Just favicon_src ->
+            [ HH.img
+                [ Style.style $ tell [ "height: 0.8em" ]
+                , HP.src favicon_src
                 ]
-                [ HH.img
-                    [ Style.style $ tell [ "height: 0.8em" ]
-                    , HP.src "/favicon.ico"
-                    ]
-                , HH.div_ label
-                ]
+            , HH.div_ label
             ]
-      )
+    ]
+renderDoc (Fix (InternalLink _opts args label_)) = do
+  label <- label_ # renderDoc
+  pure
+    [ HH.a
+        [ Style.style $ tell
+            [ "display: inline-flex"
+            , "flex-direction: row"
+            , "align-items: baseline"
+            , "gap: 0.2em"
+            ]
+        , HP.href $ "/index.html?ref=" <> (args.refId # unwrap # encodeURI # fromMaybe' \_ -> bug $ "failed: encodeURI " <> show (args.refId # toJsonString))
+        ]
+        [ HH.img
+            [ Style.style $ tell [ "height: 0.8em" ]
+            , HP.src "/favicon.ico"
+            ]
+        , HH.div_ label
+        ]
+    ]
 
 --------------------------------------------------------------------------------
 -- theSidenoteExpanderComponent
