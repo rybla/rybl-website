@@ -10781,7 +10781,7 @@
         });
       }
       ;
-      throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 283, column 3 - line 283, column 46): " + [v.constructor.name]);
+      throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 290, column 3 - line 290, column 46): " + [v.constructor.name]);
     };
     var $$eval = mkEval({
       handleQuery: defaultEval.handleQuery,
@@ -10890,12 +10890,12 @@
         ;
         if (v.value0 instanceof QuoteBlock) {
           return bind18(renderDoc(dictMonadReader)(dictMonadState)(v.value0.value1))(function(body4) {
-            return pure17([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: center"]))])([div2([style3(tell3(["margin: 0 1em", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)"]))])(body4)])]);
+            return pure17([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: center"]))])([div2([style3(tell3(["margin: 0 1em", "padding: 0.5em", "border-left: 1px solid black", "background-color: rgba(0, 0, 0, 0.1)"]))])(body4)])]);
           });
         }
         ;
         if (v.value0 instanceof MathBlock) {
-          return pure17([div2([style3(tell3(["background-color: rgba(0, 0, 0, 0.1)", "display: flex", "flex-direction: row", "justify-content: center", "padding: 0.5em"]))])([div2([])([text5("MATH: " + v.value0.value0.value)])])]);
+          return pure17([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: center"]))])([pre([style3(tell3(["padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll"]))])([text5("MATH: " + v.value0.value0.value)])])]);
         }
         ;
         if (v.value0 instanceof Media) {
@@ -10940,7 +10940,7 @@
                   return [img([style3(tell3(["height: 0.8em"])), src9(src10.mb_favicon_src.value0)]), div_(label5)];
                 }
                 ;
-                throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 233, column 17 - line 242, column 22): " + [src10.mb_favicon_src.constructor.name]);
+                throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 240, column 17 - line 249, column 22): " + [src10.mb_favicon_src.constructor.name]);
               }())]);
             });
           })(case_))(v.value0.value0.src);

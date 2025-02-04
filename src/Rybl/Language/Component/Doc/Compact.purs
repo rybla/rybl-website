@@ -164,7 +164,14 @@ renderDoc (Fix (QuoteBlock _doc body_)) = do
     [ HH.div
         [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
         [ HH.div
-            [ Style.style do tell [ "margin: 0 1em", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)" ] ]
+            [ Style.style do
+                tell
+                  [ "margin: 0 1em"
+                  , "padding: 0.5em"
+                  , "border-left: 1px solid black"
+                  , "background-color: rgba(0, 0, 0, 0.1)"
+                  ]
+            ]
             body
         ]
     ]
