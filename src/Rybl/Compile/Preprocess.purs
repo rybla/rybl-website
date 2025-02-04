@@ -3,12 +3,11 @@ module Rybl.Compile.Preprocess where
 import Prelude
 
 import Data.Maybe (Maybe(..), fromMaybe')
-import Data.Newtype (wrap)
 import Effect.Aff (Aff)
 import Rybl.Data.Fix as Fix
 import Rybl.Data.Variant (inj', match)
 import Rybl.Language (Doc, Doc_(..))
-import Rybl.Utility (bug, todo)
+import Rybl.Utility (bug)
 import Web.URL as URL
 
 preprocessDoc :: Doc -> Aff Doc
@@ -25,6 +24,3 @@ preprocessDoc = Fix.foldM case _ of
       }
     pure $ Fix.wrap $ Link doc { src = src } label
   doc -> pure $ Fix.wrap doc
-
--- preprocessDoc :: Doc -> Aff Doc
--- preprocessDoc = todo ""

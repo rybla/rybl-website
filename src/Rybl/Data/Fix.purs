@@ -12,7 +12,7 @@ data Fix f = Fix (f (Fix f))
 derive instance Generic (Fix f) _
 
 instance (Functor f, Show (f String)) => Show (Fix f) where
-  show = fold show
+  show x = x # fold show
 
 -- instance Eq1 f => Eq (Fix f) where
 --   eq 
@@ -21,10 +21,10 @@ instance (Functor f, Show (f String)) => Show (Fix f) where
 --   compare x y = genericCompare x y
 
 instance (Traversable f, EncodeJson (f Json)) => EncodeJson (Fix f) where
-  encodeJson = fold encodeJson
+  encodeJson x = x # fold encodeJson
 
 instance (Traversable f, DecodeJson (f Json)) => DecodeJson (Fix f) where
-  decodeJson = unfoldM decodeJson
+  decodeJson x = unfoldM decodeJson x
 
 wrap :: forall f. f (Fix f) -> Fix f
 wrap = Fix
@@ -36,10 +36,10 @@ fold :: forall f a. Functor f => (f a -> a) -> Fix f -> a
 fold f (Fix x) = x # map (fold f) # f
 
 foldM :: forall f m a. Traversable f => Monad m => (f a -> m a) -> Fix f -> m a
-foldM f = unwrap >>> traverse (foldM f) >>> bind' f
+foldM f (Fix x) = x # traverse (foldM f) # bind' f
 
 unfoldM :: forall f m a. Traversable f => Monad m => (a -> m (f a)) -> a -> m (Fix f)
-unfoldM f = f >=> traverse (unfoldM f) >>> map wrap
+unfoldM f a = a # (f >=> traverse (unfoldM f) >>> map wrap)
 
 traverse_upwards
   :: forall f m
@@ -48,10 +48,9 @@ traverse_upwards
   => (f (Fix f) -> m (f (Fix f)))
   -> Fix f
   -> m (Fix f)
-traverse_upwards f =
-  unwrap
-    >>> traverse (traverse_upwards f)
-    >>> bind' (f >=> (wrap >>> pure))
+traverse_upwards f (Fix x) = x
+  # traverse (traverse_upwards f)
+  # bind' (f >=> (wrap >>> pure))
 
 traverse_upwards_
   :: forall f m
@@ -71,10 +70,9 @@ traverse_downwards
   => (f (Fix f) -> m (f (Fix f)))
   -> Fix f
   -> m (Fix f)
-traverse_downwards f =
-  unwrap
-    >>> f
-    >>> bind' (traverse (traverse_downwards f) >=> (wrap >>> pure))
+traverse_downwards f (Fix x) = x
+  # f
+  # bind' (traverse (traverse_downwards f) >=> (wrap >>> pure))
 
 traverse_downwards_
   :: forall f m

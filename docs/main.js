@@ -9037,21 +9037,26 @@
       var traverse12 = traverse4(dictMonad.Applicative0());
       var map37 = map(Bind1.Apply0().Functor0());
       return function(f) {
-        return composeKleisli3(f)(function() {
-          var $93 = map37(wrap3);
-          var $94 = traverse12(unfoldM(dictTraversable)(dictMonad)(f));
-          return function($95) {
-            return $93($94($95));
-          };
-        }());
+        return function(a2) {
+          return composeKleisli3(f)(function() {
+            var $105 = map37(wrap3);
+            var $106 = traverse12(unfoldM(dictTraversable)(dictMonad)(f));
+            return function($107) {
+              return $105($106($107));
+            };
+          }())(a2);
+        };
       };
     };
   };
   var decodeJsonFix = function(dictTraversable) {
     var unfoldM1 = unfoldM(dictTraversable)(monadEither);
     return function(dictDecodeJson) {
+      var decodeJson3 = decodeJson(dictDecodeJson);
       return {
-        decodeJson: unfoldM1(decodeJson(dictDecodeJson))
+        decodeJson: function(x) {
+          return unfoldM1(decodeJson3)(x);
+        }
       };
     };
   };
