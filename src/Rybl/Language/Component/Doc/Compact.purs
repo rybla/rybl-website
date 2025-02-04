@@ -14,6 +14,7 @@ import Data.Lens ((%=), (%~), (.=))
 import Data.List as List
 import Data.Maybe (Maybe(..), fromMaybe', maybe)
 import Data.Newtype (unwrap)
+import Data.Semigroup.Foldable (intercalateMap)
 import Data.Traversable (foldMap, traverse)
 import Effect.Aff (Aff)
 import Effect.Class.Console as Console
@@ -30,180 +31,178 @@ import Rybl.Halogen.Style as Style
 import Rybl.Language (Doc, Doc_(..), Resource)
 import Rybl.Language as RL
 import Rybl.Language.Component.Common (Ctx, Env, HTML, next_widget_index, mapAction_ComponentHTML)
-import Rybl.Utility (bug, prop')
+import Rybl.Utility (bug, prop', todo)
 import Type.Proxy (Proxy(..))
 
-renderDoc :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m (Array HTML)
+renderDoc :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
 
-renderDoc (Fix (Page opts args body_)) = do
+renderDoc doc@(Fix (Page opts args body_)) = do
   title <- renderDoc $ RL.string {} args.title
-  body <- body_ # traverse renderDoc # map Array.fold
+  body <- body_ # traverse renderDoc
+  tableOfContents <- doc # renderTableOfContents
+  bibliography <- doc # renderBibliography
   let id = opts.id # fromMaybe' \_ -> bug $ "page was not given an id: " <> show args.title
-  pure
-    [ HH.div
-        [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ]
-        , HP.id id
-        ]
-        [ HH.div
-            [ Style.style $ tell
-                [ "display: flex"
-                , "flex-direction: row"
-                , "justify-content: space-between"
-                , "align-items: flex-start"
-                , "gap: 1em"
-                , "font-size: 3em"
-                ]
-            ]
-            [ HH.div []
-                [ HH.a
-                    [ HP.href $ "#" <> id ]
-                    [ HH.text $ "§" ]
-                ]
-            , HH.div []
-                title
-            , HH.div []
-                [ HH.a
-                    [ HP.href $ "#" <> id ]
-                    [ HH.text $ "§" ]
-                ]
-            ]
-        , HH.div
-            [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
-            body
-        ]
-    ]
+  pure $
+    HH.div
+      [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 1.0em" ]
+      , HP.id id
+      ]
+      [ HH.div
+          [ Style.style $ tell
+              [ "display: flex"
+              , "flex-direction: row"
+              , "justify-content: space-between"
+              , "align-items: flex-start"
+              , "gap: 1em"
+              , "font-size: 3em"
+              ]
+          ]
+          [ HH.div_
+              [ HH.a
+                  [ HP.href $ "#" <> id ]
+                  [ HH.text $ "§" ]
+              ]
+          , HH.div_
+              [ title ]
+          , HH.div_
+              [ HH.a
+                  [ HP.href $ "#" <> id ]
+                  [ HH.text $ "§" ]
+              ]
+          ]
+      , HH.div
+          [ Style.style do tell [ "border: 1px solid black", "padding: 1em" ] ]
+          [ tableOfContents ]
+      , HH.div
+          [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
+          body
+      , HH.div
+          [ Style.style do tell [ "border: 1px solid black", "padding: 1em" ] ]
+          [ bibliography ]
+      ]
 
 renderDoc (Fix (Section opts args body_)) = do
   { section_path } <- ask
   { section_index } <- get
   let section_depth = section_path # length
-  title <- renderDoc $ RL.string {} args.title
+  title <- RL.string {} args.title # renderDoc
   body <-
     local (prop' @"section_path" %~ List.Cons { index: section_index, title: args.title }) do
       prop' @"section_index" .= 0
-      body_ # traverse renderDoc # map Array.fold
+      body_ # traverse renderDoc -- # map Array.fold
   let id = opts.id # fromMaybe' \_ -> bug $ "section was not given an id: " <> show args.title
-  pure
-    [ HH.div
-        [ Style.style $ tell [ "padding-top: 1em;", "display: flex", "flex-direction: column", "gap: 0.5em" ]
-        , HP.id id
-        ]
-        [ HH.div
-            [ Style.style $ tell
-                [ "display: flex"
-                , "flex-direction: row"
-                , "justify-content: space-between"
-                , "align-items: flex-start"
-                , "gap: 1em"
-                , "font-size: " <> show ((2.0 - (Int.toNumber section_depth * 0.2)) `max` 1.0) <> "em"
-                , "box-shadow: 0 1px 0 0 black"
-                ]
-            ]
-            [ HH.div
-                [ Style.style $ tell [ "flex-grow: 0" ] ] $ fold $
-                [ [ HH.a
-                      [ HP.href $ "#" <> id ]
-                      [ HH.text $ "§" ]
-                  ]
-                , title
-                ]
-            , HH.div
-                [ Style.style $ tell [ "flex-shrink: 0", "flex-grow: 1", "text-align: right" ] ]
-                [ HH.text
-                    $ List.Cons section_index (section_path # map _.index)
-                        # map ((_ + 1) >>> show)
-                        # List.reverse
-                        # List.intercalate "."
-                , HH.a
-                    [ HP.href $ "#" <> id ]
-                    [ HH.text $ "§" ]
-                ]
-            ]
-        , HH.div
-            [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
-            body
-        ]
-    ]
+  pure $
+    HH.div
+      [ Style.style $ tell [ "padding-top: 1em;", "display: flex", "flex-direction: column", "gap: 0.5em" ]
+      , HP.id id
+      ]
+      [ HH.div
+          [ Style.style $ tell
+              [ "display: flex"
+              , "flex-direction: row"
+              , "justify-content: space-between"
+              , "align-items: flex-start"
+              , "gap: 1em"
+              , "font-size: " <> show ((2.0 - (Int.toNumber section_depth * 0.2)) `max` 1.0) <> "em"
+              , "box-shadow: 0 1px 0 0 black"
+              ]
+          ]
+          [ HH.div
+              [ Style.style $ tell [ "flex-grow: 0" ] ] $
+              [ HH.a
+                  [ HP.href $ "#" <> id ]
+                  [ HH.text $ "§" ]
+              , title
+              ]
+          , HH.div
+              [ Style.style $ tell [ "flex-shrink: 0", "flex-grow: 1", "text-align: right" ] ]
+              [ HH.text
+                  $ List.Cons section_index (section_path # map _.index)
+                      # map ((_ + 1) >>> show)
+                      # List.reverse
+                      # List.intercalate "."
+              , HH.a
+                  [ HP.href $ "#" <> id ]
+                  [ HH.text $ "§" ]
+              ]
+          ]
+      , HH.div
+          [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
+          body
+      ]
 
 renderDoc (Fix (Paragraph _opts _args body_)) = do
-  body <- body_ # traverse renderDoc # map (foldMap \x -> [ x, [ HH.text " " ] ]) # map Array.fold
-  pure
-    [ HH.div
-        [ Style.style $ tell [] ]
-        body
-    ]
+  bodys <- body_ # traverse renderDoc -- TODO: -- (foldMap \x -> [ x, [ HH.text " " ] ]) # map Array.fold
+  let body = bodys # Array.intersperse (HH.text " ")
+  pure $ HH.div_
+    body
 
 renderDoc (Fix (Sentence _opts _args body_)) = do
-  body <- body_ # traverse renderDoc # map Array.fold
-  pure
-    [ HH.div
-        [ Style.style $ tell [ "display: inline" ] ]
-        body
-    ]
+  body <- body_ # traverse renderDoc
+  pure $
+    HH.div
+      [ Style.style $ tell [ "display: inline" ] ]
+      body
 
 renderDoc (Fix (Sidenote _opts _args label_ body_)) = do
   label <- label_ # renderDoc
   body <- body_ # renderDoc
   widget_index <- next_widget_index
-  pure
-    [ HH.slot_ (Proxy @"SidenoteExpander") widget_index theSidenoteExpanderComponent
-        { label: label # map (mapAction_ComponentHTML Left)
-        , body: body # map (mapAction_ComponentHTML Left)
-        }
-    ]
+  pure $
+    HH.slot_ (Proxy @"SidenoteExpander") widget_index theSidenoteExpanderComponent
+      { label: label # mapAction_ComponentHTML Left
+      , body: body # mapAction_ComponentHTML Left
+      }
 
 renderDoc (Fix (Ref _opts args)) = do
-  pure
-    [ HH.div
-        [ Style.style do tell [ "background-color: black", "color: white", "padding: 0.5em" ] ]
-        [ HH.text $ "Ref " <> show args.refId ]
-    ]
+  pure $
+    HH.div
+      [ Style.style do tell [ "background-color: black", "color: white", "padding: 0.5em" ] ]
+      [ HH.text $ "Ref " <> show args.refId ]
 
 renderDoc (Fix (CodeBlock _opts args)) = do
-  pure
-    [ HH.div
-        [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
-        [ HH.pre
-            [ Style.style do tell [ "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
-            [ HH.text args.value ]
-        ]
-    ]
+  pure $
+    HH.div
+      [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
+      [ HH.pre
+          [ Style.style do tell [ "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
+          [ HH.text args.value ]
+      ]
 
 renderDoc (Fix (QuoteBlock _opts _args body_)) = do
   body <- body_ # renderDoc
-  pure
-    [ HH.div
-        [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
-        [ HH.div
-            [ Style.style do
-                tell
-                  [ "margin: 0 1em"
-                  , "padding: 0.5em"
-                  , "border-left: 4px solid black"
-                  , "background-color: color-mix(in hsl, teal, transparent 80%)"
-                  , "border-radius: 1em"
-                  ]
-            ]
-            body
-        ]
-    ]
+  pure $
+    HH.div
+      [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
+      [ HH.div
+          [ Style.style do
+              tell
+                [ "margin: 0 1em"
+                , "padding: 0.5em"
+                , "border-left: 4px solid black"
+                , "background-color: color-mix(in hsl, teal, transparent 80%)"
+                , "border-radius: 1em"
+                ]
+          ]
+          [ body ]
+      ]
 
 renderDoc (Fix (MathBlock _opts args)) = do
-  pure
-    [ HH.div
-        [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
-        [ HH.pre
-            [ Style.style do tell [ "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
-            [ HH.text $ "MATH: " <> args.value ]
-        ]
-    ]
+  pure $
+    HH.div
+      [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
+      [ HH.pre
+          [ Style.style do tell [ "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
+          [ HH.text $ "MATH: " <> args.value ]
+      ]
 
 renderDoc (Fix (Image opts args caption__)) = do
   caption_ <- caption__ # traverse renderDoc
   resource_ <- opts.source # traverse renderResource
   pure
-    [ HH.div
-        [ Style.style do tell [ "width: 100%", "display: flex", "flex-direction: column", "justify-content: center" ] ] $ fold
+    $ HH.div
+        [ Style.style do tell [ "width: 100%", "display: flex", "flex-direction: column", "justify-content: center" ] ]
+    $ fold
         [ [ HH.img
               [ Style.style do tell [ "width: 100%" ]
               , HP.src args.url
@@ -212,7 +211,7 @@ renderDoc (Fix (Image opts args caption__)) = do
         , caption_ # maybe [] \caption ->
             [ HH.div
                 [ Style.style $ do tell [ "margin: 0 0.5em", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)" ] ]
-                caption
+                [ caption ]
             ]
         , resource_ # maybe [] \resource ->
             [ HH.div
@@ -220,80 +219,76 @@ renderDoc (Fix (Image opts args caption__)) = do
                 [ resource ]
             ]
         ]
-    ]
 
 renderDoc (Fix (String opts args)) = do
-  pure
-    [ HH.div
-        [ Style.style do
-            tell [ "display: inline" ]
-            opts.style # maybe (pure unit)
-              ( match
-                  { emphasis: const do
-                      tell [ "font-weight: bold" ]
-                  , code: const do
-                      tell [ "font-family: monospace" ]
-                  }
-              )
-        ]
-        [ HH.text args.value ]
-    ]
+  pure $
+    HH.div
+      [ Style.style do
+          tell [ "display: inline" ]
+          opts.style # maybe (pure unit)
+            ( match
+                { emphasis: const do
+                    tell [ "font-weight: bold" ]
+                , code: const do
+                    tell [ "font-family: monospace" ]
+                }
+            )
+      ]
+      [ HH.text args.value ]
 
 renderDoc (Fix (Error _opts _args body_)) = do
   e <- body_ # renderDoc
-  pure
-    [ HH.div
-        [ Style.style $ tell [ "background-color: #ffcccb" ] ]
-        e
-    ]
+  pure $
+    HH.div
+      [ Style.style $ tell [ "background-color: #ffcccb" ] ]
+      [ e ]
 
 renderDoc (Fix (ExternalLink opts args label_)) = do
   label <- label_ # renderDoc
-  pure
-    [ HH.a
-        [ Style.style $ tell
-            [ "display: inline-flex"
-            , "flex-direction: row"
-            , "align-items: baseline"
-            , "gap: 0.2em"
-            ]
-        , HP.href args.url
-        ]
-        case opts.favicon_url of
-          Nothing ->
-            [ HH.div_ label ]
-          Just favicon_src ->
-            [ HH.img
-                [ Style.style $ tell [ "height: 0.8em" ]
-                , HP.src favicon_src
-                ]
-            , HH.div_ label
-            ]
-    ]
+  pure $
+    HH.a
+      [ Style.style $ tell
+          [ "display: inline-flex"
+          , "flex-direction: row"
+          , "align-items: baseline"
+          , "gap: 0.2em"
+          ]
+      , HP.href args.url
+      ]
+      case opts.favicon_url of
+        Nothing ->
+          [ HH.div_ [ label ] ]
+        Just favicon_src ->
+          [ HH.img
+              [ Style.style $ tell [ "height: 0.8em" ]
+              , HP.src favicon_src
+              ]
+          , HH.div_ [ label ]
+          ]
+
 renderDoc (Fix (InternalLink _opts args label_)) = do
   label <- label_ # renderDoc
-  pure
-    [ HH.a
-        [ Style.style $ tell
-            [ "display: inline-flex"
-            , "flex-direction: row"
-            , "align-items: baseline"
-            , "gap: 0.2em"
-            ]
-        , HP.href $ "/index.html?ref=" <> (args.refId # unwrap # encodeURI # fromMaybe' \_ -> bug $ "failed: encodeURI " <> show (args.refId # toJsonString))
-        ]
-        [ HH.img
-            [ Style.style $ tell [ "height: 0.8em" ]
-            , HP.src "/favicon.ico"
-            ]
-        , HH.div_ label
-        ]
-    ]
+  pure $
+    HH.a
+      [ Style.style $ tell
+          [ "display: inline-flex"
+          , "flex-direction: row"
+          , "align-items: baseline"
+          , "gap: 0.2em"
+          ]
+      , HP.href $ "/index.html?ref=" <> (args.refId # unwrap # encodeURI # fromMaybe' \_ -> bug $ "failed: encodeURI " <> show (args.refId # toJsonString))
+      ]
+      [ HH.img
+          [ Style.style $ tell [ "height: 0.8em" ]
+          , HP.src "/favicon.ico"
+          ]
+      , HH.div_ [ label ]
+      ]
 
 renderResource :: forall m. MonadReader Ctx m => MonadState Env m => Resource -> m HTML
 renderResource res = do
   pure
-    $ HH.div []
+    $ HH.div_
     $ intercalate [ HH.text " • " ]
         [ res.name # maybe [] \name -> [ HH.text $ name ]
         , res.date # maybe [] \date -> [ HH.i_ [ HH.text "accessed " ], HH.text $ date ]
@@ -322,7 +317,7 @@ renderTableOfContents doc = do
       in
         [ HH.div
             [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
-            [ HH.div []
+            [ HH.div_
                 [ HH.a
                     ([ node.id # maybe [] \id -> [ HP.href $ "#" <> id ] ] # fold)
                     [ HH.text node.title ]
@@ -334,9 +329,14 @@ renderTableOfContents doc = do
         ]
 
   pure $
-    HH.div
-      []
+    HH.div_
       (go tocTree)
+
+renderBibliography :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
+renderBibliography doc = do
+  pure $
+    HH.div_
+      [ HH.text "{{bibliography}}" ]
 
 --------------------------------------------------------------------------------
 -- theSidenoteExpanderComponent
@@ -372,7 +372,7 @@ theSidenoteExpanderComponent = H.mkComponent { initialState, eval, render }
               ] $ fold $
               [ marker
               , [ HH.text " " ]
-              , state.label
+              , [ state.label ]
               ]
           ]
         , if not state.open then []
@@ -386,7 +386,7 @@ theSidenoteExpanderComponent = H.mkComponent { initialState, eval, render }
                     , "background-color: " <> bgcolor
                     ]
                 ]
-                state.body
+                [ state.body ]
             ]
         , [ HH.div
               [ Style.style $ tell [ "display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)", "padding-right: 0.3em" ]

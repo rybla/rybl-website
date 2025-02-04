@@ -9,7 +9,6 @@ import Data.Argonaut (JsonDecodeError)
 import Data.Argonaut.Decode (fromJsonString)
 import Data.Either (Either(..))
 import Data.Either.Nested (type (\/))
-import Data.Foldable (fold)
 import Data.Lens ((%=))
 import Data.Map (Map)
 import Data.Map as Map
@@ -25,16 +24,13 @@ import Halogen (Component, defaultEval, mkComponent, mkEval) as H
 import Halogen (liftAff)
 import Halogen.HTML (div) as H
 import Halogen.HTML as HH
-import Halogen.HTML.Properties as HP
 import Rybl.Data.Fix as Fix
 import Rybl.Data.Variant (case_, expandCons, inj', inj'U, on')
-import Rybl.Halogen.Class as Class
 import Rybl.Halogen.Style as Style
 import Rybl.Language (Doc, Doc_(..), RefId, collectRefIds)
 import Rybl.Language as RL
 import Rybl.Language.Component.Common (Env, Input, State, mapAction_ComponentHTML)
 import Rybl.Language.Component.Doc.Compact as Compact
-import Rybl.Language.Component.Doc.Compact as Rybl.Language.Component.Doc.Compact
 import Rybl.Utility (prop')
 
 --------------------------------------------------------------------------------
@@ -126,20 +122,11 @@ theDocComponent = H.mkComponent { initialState, eval, render }
           tell [ "width: 100%" ]
           tell [ "display: flex", "flex-direction: column", "gap: 1em" ]
       ]
-      ( ( do
-            htmls_doc <- doc # Compact.renderDoc
-            htmls_toc <- doc # Compact.renderTableOfContents
-            pure $ fold
-              [ [ HH.div
-                    [ Style.style do tell [ "padding: 0.5em", "border: 1px solid black" ] ]
-                    [ htmls_toc ]
-                ]
-              , htmls_doc
-              ]
-        )
+      [ doc
+          # Compact.renderDoc
           # flip runReaderT ctx
           # flip evalState env
-      )
+      ]
       # mapAction_ComponentHTML (expandCons @"receive" >>> expandCons @"initialize")
 
 nextSlotIndex :: forall m. MonadState Env m => m Int
