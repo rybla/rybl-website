@@ -10,7 +10,8 @@ import Data.Newtype (wrap)
 import Data.String as String
 import Data.Tuple (Tuple(..))
 import Rybl.Data.Variant (inj', inj'U)
-import Rybl.Language (Doc, codeBlock, external_link, image, internal_link, mathBlock, page, paragraph, quoteBlock, ref, section, sentence, sidenote, string)
+import Rybl.Language (Doc, codeBlock, external_link, image, internal_link, mathBlock, page, paragraph, quoteBlock, ref, resource, section, sentence, sidenote, string)
+import Rybl.Utility (todo)
 
 namedDocs :: Map String Doc
 namedDocs = Map.fromFoldable
@@ -82,7 +83,9 @@ big_list = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2,
         , section {} "Quoteblocks"
             [ paragraph {}
                 [ sentence {} [ string {} "The following is a quote block." ] ]
-            , quoteBlock {} $
+            , quoteBlock
+                { source: pure $ resource {} "Albert Einstein"
+                } $
                 paragraph {} [ string {} "I certainly believe this: that it is better to be impetuous than cautious, because Fortune is a woman, and if you want to keep her under it is necessary to beat her and force her down. It is clear that she more often allows herself to be won over by impetuous men than by those who proceed coldly. And so, like a woman, Fortune is always the friend of young men, for they are less cautious, more ferocious, and command her with more audacity." ]
             ]
         , section {} "Mathblocks"
@@ -97,7 +100,7 @@ f(x) = \lim_{h \to 0} \frac{A(x+h) - A(x)}{h}
             [ paragraph {} [ string {} "The following is an image." ]
             , image
                 { caption: pure $ string {} "This is an image of a cute cat. Isn't it so cute? Really, it is."
-                , source: pure $ { name: pure "The Cat Pic", date: pure "Today", source: pure $ inj' @"url" "https://media.4-paws.org/9/c/9/7/9c97c38666efa11b79d94619cc1db56e8c43d430/Molly_006-2829x1886-2726x1886-1920x1328.jpg" }
+                , source: pure $ resource { date: pure "Today", content: pure $ inj' @"url" "https://media.4-paws.org/9/c/9/7/9c97c38666efa11b79d94619cc1db56e8c43d430/Molly_006-2829x1886-2726x1886-1920x1328.jpg" } "The Cat Pic"
                 }
                 "https://media.4-paws.org/9/c/9/7/9c97c38666efa11b79d94619cc1db56e8c43d430/Molly_006-2829x1886-2726x1886-1920x1328.jpg"
             ]

@@ -2,12 +2,12 @@ module Rybl.Language where
 
 import Prelude
 
-import Data.Argonaut (class DecodeJson, class EncodeJson)
+import Data.Argonaut (class DecodeJson, class EncodeJson, decodeJson)
 import Data.Argonaut.Decode.Generic (genericDecodeJson)
 import Data.Argonaut.Encode.Generic (genericEncodeJson)
 import Data.Array.ST as ArrayST
 import Data.Generic.Rep (class Generic)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), maybe)
 import Data.Newtype (class Newtype)
 import Data.Set (Set)
 import Data.Set as Set
@@ -18,7 +18,7 @@ import Record as R
 import Rybl.Data.Fix (Fix)
 import Rybl.Data.Fix as Fix
 import Rybl.Data.Variant (Variant)
-import Rybl.Utility (U)
+import Rybl.Utility (U, todo)
 import Type.Prelude (Proxy(..))
 
 newtype RefId = RefId String
@@ -75,17 +75,31 @@ type StringStyle = Variant
   , code :: U
   )
 
-type Resource =
-  { name :: Maybe String
-  , date :: Maybe String
-  , source ::
-      Maybe
-        ( Variant
-            ( url :: String
-            , misc :: String
-            )
-        )
-  }
+data Resource = Resource (Record ResourceOpts) { name :: String }
+
+type ResourceOpts =
+  ( date :: Maybe String
+  , content :: Maybe ResourceContent
+  )
+
+type ResourceContent = Variant
+  ( url :: String
+  , misc :: String
+  )
+
+derive instance Generic Resource _
+
+instance Show Resource where
+  show x = genericShow x
+
+instance EncodeJson Resource where
+  encodeJson x = genericEncodeJson x
+
+instance DecodeJson Resource where
+  decodeJson x = genericDecodeJson x
+
+resource :: forall r r'. Union r ResourceOpts r' => Nub r' ResourceOpts => Record r -> String -> Resource
+resource opts name = Resource (opts `R.merge` { date: Nothing @String, content: Nothing @ResourceContent }) { name }
 
 --------------------------------------------------------------------------------
 -- Doc constructors
@@ -190,11 +204,29 @@ collectRefIds :: Doc -> Set RefId
 collectRefIds doc0 =
   ArrayST.run
     ( do
-        refIds <- ArrayST.new
+        xs <- ArrayST.new
         doc0 # Fix.traverse_upwards_ case _ of
-          Ref _ args -> refIds # ArrayST.push args.refId # void
+          Ref _ args -> xs # ArrayST.push args.refId # void
           _ -> pure unit
-        pure refIds
+        pure xs
     )
     # Set.fromFoldable
+
+collectResources :: Doc -> Array Resource
+collectResources doc0 =
+  ArrayST.run
+    ( do
+        xs <- ArrayST.new
+        let
+          pushMaybeResource = maybe (pure unit) \source -> xs # ArrayST.push source # void
+        doc0 # Fix.traverse_upwards_ case _ of
+          ExternalLink opts _ _ -> opts.source # pushMaybeResource
+          InternalLink opts _ _ -> opts.source # pushMaybeResource
+          CodeBlock opts _ -> opts.source # pushMaybeResource
+          QuoteBlock opts _ _ -> opts.source # pushMaybeResource
+          MathBlock opts _ -> opts.source # pushMaybeResource
+          Image opts _ _ -> opts.source # pushMaybeResource
+          _ -> pure unit
+        pure xs
+    )
 

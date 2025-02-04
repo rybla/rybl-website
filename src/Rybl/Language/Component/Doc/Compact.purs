@@ -8,14 +8,14 @@ import Control.Monad.Writer (tell)
 import Data.Argonaut.Encode (toJsonString)
 import Data.Array as Array
 import Data.Either (Either(..))
-import Data.Foldable (fold, intercalate, length)
+import Data.Foldable (all, fold, length, null)
 import Data.Int as Int
 import Data.Lens ((%=), (%~), (.=))
 import Data.List as List
 import Data.Maybe (Maybe(..), fromMaybe', maybe)
 import Data.Newtype (unwrap)
-import Data.Semigroup.Foldable (intercalateMap)
-import Data.Traversable (foldMap, traverse)
+import Data.Traversable (traverse)
+import Data.Unfoldable (none)
 import Effect.Aff (Aff)
 import Effect.Class.Console as Console
 import Halogen as H
@@ -25,19 +25,18 @@ import Halogen.HTML.Properties as HP
 import JSURI (encodeURI)
 import Rybl.Data.Fix (Fix(..))
 import Rybl.Data.Fix as Fix
-import Rybl.Data.Tree (Tree(..))
+import Rybl.Data.Tree (Tree(..), isLeaf)
 import Rybl.Data.Variant (match)
 import Rybl.Halogen.Style as Style
-import Rybl.Language (Doc, Doc_(..), Resource)
+import Rybl.Language (Doc, Doc_(..), Resource(..))
 import Rybl.Language as RL
-import Rybl.Language.Component.Common (Ctx, Env, HTML, next_widget_index, mapAction_ComponentHTML)
-import Rybl.Utility (bug, prop', todo)
+import Rybl.Language.Component.Common (Ctx, Env, HTML, mapAction_ComponentHTML, next_widget_index)
+import Rybl.Utility (bug, prop')
 import Type.Proxy (Proxy(..))
 
 renderDoc :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
 
 renderDoc doc@(Fix (Page opts args body_)) = do
-  title <- renderDoc $ RL.string {} args.title
   body <- body_ # traverse renderDoc
   tableOfContents <- doc # renderTableOfContents
   bibliography <- doc # renderBibliography
@@ -48,28 +47,8 @@ renderDoc doc@(Fix (Page opts args body_)) = do
       , HP.id id
       ]
       [ HH.div
-          [ Style.style $ tell
-              [ "display: flex"
-              , "flex-direction: row"
-              , "justify-content: space-between"
-              , "align-items: flex-start"
-              , "gap: 1em"
-              , "font-size: 3em"
-              ]
-          ]
-          [ HH.div_
-              [ HH.a
-                  [ HP.href $ "#" <> id ]
-                  [ HH.text $ "§" ]
-              ]
-          , HH.div_
-              [ title ]
-          , HH.div_
-              [ HH.a
-                  [ HP.href $ "#" <> id ]
-                  [ HH.text $ "§" ]
-              ]
-          ]
+          [ Style.style do tell [ "font-size: 3em", "text-align: center" ] ]
+          [ HH.text args.title ]
       , HH.div
           [ Style.style do tell [ "border: 1px solid black", "padding: 1em" ] ]
           [ tableOfContents ]
@@ -85,47 +64,59 @@ renderDoc (Fix (Section opts args body_)) = do
   { section_path } <- ask
   { section_index } <- get
   let section_depth = section_path # length
-  title <- RL.string {} args.title # renderDoc
+  -- title <- RL.string {} args.title # renderDoc
+  let id = opts.id # fromMaybe' \_ -> bug $ "section was not given an id: " <> show args.title
+  title <- renderSectionTitle
+    { title: HH.text args.title
+    , id
+    , section_depth
+    , section_index:
+        List.Cons section_index (section_path # map _.index)
+          # map ((_ + 1) >>> show)
+          # List.reverse
+          # List.intercalate "."
+          # pure
+    }
   body <-
     local (prop' @"section_path" %~ List.Cons { index: section_index, title: args.title }) do
       prop' @"section_index" .= 0
       body_ # traverse renderDoc -- # map Array.fold
-  let id = opts.id # fromMaybe' \_ -> bug $ "section was not given an id: " <> show args.title
   pure $
     HH.div
-      [ Style.style $ tell [ "padding-top: 1em;", "display: flex", "flex-direction: column", "gap: 0.5em" ]
+      [ Style.style $ tell [ "padding-top: 1em;", "display: flex", "flex-direction: column", "gap: 1em" ]
       , HP.id id
       ]
-      [ HH.div
-          [ Style.style $ tell
-              [ "display: flex"
-              , "flex-direction: row"
-              , "justify-content: space-between"
-              , "align-items: flex-start"
-              , "gap: 1em"
-              , "font-size: " <> show ((2.0 - (Int.toNumber section_depth * 0.2)) `max` 1.0) <> "em"
-              , "box-shadow: 0 1px 0 0 black"
-              ]
-          ]
-          [ HH.div
-              [ Style.style $ tell [ "flex-grow: 0" ] ] $
-              [ HH.a
-                  [ HP.href $ "#" <> id ]
-                  [ HH.text $ "§" ]
-              , title
-              ]
-          , HH.div
-              [ Style.style $ tell [ "flex-shrink: 0", "flex-grow: 1", "text-align: right" ] ]
-              [ HH.text
-                  $ List.Cons section_index (section_path # map _.index)
-                      # map ((_ + 1) >>> show)
-                      # List.reverse
-                      # List.intercalate "."
-              , HH.a
-                  [ HP.href $ "#" <> id ]
-                  [ HH.text $ "§" ]
-              ]
-          ]
+      [ title
+      -- HH.div
+      --   [ Style.style $ tell
+      --       [ "display: flex"
+      --       , "flex-direction: row"
+      --       , "justify-content: space-between"
+      --       , "align-items: flex-start"
+      --       , "gap: 1em"
+      --       , "font-size: " <> show ((2.0 - (Int.toNumber section_depth * 0.2)) `max` 1.0) <> "em"
+      --       , "box-shadow: 0 1px 0 0 black"
+      --       ]
+      --   ]
+      --   [ HH.div
+      --       [ Style.style $ tell [ "flex-grow: 0" ] ] $
+      --       [ HH.a
+      --           [ HP.href $ "#" <> id ]
+      --           [ HH.text $ "§" ]
+      --       , title
+      --       ]
+      --   , HH.div
+      --       [ Style.style $ tell [ "flex-shrink: 0", "flex-grow: 1", "text-align: right" ] ]
+      --       [ HH.text
+      --           $ List.Cons section_index (section_path # map _.index)
+      --               # map ((_ + 1) >>> show)
+      --               # List.reverse
+      --               # List.intercalate "."
+      --       , HH.a
+      --           [ HP.href $ "#" <> id ]
+      --           [ HH.text $ "§" ]
+      --       ]
+      --   ]
       , HH.div
           [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
           body
@@ -180,7 +171,7 @@ renderDoc (Fix (QuoteBlock _opts _args body_)) = do
                 [ "margin: 0 1em"
                 , "padding: 0.5em"
                 , "border-left: 4px solid black"
-                , "background-color: color-mix(in hsl, teal, transparent 80%)"
+                , "background-color: color-mix(in hsl, teal, transparent 90%)"
                 , "border-radius: 1em"
                 ]
           ]
@@ -286,15 +277,19 @@ renderDoc (Fix (InternalLink _opts args label_)) = do
       ]
 
 renderResource :: forall m. MonadReader Ctx m => MonadState Env m => Resource -> m HTML
-renderResource res = do
+renderResource (Resource opts args) = do
   pure
     $ HH.div_
-    $ intercalate [ HH.text " • " ]
-        [ res.name # maybe [] \name -> [ HH.text $ name ]
-        , res.date # maybe [] \date -> [ HH.i_ [ HH.text "accessed " ], HH.text $ date ]
-        , res.source # maybe []
+    $ Array.intersperse (HH.text " • ")
+    $ fold
+        [ [ HH.text $ args.name ]
+        , opts.date # maybe [] \date -> [ HH.span_ [ HH.i_ [ HH.text "accessed " ], HH.text $ date ] ]
+        , opts.content # maybe []
             ( match
-                { url: \url -> [ HH.a [ HP.href url ] [ HH.text url ] ]
+                { url: \url ->
+                    [ HH.a [ HP.href url, Style.style do tell [ "word-wrap: word-break" ] ]
+                        [ HH.text url ]
+                    ]
                 , misc: \str -> [ HH.text str ]
                 }
             )
@@ -303,17 +298,29 @@ renderResource res = do
 renderTableOfContents :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
 renderTableOfContents doc = do
   let
-    tocTree :: Tree _
-    tocTree = doc # Fix.fold case _ of
+    tree :: Tree _
+    tree = doc # Fix.fold case _ of
       Page opts args body -> Branch { id: opts.id, title: args.title } body
       Section opts args body -> Branch { id: opts.id, title: args.title } body
       _ -> Leaf
 
+    prune :: Tree _ -> Tree _
+    prune Leaf = Leaf
+    prune (Branch a kids) = Branch a $ kids # map prune # Array.filter (not <<< isLeaf)
+
+  let
     go :: Tree _ -> Array HTML
     go Leaf = []
-    go (Branch node kids) =
+    go (Branch node kids) | null kids =
+      [ HH.div_
+          [ HH.a
+              ([ node.id # maybe [] \id -> [ HP.href $ "#" <> id ] ] # fold)
+              [ HH.text node.title ]
+          ]
+      ]
+    go (Branch node kids_) =
       let
-        kids' = kids # map go
+        kids = kids_ # map go
       in
         [ HH.div
             [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
@@ -324,19 +331,69 @@ renderTableOfContents doc = do
                 ]
             , HH.div
                 [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em", "padding-left: 1em" ] ]
-                (kids' # fold)
+                (kids # fold)
             ]
         ]
 
   pure $
     HH.div_
-      (go tocTree)
+      (go $ prune $ tree)
+
+renderSectionTitle :: forall m. Monad m => _ -> m HTML
+renderSectionTitle { section_depth, section_index, id, title } =
+  pure $
+    HH.div
+      [ Style.style $ tell
+          [ "display: flex"
+          , "flex-direction: row"
+          , "justify-content: space-between"
+          , "align-items: flex-start"
+          , "gap: 1em"
+          , "font-size: " <> show ((2.0 - (Int.toNumber section_depth * 0.2)) `max` 1.0) <> "em"
+          , "box-shadow: 0 1px 0 0 black"
+          ]
+      ]
+      [ HH.div
+          [ Style.style $ tell [ "flex-grow: 0" ] ] $
+          [ HH.a
+              [ HP.href $ "#" <> id ]
+              [ HH.text $ "§" ]
+          , title
+          ]
+      , HH.div
+          [ Style.style $ tell [ "flex-shrink: 0", "flex-grow: 1", "text-align: right" ] ] $ fold $
+          [ section_index # maybe [] \str -> [ HH.text str ]
+          , [ HH.a
+                [ HP.href $ "#" <> id ]
+                [ HH.text $ "§" ]
+            ]
+          ]
+      ]
 
 renderBibliography :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
 renderBibliography doc = do
+  let resources_ = RL.collectResources doc
+  resources <- resources_ # traverse \resource -> do
+    html <- renderResource resource
+    pure $
+      HH.div
+        [ Style.style do tell [ "padding: 0.5em", "background-color: color-mix(in hsl, saddlebrown, transparent 80%)" ] ]
+        [ html ]
+  title <-
+    renderSectionTitle
+      { section_depth: 0
+      , section_index: none
+      , title: HH.text "Bibliography"
+      , id: "bibliography"
+      }
   pure $
-    HH.div_
-      [ HH.text "{{bibliography}}" ]
+    HH.div
+      [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 1em" ] ]
+      [ title
+      , HH.div
+          [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
+          resources
+      ]
 
 --------------------------------------------------------------------------------
 -- theSidenoteExpanderComponent
@@ -362,7 +419,8 @@ theSidenoteExpanderComponent = H.mkComponent { initialState, eval, render }
   render state =
     let
       marker = if state.open then [ HH.text "■" ] else [ HH.text "□" ]
-      bgcolor = "rgba(0, 0, 0, 0.1)"
+      -- bgcolor = "rgba(0, 0, 0, 0.1)"
+      bgcolor = "color-mix(in hsl, indigo, transparent 90%)"
     in
       HH.div
         [ Style.style $ tell [ "display: inline" ] ] $ fold $
@@ -389,7 +447,13 @@ theSidenoteExpanderComponent = H.mkComponent { initialState, eval, render }
                 [ state.body ]
             ]
         , [ HH.div
-              [ Style.style $ tell [ "display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)", "padding-right: 0.3em" ]
+              [ Style.style $ tell
+                  [ "display: inline"
+                  , "user-select: none"
+                  , "cursor: pointer"
+                  , "background-color: " <> bgcolor
+                  , "padding-right: 0.3em"
+                  ]
               , HE.onClick $ const $ Right unit
               ] $ fold $
               [ [ HH.text " " ]

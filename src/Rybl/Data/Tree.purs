@@ -21,3 +21,8 @@ instance Eq a => Eq (Tree a) where
 derive instance Functor Tree
 derive instance Foldable Tree
 derive instance Traversable Tree
+
+isLeaf :: forall a. Tree a -> Boolean
+isLeaf Leaf = true
+isLeaf _ = false
+
