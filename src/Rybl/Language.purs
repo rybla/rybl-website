@@ -34,11 +34,8 @@ type Doc = Fix Doc_
 
 data Doc_ self
   = Section (Record SectionOpts) { title :: String } (Array self)
-  -- 
   | Paragraph (Record ParagraphOpts) {} (Array self)
-  -- 
   | Sentence (Record SentenceOpts) {} (Array self)
-  --
   | ExternalLink (Record LinkExternalOpts) { url :: String } self
   | InternalLink (Record LinkInternalOpts) { refId :: RefId } self
   | Sidenote (Record SidenoteOpts) {} self self
@@ -93,10 +90,10 @@ type Resource =
 -- Doc constructors
 --------------------------------------------------------------------------------
 
-type SectionOpts = () :: Row Type
+type SectionOpts = (id :: Maybe String) :: Row Type
 
 section :: forall r r'. Union r SectionOpts r' => Nub r' SectionOpts => Record r -> String -> Array Doc -> Doc
-section opts title body = Fix.wrap $ Section (opts `R.merge` {}) { title } body
+section opts title body = Fix.wrap $ Section (opts `R.merge` { id: Nothing @String }) { title } body
 
 type ParagraphOpts = () :: Row Type
 

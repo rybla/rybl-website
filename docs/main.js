@@ -2787,11 +2787,11 @@
   };
   var map5 = /* @__PURE__ */ map(functorMaybe);
   var Leaf = /* @__PURE__ */ function() {
-    function Leaf2() {
+    function Leaf3() {
     }
     ;
-    Leaf2.value = new Leaf2();
-    return Leaf2;
+    Leaf3.value = new Leaf3();
+    return Leaf3;
   }();
   var Node = /* @__PURE__ */ function() {
     function Node2(value0, value1, value22, value32, value42, value52) {
@@ -3577,13 +3577,6 @@
   var hasCodePointAt = typeof String.prototype.codePointAt === "function";
 
   // output/Data.String.Common/foreign.js
-  var replace = function(s1) {
-    return function(s2) {
-      return function(s3) {
-        return s3.replace(s1, s2);
-      };
-    };
-  };
   var toLower = function(s) {
     return s.toLowerCase();
   };
@@ -9011,20 +9004,8 @@
   };
 
   // output/JSURI/foreign.js
-  function encodeURIComponent_to_RFC3986(input3) {
-    return input3.replace(/[!'()*]/g, function(c) {
-      return "%" + c.charCodeAt(0).toString(16);
-    });
-  }
   function encodeURI_to_RFC3986(input3) {
     return input3.replace(/%5B/g, "[").replace(/%5D/g, "]");
-  }
-  function _encodeURIComponent(fail2, succeed, input3) {
-    try {
-      return succeed(encodeURIComponent_to_RFC3986(encodeURIComponent(input3)));
-    } catch (err) {
-      return fail2(err);
-    }
   }
   function _encodeURI(fail2, succeed, input3) {
     try {
@@ -9042,9 +9023,6 @@
   }
 
   // output/JSURI/index.js
-  var $$encodeURIComponent = /* @__PURE__ */ function() {
-    return runFn3(_encodeURIComponent)($$const(Nothing.value))(Just.create);
-  }();
   var $$encodeURI = /* @__PURE__ */ function() {
     return runFn3(_encodeURI)($$const(Nothing.value))(Just.create);
   }();
@@ -9253,9 +9231,6 @@
   var bug = function(msg) {
     return unsafeCrashWith("[[BUG]]\n" + msg);
   };
-  var impossible = function(v) {
-    return bug("impossible");
-  };
   var bind$prime = function(dictBind) {
     return bindFlipped(dictBind);
   };
@@ -9332,21 +9307,19 @@
       };
     };
   };
+  var fold3 = function(dictFunctor) {
+    var map37 = map(dictFunctor);
+    return function(f) {
+      return function(v) {
+        return f(map37(fold3(dictFunctor)(f))(v.value0));
+      };
+    };
+  };
 
   // output/Rybl.Halogen.Class/index.js
-  var docIsSymbol = {
-    reflectSymbol: function() {
-      return "doc";
-    }
-  };
   var appIsSymbol = {
     reflectSymbol: function() {
       return "app";
-    }
-  };
-  var validClass$34doc$34 = {
-    IsSymbol0: function() {
-      return docIsSymbol;
     }
   };
   var validClass$34app$34 = {
@@ -9533,6 +9506,11 @@
 
   // output/Rybl.Language/index.js
   var map31 = /* @__PURE__ */ map(functorArray);
+  var idIsSymbol = {
+    reflectSymbol: function() {
+      return "id";
+    }
+  };
   var titleIsSymbol = {
     reflectSymbol: function() {
       return "title";
@@ -9669,30 +9647,31 @@
   var traverse2 = /* @__PURE__ */ traverse(traversableArray);
   var identity11 = /* @__PURE__ */ identity(categoryFn);
   var decodeRepConstructor2 = /* @__PURE__ */ decodeRepConstructor(SectionIsSymbol);
-  var decodeRepArgsProduct2 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(gDecodeJsonNil)()));
-  var gDecodeJsonCons2 = /* @__PURE__ */ gDecodeJsonCons(/* @__PURE__ */ decodeFieldId(decodeJsonString))(gDecodeJsonNil);
-  var decodeRepArgsProduct1 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons2(titleIsSymbol)()())()));
+  var gDecodeJsonCons2 = /* @__PURE__ */ gDecodeJsonCons(/* @__PURE__ */ decodeFieldMaybe(decodeJsonString));
+  var decodeRepArgsProduct2 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons2(gDecodeJsonNil)(idIsSymbol)()())()));
+  var gDecodeJsonCons1 = /* @__PURE__ */ gDecodeJsonCons(/* @__PURE__ */ decodeFieldId(decodeJsonString))(gDecodeJsonNil);
+  var decodeRepArgsProduct1 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons1(titleIsSymbol)()())()));
   var decodeRepConstructor1 = /* @__PURE__ */ decodeRepConstructor(ParagraphIsSymbol);
+  var decodeRepArgsProduct22 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(gDecodeJsonNil)()));
   var decodeRepConstructor22 = /* @__PURE__ */ decodeRepConstructor(SentenceIsSymbol);
   var decodeRepConstructor3 = /* @__PURE__ */ decodeRepConstructor(ExternalLinkIsSymbol);
-  var gDecodeJsonCons1 = /* @__PURE__ */ gDecodeJsonCons(/* @__PURE__ */ decodeFieldMaybe(decodeJsonString));
   var decodeJsonVariant2 = /* @__PURE__ */ decodeJsonVariant();
   var decodeJsonVariantRLCons2 = /* @__PURE__ */ decodeJsonVariantRLCons(decodeJsonVariantRLRowNil);
-  var gDecodeJsonCons22 = /* @__PURE__ */ gDecodeJsonCons(/* @__PURE__ */ decodeFieldMaybe(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons1(/* @__PURE__ */ gDecodeJsonCons1(/* @__PURE__ */ gDecodeJsonCons(/* @__PURE__ */ decodeFieldMaybe(/* @__PURE__ */ decodeJsonVariant2(/* @__PURE__ */ decodeJsonVariantRLCons(/* @__PURE__ */ decodeJsonVariantRLCons2(urlIsSymbol)(decodeJsonString)())(miscIsSymbol)(decodeJsonString)())))(gDecodeJsonNil)(sourceIsSymbol)()())(nameIsSymbol)()())(dateIsSymbol)()())()))(gDecodeJsonNil)(sourceIsSymbol)()();
-  var decodeRepArgsProduct22 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons1(gDecodeJsonCons22)(favicon_urlIsSymbol)()())()));
-  var decodeRepArgsProduct3 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons2(urlIsSymbol)()())()));
+  var gDecodeJsonCons22 = /* @__PURE__ */ gDecodeJsonCons(/* @__PURE__ */ decodeFieldMaybe(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons2(/* @__PURE__ */ gDecodeJsonCons2(/* @__PURE__ */ gDecodeJsonCons(/* @__PURE__ */ decodeFieldMaybe(/* @__PURE__ */ decodeJsonVariant2(/* @__PURE__ */ decodeJsonVariantRLCons(/* @__PURE__ */ decodeJsonVariantRLCons2(urlIsSymbol)(decodeJsonString)())(miscIsSymbol)(decodeJsonString)())))(gDecodeJsonNil)(sourceIsSymbol)()())(nameIsSymbol)()())(dateIsSymbol)()())()))(gDecodeJsonNil)(sourceIsSymbol)()();
+  var decodeRepArgsProduct3 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons2(gDecodeJsonCons22)(favicon_urlIsSymbol)()())()));
+  var decodeRepArgsProduct4 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons1(urlIsSymbol)()())()));
   var decodeRepConstructor4 = /* @__PURE__ */ decodeRepConstructor(InternalLinkIsSymbol);
-  var decodeRepArgsProduct4 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(gDecodeJsonCons22)()));
+  var decodeRepArgsProduct5 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(gDecodeJsonCons22)()));
   var decodeRepConstructor5 = /* @__PURE__ */ decodeRepConstructor(SidenoteIsSymbol);
-  var decodeRepArgsArgument2 = /* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons2(valueIsSymbol2)()())());
+  var decodeRepArgsArgument2 = /* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons1(valueIsSymbol2)()())());
   var decodeRepSum2 = /* @__PURE__ */ decodeRepSum(/* @__PURE__ */ decodeRepConstructor(StringIsSymbol)(/* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons(/* @__PURE__ */ decodeFieldMaybe(/* @__PURE__ */ decodeJsonVariant2(/* @__PURE__ */ decodeJsonVariantRLCons(/* @__PURE__ */ decodeJsonVariantRLCons2(emphasisIsSymbol)(decodeJsonNull)())(codeIsSymbol)(decodeJsonNull)())))(gDecodeJsonNil)(styleIsSymbol)()())()))(decodeRepArgsArgument2)));
-  var decodeRepArgsProduct5 = /* @__PURE__ */ decodeRepArgsProduct4(decodeRepArgsArgument2);
-  var decodeRepSum1 = /* @__PURE__ */ decodeRepSum(/* @__PURE__ */ decodeRepConstructor(CodeBlockIsSymbol)(decodeRepArgsProduct5));
+  var decodeRepArgsProduct6 = /* @__PURE__ */ decodeRepArgsProduct5(decodeRepArgsArgument2);
+  var decodeRepSum1 = /* @__PURE__ */ decodeRepSum(/* @__PURE__ */ decodeRepConstructor(CodeBlockIsSymbol)(decodeRepArgsProduct6));
   var decodeRepConstructor6 = /* @__PURE__ */ decodeRepConstructor(QuoteBlockIsSymbol);
-  var decodeRepSum22 = /* @__PURE__ */ decodeRepSum(/* @__PURE__ */ decodeRepConstructor(MathBlockIsSymbol)(decodeRepArgsProduct5));
+  var decodeRepSum22 = /* @__PURE__ */ decodeRepSum(/* @__PURE__ */ decodeRepConstructor(MathBlockIsSymbol)(decodeRepArgsProduct6));
   var decodeRepConstructor7 = /* @__PURE__ */ decodeRepConstructor(ImageIsSymbol);
   var decodeRepConstructor8 = /* @__PURE__ */ decodeRepConstructor(ErrorIsSymbol);
-  var decodeRepArgsProduct6 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons2(labelIsSymbol2)()())()));
+  var decodeRepArgsProduct7 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons1(labelIsSymbol2)()())()));
   var merge2 = /* @__PURE__ */ merge()();
   var $$void7 = /* @__PURE__ */ $$void(functorST);
   var pure11 = /* @__PURE__ */ pure(applicativeST);
@@ -10353,23 +10332,23 @@
   var encodeJsonRefId = encodeJsonJString;
   var decodeJsonRefId = decodeJsonString;
   var decodeRepArgsArgument1 = /* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons(/* @__PURE__ */ decodeFieldId(decodeJsonRefId))(gDecodeJsonNil)(refIdIsSymbol)()())());
-  var decodeRepArgsProduct7 = /* @__PURE__ */ decodeRepArgsProduct(decodeRepArgsArgument1);
-  var decodeRepSum3 = /* @__PURE__ */ decodeRepSum(/* @__PURE__ */ decodeRepConstructor(RefIsSymbol)(/* @__PURE__ */ decodeRepArgsProduct2(decodeRepArgsArgument1)));
+  var decodeRepArgsProduct8 = /* @__PURE__ */ decodeRepArgsProduct(decodeRepArgsArgument1);
+  var decodeRepSum3 = /* @__PURE__ */ decodeRepSum(/* @__PURE__ */ decodeRepConstructor(RefIsSymbol)(/* @__PURE__ */ decodeRepArgsProduct22(decodeRepArgsArgument1)));
   var decodeJsonDoc_ = function(dictDecodeJson) {
     var decodeRepArgsArgument22 = decodeRepArgsArgument(decodeArray2(dictDecodeJson));
     var decodeRepSum4 = decodeRepSum(decodeRepConstructor2(decodeRepArgsProduct2(decodeRepArgsProduct1(decodeRepArgsArgument22))));
-    var decodeRepArgsProduct8 = decodeRepArgsProduct2(decodeRepArgsProduct2(decodeRepArgsArgument22));
-    var decodeRepSum5 = decodeRepSum(decodeRepConstructor1(decodeRepArgsProduct8));
-    var decodeRepSum6 = decodeRepSum(decodeRepConstructor22(decodeRepArgsProduct8));
+    var decodeRepArgsProduct9 = decodeRepArgsProduct22(decodeRepArgsProduct22(decodeRepArgsArgument22));
+    var decodeRepSum5 = decodeRepSum(decodeRepConstructor1(decodeRepArgsProduct9));
+    var decodeRepSum6 = decodeRepSum(decodeRepConstructor22(decodeRepArgsProduct9));
     var decodeRepArgsArgument3 = decodeRepArgsArgument(dictDecodeJson);
-    var decodeRepSum7 = decodeRepSum(decodeRepConstructor3(decodeRepArgsProduct22(decodeRepArgsProduct3(decodeRepArgsArgument3))));
-    var decodeRepSum8 = decodeRepSum(decodeRepConstructor4(decodeRepArgsProduct4(decodeRepArgsProduct7(decodeRepArgsArgument3))));
-    var decodeRepSum9 = decodeRepSum(decodeRepConstructor5(decodeRepArgsProduct2(decodeRepArgsProduct2(decodeRepArgsProduct(decodeRepArgsArgument3)(decodeRepArgsArgument3)))));
-    var decodeRepSum10 = decodeRepSum(decodeRepConstructor6(decodeRepArgsProduct4(decodeRepArgsProduct2(decodeRepArgsArgument3))));
-    var decodeRepConstructor9 = decodeRepConstructor8(decodeRepArgsProduct2(decodeRepArgsProduct6(decodeRepArgsArgument3)));
+    var decodeRepSum7 = decodeRepSum(decodeRepConstructor3(decodeRepArgsProduct3(decodeRepArgsProduct4(decodeRepArgsArgument3))));
+    var decodeRepSum8 = decodeRepSum(decodeRepConstructor4(decodeRepArgsProduct5(decodeRepArgsProduct8(decodeRepArgsArgument3))));
+    var decodeRepSum9 = decodeRepSum(decodeRepConstructor5(decodeRepArgsProduct22(decodeRepArgsProduct22(decodeRepArgsProduct(decodeRepArgsArgument3)(decodeRepArgsArgument3)))));
+    var decodeRepSum10 = decodeRepSum(decodeRepConstructor6(decodeRepArgsProduct5(decodeRepArgsProduct22(decodeRepArgsArgument3))));
+    var decodeRepConstructor9 = decodeRepConstructor8(decodeRepArgsProduct22(decodeRepArgsProduct7(decodeRepArgsArgument3)));
     return {
       decodeJson: function(x) {
-        return genericDecodeJson2(decodeRepSum4(decodeRepSum5(decodeRepSum6(decodeRepSum7(decodeRepSum8(decodeRepSum9(decodeRepSum3(decodeRepSum2(decodeRepSum1(decodeRepSum10(decodeRepSum22(decodeRepSum(decodeRepConstructor7(decodeRepArgsProduct4(decodeRepArgsProduct3(decodeRepArgsArgument(decodeJsonMaybe(decodeJsonFix2(decodeJsonDoc_(decodeJsonJson))))))))(decodeRepConstructor9)))))))))))))(x);
+        return genericDecodeJson2(decodeRepSum4(decodeRepSum5(decodeRepSum6(decodeRepSum7(decodeRepSum8(decodeRepSum9(decodeRepSum3(decodeRepSum2(decodeRepSum1(decodeRepSum10(decodeRepSum22(decodeRepSum(decodeRepConstructor7(decodeRepArgsProduct5(decodeRepArgsProduct4(decodeRepArgsArgument(decodeJsonMaybe(decodeJsonFix2(decodeJsonDoc_(decodeJsonJson))))))))(decodeRepConstructor9)))))))))))))(x);
       }
     };
   };
@@ -10391,7 +10370,9 @@
       return function(opts) {
         return function(title3) {
           return function(body4) {
-            return wrap3(new Section(merge2(opts)({}), {
+            return wrap3(new Section(merge2(opts)({
+              id: Nothing.value
+            }), {
               title: title3
             }, body4));
           };
@@ -11033,9 +11014,31 @@
     };
   }();
 
+  // output/Rybl.Data.Tree/index.js
+  var Branch = /* @__PURE__ */ function() {
+    function Branch2(value0, value1) {
+      this.value0 = value0;
+      this.value1 = value1;
+    }
+    ;
+    Branch2.create = function(value0) {
+      return function(value1) {
+        return new Branch2(value0, value1);
+      };
+    };
+    return Branch2;
+  }();
+  var Leaf2 = /* @__PURE__ */ function() {
+    function Leaf3() {
+    }
+    ;
+    Leaf3.value = new Leaf3();
+    return Leaf3;
+  }();
+
   // output/Rybl.Language.Component.Doc.Compact/index.js
   var tell3 = /* @__PURE__ */ tell(/* @__PURE__ */ monadTellWriterT(monoidArray)(monadIdentity));
-  var fold3 = /* @__PURE__ */ fold(foldableArray)(monoidArray);
+  var fold4 = /* @__PURE__ */ fold(foldableArray)(monoidArray);
   var not3 = /* @__PURE__ */ not(heytingAlgebraBoolean);
   var discard8 = /* @__PURE__ */ discard(discardUnit);
   var discard12 = /* @__PURE__ */ discard8(bindHalogenM);
@@ -11046,6 +11049,8 @@
       return "open";
     }
   })()()(strongFn);
+  var fold13 = /* @__PURE__ */ fold3(functorDoc_);
+  var map36 = /* @__PURE__ */ map(functorArray);
   var intercalate6 = /* @__PURE__ */ intercalate(foldableArray)(monoidArray);
   var match2 = /* @__PURE__ */ match()()();
   var length8 = /* @__PURE__ */ length2(foldableList)(semiringInt);
@@ -11060,25 +11065,24 @@
       return "section_index";
     }
   })()()(strongFn);
-  var fold13 = /* @__PURE__ */ fold2(monoidArray);
+  var fold22 = /* @__PURE__ */ fold2(monoidArray);
   var traverse3 = /* @__PURE__ */ traverse(traversableArray);
-  var show4 = /* @__PURE__ */ show(showNumber);
+  var show4 = /* @__PURE__ */ show(showString);
+  var show12 = /* @__PURE__ */ show(showNumber);
   var max6 = /* @__PURE__ */ max(ordNumber);
   var intercalate12 = /* @__PURE__ */ intercalate(foldableList)(monoidString);
-  var map36 = /* @__PURE__ */ map(functorList);
-  var show12 = /* @__PURE__ */ show(showInt);
+  var map113 = /* @__PURE__ */ map(functorList);
+  var show22 = /* @__PURE__ */ show(showInt);
   var foldMap3 = /* @__PURE__ */ foldMap(foldableArray)(monoidArray);
   var slot_2 = /* @__PURE__ */ slot_()({
     reflectSymbol: function() {
       return "SidenoteExpander";
     }
   })(ordInt);
-  var map113 = /* @__PURE__ */ map(functorArray);
-  var show22 = /* @__PURE__ */ show(showRefId);
+  var show32 = /* @__PURE__ */ show(showRefId);
   var traverse12 = /* @__PURE__ */ traverse(traversableMaybe);
   var discard23 = /* @__PURE__ */ discard8(/* @__PURE__ */ bindWriterT(semigroupArray)(bindIdentity));
   var pure14 = /* @__PURE__ */ pure(/* @__PURE__ */ applicativeWriterT(monoidArray)(applicativeIdentity));
-  var show32 = /* @__PURE__ */ show(showString);
   var toJsonString2 = /* @__PURE__ */ toJsonString(encodeJsonRefId);
   var unwrap6 = /* @__PURE__ */ unwrap();
   var theSidenoteExpanderComponent = /* @__PURE__ */ function() {
@@ -11090,14 +11094,14 @@
         ;
         return [text5("\u25A1")];
       }();
-      return div2([style3(tell3(["display: inline"]))])(fold3([[div2([style3(tell3(["display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)", "padding-left: 0.3em"])), onClick($$const(new Right(unit)))])(fold3([marker, [text5(" ")], state3.label]))], function() {
-        var $102 = !state3.open;
-        if ($102) {
+      return div2([style3(tell3(["display: inline"]))])(fold4([[div2([style3(tell3(["display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)", "padding-left: 0.3em"])), onClick($$const(new Right(unit)))])(fold4([marker, [text5(" ")], state3.label]))], function() {
+        var $112 = !state3.open;
+        if ($112) {
           return [];
         }
         ;
         return [div2([style3(tell3(["margin: 1.0em", "padding: 0.5em", "border: 2px dashed black", "background-color: rgba(0, 0, 0, 0.1)"]))])(state3.body)];
-      }(), [div2([style3(tell3(["display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)", "padding-right: 0.3em"])), onClick($$const(new Right(unit)))])(fold3([[text5(" ")], marker]))]]));
+      }(), [div2([style3(tell3(["display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)", "padding-right: 0.3em"])), onClick($$const(new Right(unit)))])(fold4([[text5(" ")], marker]))]]));
     };
     var initialState = function(input3) {
       return {
@@ -11117,7 +11121,7 @@
         });
       }
       ;
-      throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 298, column 3 - line 298, column 46): " + [v.constructor.name]);
+      throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 320, column 3 - line 320, column 46): " + [v.constructor.name]);
     };
     var $$eval = mkEval({
       handleQuery: defaultEval.handleQuery,
@@ -11132,6 +11136,38 @@
       render
     });
   }();
+  var renderTableOfContents = function(dictMonadReader) {
+    var pure18 = pure(dictMonadReader.MonadAsk0().Monad0().Applicative0());
+    return function(dictMonadState) {
+      return function(doc) {
+        var sectionTitleTree = fold13(function(v) {
+          if (v instanceof Section) {
+            return new Branch({
+              id: v.value0.id,
+              title: v.value1.title
+            }, v.value2);
+          }
+          ;
+          return Leaf2.value;
+        })(doc);
+        var go2 = function(v) {
+          if (v instanceof Leaf2) {
+            return [];
+          }
+          ;
+          if (v instanceof Branch) {
+            var kids$prime = map36(go2)(v.value1);
+            return [div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5em"]))])([div2([])([a(fold4([maybe([])(function(id4) {
+              return [href4("#" + id4)];
+            })(v.value0.id)]))([text5(v.value0.title)])]), div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5em", "padding-left: 1em"]))])(fold4(kids$prime))])];
+          }
+          ;
+          throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 280, column 5 - line 280, column 31): " + [v.constructor.name]);
+        };
+        return pure18(div2([])(go2(sectionTitleTree)));
+      };
+    };
+  };
   var renderResource = function(dictMonadReader) {
     var pure18 = pure(dictMonadReader.MonadAsk0().Monad0().Applicative0());
     return function(dictMonadState) {
@@ -11180,18 +11216,18 @@
                   index: v2.section_index,
                   title: v.value0.value1.title
                 })))(discard32(assign4(prop$prime22)(0))(function() {
-                  return map210(fold13)(traverse22(renderDoc(dictMonadReader)(dictMonadState))(v.value0.value2));
+                  return map210(fold22)(traverse22(renderDoc(dictMonadReader)(dictMonadState))(v.value0.value2));
                 })))(function(body4) {
-                  return discard32(assign4(prop$prime22)(v2.section_index + 1 | 0))(function() {
-                    var section_id = "section_" + fromMaybe$prime(impossible)($$encodeURIComponent(replace(" ")("_")(v.value0.value1.title)));
-                    return pure18([div2([style3(tell3(["padding-top: 1em;", "display: flex", "flex-direction: column", "gap: 0.5em"])), id3(section_id)])([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: space-between", "align-items: flex-start", "gap: 1em", "font-size: " + (show4(max6(2 - toNumber(section_depth) * 0.2)(1)) + "em"), "box-shadow: 0 1px 0 0 black"]))])([div2([style3(tell3(["flex-grow: 0"]))])(fold3([[a([href4("#" + section_id)])([text5("\xA7")])], title3])), div2([style3(tell3(["flex-shrink: 0", "flex-grow: 1", "text-align: right"]))])([text5(intercalate12(".")(reverse2(map36(function($162) {
-                      return show12(function(v3) {
-                        return v3 + 1 | 0;
-                      }($162));
-                    })(new Cons(v2.section_index, map36(function(v3) {
-                      return v3.index;
-                    })(v1.section_path)))))), a([href4("#" + section_id)])([text5("\xA7")])])]), div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5em"]))])(body4)])]);
-                  });
+                  var section_id = fromMaybe$prime(function(v3) {
+                    return bug("section was not given an id: " + show4(v.value0.value1.title));
+                  })(v.value0.value0.id);
+                  return pure18([div2([style3(tell3(["padding-top: 1em;", "display: flex", "flex-direction: column", "gap: 0.5em"])), id3(section_id)])([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: space-between", "align-items: flex-start", "gap: 1em", "font-size: " + (show12(max6(2 - toNumber(section_depth) * 0.2)(1)) + "em"), "box-shadow: 0 1px 0 0 black"]))])([div2([style3(tell3(["flex-grow: 0"]))])(fold4([[a([href4("#" + section_id)])([text5("\xA7")])], title3])), div2([style3(tell3(["flex-shrink: 0", "flex-grow: 1", "text-align: right"]))])([text5(intercalate12(".")(reverse2(map113(function($179) {
+                    return show22(function(v3) {
+                      return v3 + 1 | 0;
+                    }($179));
+                  })(new Cons(v2.section_index, map113(function(v3) {
+                    return v3.index;
+                  })(v1.section_path)))))), a([href4("#" + section_id)])([text5("\xA7")])])]), div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5em"]))])(body4)])]);
                 });
               });
             });
@@ -11199,7 +11235,7 @@
         }
         ;
         if (v.value0 instanceof Paragraph) {
-          return bind18(map210(fold13)(map210(foldMap3(function(x) {
+          return bind18(map210(fold22)(map210(foldMap3(function(x) {
             return [x, [text5(" ")]];
           }))(traverse22(renderDoc(dictMonadReader)(dictMonadState))(v.value0.value2))))(function(body4) {
             return pure18([div2([style3(tell3([]))])(body4)]);
@@ -11207,7 +11243,7 @@
         }
         ;
         if (v.value0 instanceof Sentence) {
-          return bind18(map210(fold13)(traverse22(renderDoc(dictMonadReader)(dictMonadState))(v.value0.value2)))(function(body4) {
+          return bind18(map210(fold22)(traverse22(renderDoc(dictMonadReader)(dictMonadState))(v.value0.value2)))(function(body4) {
             return pure18([div2([style3(tell3(["display: inline"]))])(body4)]);
           });
         }
@@ -11217,8 +11253,8 @@
             return bind18(renderDoc(dictMonadReader)(dictMonadState)(v.value0.value3))(function(body4) {
               return bind18(next_widget_index2)(function(widget_index) {
                 return pure18([slot_2($$Proxy.value)(widget_index)(theSidenoteExpanderComponent)({
-                  label: map113(mapAction_ComponentHTML(Left.create))(label5),
-                  body: map113(mapAction_ComponentHTML(Left.create))(body4)
+                  label: map36(mapAction_ComponentHTML(Left.create))(label5),
+                  body: map36(mapAction_ComponentHTML(Left.create))(body4)
                 })]);
               });
             });
@@ -11226,7 +11262,7 @@
         }
         ;
         if (v.value0 instanceof Ref2) {
-          return pure18([div2([style3(tell3(["background-color: black", "color: white", "padding: 0.5em"]))])([text5("Ref " + show22(v.value0.value1.refId))])]);
+          return pure18([div2([style3(tell3(["background-color: black", "color: white", "padding: 0.5em"]))])([text5("Ref " + show32(v.value0.value1.refId))])]);
         }
         ;
         if (v.value0 instanceof CodeBlock) {
@@ -11235,7 +11271,7 @@
         ;
         if (v.value0 instanceof QuoteBlock) {
           return bind18(renderDoc(dictMonadReader)(dictMonadState)(v.value0.value2))(function(body4) {
-            return pure18([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: center"]))])([div2([style3(tell3(["margin: 0 1em", "padding: 0.5em", "border-left: 4px solid black", "background-color: rgba(0, 0, 0, 0.1)", "border-radius: 1em"]))])(body4)])]);
+            return pure18([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: center"]))])([div2([style3(tell3(["margin: 0 1em", "padding: 0.5em", "border-left: 4px solid black", "background-color: color-mix(in hsl, teal, transparent 80%)", "border-radius: 1em"]))])(body4)])]);
           });
         }
         ;
@@ -11246,10 +11282,10 @@
         if (v.value0 instanceof Image2) {
           return bind18(traverse32(renderDoc(dictMonadReader)(dictMonadState))(v.value0.value2))(function(caption_2) {
             return bind18(traverse32(renderResource2)(v.value0.value0.source))(function(resource_) {
-              return pure18([div2([style3(tell3(["width: 100%", "display: flex", "flex-direction: column", "justify-content: center"]))])(fold3([[img([style3(tell3(["width: 100%"])), src9(v.value0.value1.url)])], maybe([])(function(caption2) {
+              return pure18([div2([style3(tell3(["width: 100%", "display: flex", "flex-direction: column", "justify-content: center"]))])(fold4([[img([style3(tell3(["width: 100%"])), src9(v.value0.value1.url)])], maybe([])(function(caption2) {
                 return [div2([style3(tell3(["margin: 0 0.5em", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)"]))])(caption2)];
               })(caption_2), maybe([])(function(resource) {
-                return [div2([style3(tell3(["margin: 0 1em", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)"]))])([resource])];
+                return [div2([style3(tell3(["margin: 0 1em", "padding: 0.5em", "background-color: color-mix(in hsl, saddlebrown, transparent 80%)"]))])([resource])];
               })(resource_)]))]);
             });
           });
@@ -11281,7 +11317,7 @@
                 return [img([style3(tell3(["height: 0.8em"])), src9(v.value0.value0.favicon_url.value0)]), div_(label5)];
               }
               ;
-              throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 231, column 9 - line 240, column 14): " + [v.value0.value0.favicon_url.constructor.name]);
+              throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 226, column 9 - line 235, column 14): " + [v.value0.value0.favicon_url.constructor.name]);
             }())]);
           });
         }
@@ -11289,12 +11325,12 @@
         if (v.value0 instanceof InternalLink) {
           return bind18(renderDoc(dictMonadReader)(dictMonadState)(v.value0.value2))(function(label5) {
             return pure18([a([style3(tell3(["display: inline-flex", "flex-direction: row", "align-items: baseline", "gap: 0.2em"])), href4("/index.html?ref=" + fromMaybe$prime(function(v1) {
-              return bug("failed: encodeURI " + show32(toJsonString2(v.value0.value1.refId)));
+              return bug("failed: encodeURI " + show4(toJsonString2(v.value0.value1.refId)));
             })($$encodeURI(unwrap6(v.value0.value1.refId))))])([img([style3(tell3(["height: 0.8em"])), src9("/favicon.ico")]), div_(label5)])]);
           });
         }
         ;
-        throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 36, column 1 - line 36, column 86): " + [v.constructor.name]);
+        throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 38, column 1 - line 38, column 86): " + [v.constructor.name]);
       };
     };
   };
@@ -11313,9 +11349,14 @@
     };
   };
   var expandCons2 = /* @__PURE__ */ expandCons();
-  var mk2 = /* @__PURE__ */ mk(validClass$34doc$34);
   var tell4 = /* @__PURE__ */ tell(/* @__PURE__ */ monadTellWriterT(monoidArray)(monadIdentity));
-  var renderDoc2 = /* @__PURE__ */ renderDoc(/* @__PURE__ */ monadReaderReaderT(/* @__PURE__ */ monadStateT(monadIdentity)))(/* @__PURE__ */ monadStateReaderT(/* @__PURE__ */ monadStateStateT(monadIdentity)));
+  var bind11 = /* @__PURE__ */ bind(/* @__PURE__ */ bindReaderT(/* @__PURE__ */ bindStateT(monadIdentity)));
+  var monadReaderReaderT2 = /* @__PURE__ */ monadReaderReaderT(/* @__PURE__ */ monadStateT(monadIdentity));
+  var monadStateReaderT2 = /* @__PURE__ */ monadStateReaderT(/* @__PURE__ */ monadStateStateT(monadIdentity));
+  var renderDoc2 = /* @__PURE__ */ renderDoc(monadReaderReaderT2)(monadStateReaderT2);
+  var renderTableOfContents2 = /* @__PURE__ */ renderTableOfContents(monadReaderReaderT2)(monadStateReaderT2);
+  var pure15 = /* @__PURE__ */ pure(/* @__PURE__ */ applicativeReaderT(/* @__PURE__ */ applicativeStateT(monadIdentity)));
+  var fold5 = /* @__PURE__ */ fold(foldableArray)(monoidArray);
   var mempty3 = /* @__PURE__ */ mempty(monoidList);
   var on$prime2 = /* @__PURE__ */ on$prime();
   var modifying3 = /* @__PURE__ */ modifying(monadStateHalogenM);
@@ -11334,8 +11375,8 @@
       return "initialize";
     }
   };
-  var pure15 = /* @__PURE__ */ pure(applicativeAff);
-  var bind11 = /* @__PURE__ */ bind(bindAff);
+  var pure16 = /* @__PURE__ */ pure(applicativeAff);
+  var bind15 = /* @__PURE__ */ bind(bindAff);
   var fetch3 = /* @__PURE__ */ fetch2()()(/* @__PURE__ */ toCoreRequestOptionsRowRo()()(/* @__PURE__ */ toCoreRequestOptionsHelpe1(toCoreRequestOptionsConve9)()()()({
     reflectSymbol: function() {
       return "method";
@@ -11345,7 +11386,7 @@
   var insert9 = /* @__PURE__ */ insert2(ordRefId);
   var error5 = /* @__PURE__ */ error3()();
   var string3 = /* @__PURE__ */ string()();
-  var pure16 = /* @__PURE__ */ pure(applicativeMaybe);
+  var pure23 = /* @__PURE__ */ pure(applicativeMaybe);
   var inj$primeU2 = /* @__PURE__ */ inj$primeU();
   var inj$primeU1 = /* @__PURE__ */ inj$primeU2({
     reflectSymbol: function() {
@@ -11361,7 +11402,7 @@
   var lookup8 = /* @__PURE__ */ lookup2(ordRefId);
   var show13 = /* @__PURE__ */ show(showRefId);
   var eq4 = /* @__PURE__ */ eq(/* @__PURE__ */ eqSet(eqRefId));
-  var bind15 = /* @__PURE__ */ bind(bindHalogenM);
+  var bind22 = /* @__PURE__ */ bind(bindHalogenM);
   var liftAff1 = /* @__PURE__ */ liftAff(/* @__PURE__ */ monadAffHalogenM(monadAffAff));
   var modify_3 = /* @__PURE__ */ modify_2(monadStateHalogenM);
   var receiveIsSymbol = {
@@ -11376,9 +11417,13 @@
   var inj$prime1 = /* @__PURE__ */ inj$prime2(initializeIsSymbol);
   var theDocComponent = /* @__PURE__ */ function() {
     var render = function(v) {
-      return mapAction_ComponentHTML(function($153) {
-        return expandCons2(expandCons2($153));
-      })(div2([classes([mk2]), style3(tell4(["width: 100%"]))])(flip(evalState)(v.env)(flip(runReaderT)(v.ctx)(renderDoc2(v.doc)))));
+      return mapAction_ComponentHTML(function($162) {
+        return expandCons2(expandCons2($162));
+      })(div2([style3(tell4(["width: 100%"]))])(flip(evalState)(v.env)(flip(runReaderT)(v.ctx)(bind11(renderDoc2(v.doc))(function(htmls_doc) {
+        return bind11(renderTableOfContents2(v.doc))(function(htmls_toc) {
+          return pure15(fold5([[div2([style3(tell4(["padding: 0.5em", "border: 1px solid black"]))])([htmls_toc])], htmls_doc]));
+        });
+      })))));
     };
     var initialState = function(v) {
       return {
@@ -11412,25 +11457,25 @@
           return function(refIds) {
             var v = findMin2(refIds);
             if (v instanceof Nothing) {
-              return pure15(namedDocs);
+              return pure16(namedDocs);
             }
             ;
             if (v instanceof Just) {
-              return bind11(fetch3("namedDocs/" + (unwrap7(v.value0) + ".json"))({
+              return bind15(fetch3("namedDocs/" + (unwrap7(v.value0) + ".json"))({
                 method: GET2.value
               }))(function(response) {
-                var $128 = !response.ok;
-                if ($128) {
+                var $137 = !response.ok;
+                if ($137) {
                   return loadRefIds(insert9(v.value0)(error5({})("error on fetch")(string3({
-                    style: pure16(inj$primeU1)
+                    style: pure23(inj$primeU1)
                   })(response.statusText)))(namedDocs))($$delete6(v.value0)(refIds));
                 }
                 ;
-                return bind11(liftAff2(response.text))(function(v1) {
+                return bind15(liftAff2(response.text))(function(v1) {
                   var v2 = fromJsonString2(v1);
                   if (v2 instanceof Left) {
                     return loadRefIds(insert9(v.value0)(error5({})("error on decode")(string3({
-                      style: pure16(inj$primeU1)
+                      style: pure23(inj$primeU1)
                     })(show5(v2.value0))))(namedDocs))($$delete6(v.value0)(refIds));
                   }
                   ;
@@ -11438,12 +11483,12 @@
                     return loadRefIds(insert9(v.value0)(v2.value0)(namedDocs))($$delete6(v.value0)(union4(collectRefIds(v2.value0))(refIds)));
                   }
                   ;
-                  throw new Error("Failed pattern match at Rybl.Language.Component.Basic (line 89, column 23 - line 97, column 91): " + [v2.constructor.name]);
+                  throw new Error("Failed pattern match at Rybl.Language.Component.Basic (line 90, column 23 - line 98, column 91): " + [v2.constructor.name]);
                 });
               });
             }
             ;
-            throw new Error("Failed pattern match at Rybl.Language.Component.Basic (line 77, column 47 - line 97, column 91): " + [v.constructor.name]);
+            throw new Error("Failed pattern match at Rybl.Language.Component.Basic (line 78, column 47 - line 98, column 91): " + [v.constructor.name]);
           };
         };
         var expandRefs = function(namedDocs) {
@@ -11451,80 +11496,80 @@
             if (v instanceof Ref2) {
               var v1 = lookup8(v.value1.refId)(namedDocs);
               if (v1 instanceof Nothing) {
-                return pure15(error5({})("refId not loaded")(string3({
-                  style: pure16(inj$primeU1)
+                return pure16(error5({})("refId not loaded")(string3({
+                  style: pure23(inj$primeU1)
                 })(show13(v.value1.refId))));
               }
               ;
               if (v1 instanceof Just) {
-                return pure15(v1.value0);
+                return pure16(v1.value0);
               }
               ;
-              throw new Error("Failed pattern match at Rybl.Language.Component.Basic (line 101, column 37 - line 103, column 41): " + [v1.constructor.name]);
+              throw new Error("Failed pattern match at Rybl.Language.Component.Basic (line 102, column 37 - line 104, column 41): " + [v1.constructor.name]);
             }
             ;
-            return pure15(wrap3(v));
+            return pure16(wrap3(v));
           });
         };
         var fixpoint = function(namedDocs) {
           return function(doc) {
-            return bind11(liftAff2(loadRefIds(empty3)(collectRefIds(doc))))(function(namedDocs$prime) {
-              var $139 = eq4(keys3(namedDocs))(keys3(namedDocs$prime));
-              if ($139) {
-                return pure15(new Tuple(namedDocs, doc));
+            return bind15(liftAff2(loadRefIds(empty3)(collectRefIds(doc))))(function(namedDocs$prime) {
+              var $148 = eq4(keys3(namedDocs))(keys3(namedDocs$prime));
+              if ($148) {
+                return pure16(new Tuple(namedDocs, doc));
               }
               ;
-              return bind11(expandRefs(namedDocs$prime)(doc))(function(doc$prime) {
+              return bind15(expandRefs(namedDocs$prime)(doc))(function(doc$prime) {
                 return fixpoint(namedDocs$prime)(doc$prime);
               });
             });
           };
         };
-        return bind15(get(monadStateHalogenM))(function(v) {
-          return bind15(liftAff1(fixpoint(empty3)(v.doc)))(function(v1) {
+        return bind22(get(monadStateHalogenM))(function(v) {
+          return bind22(liftAff1(fixpoint(empty3)(v.doc)))(function(v1) {
             return modify_3(function(v2) {
-              var $145 = {};
-              for (var $146 in v2) {
-                if ({}.hasOwnProperty.call(v2, $146)) {
-                  $145[$146] = v2[$146];
+              var $154 = {};
+              for (var $155 in v2) {
+                if ({}.hasOwnProperty.call(v2, $155)) {
+                  $154[$155] = v2[$155];
                 }
                 ;
               }
               ;
-              $145.doc = v1.value1;
-              $145.ctx = function() {
-                var $142 = {};
-                for (var $143 in v2.ctx) {
-                  if ({}.hasOwnProperty.call(v2.ctx, $143)) {
-                    $142[$143] = v2["ctx"][$143];
+              $154.doc = v1.value1;
+              $154.ctx = function() {
+                var $151 = {};
+                for (var $152 in v2.ctx) {
+                  if ({}.hasOwnProperty.call(v2.ctx, $152)) {
+                    $151[$152] = v2["ctx"][$152];
                   }
                   ;
                 }
                 ;
-                $142.namedDocs = v1.value0;
-                return $142;
+                $151.namedDocs = v1.value0;
+                return $151;
               }();
-              return $145;
+              return $154;
             });
           });
         });
       }()))(on$prime2(receiveIsSymbol)(function(input3) {
         return discard13(put2(initialState(input3)))(function() {
-          return $lazy_handleAction(69)(inj$prime1(unit));
+          return $lazy_handleAction(70)(inj$prime1(unit));
         });
       })(case_))));
     });
-    var handleAction = $lazy_handleAction(65);
+    var handleAction = $lazy_handleAction(66);
     var $$eval = mkEval({
       handleQuery: defaultEval.handleQuery,
       finalize: defaultEval.finalize,
       receive: function() {
-        var $154 = inj$prime2(receiveIsSymbol);
-        return function($155) {
-          return pure16($154($155));
+        var $163 = inj$prime2(receiveIsSymbol);
+        return function($164) {
+          return pure23($163($164));
         };
       }(),
-      initialize: pure16(inj$primeU2(initializeIsSymbol)),
+      initialize: pure23(inj$primeU2(initializeIsSymbol)),
       handleAction
     });
     return mkComponent({
@@ -11592,14 +11637,14 @@
       return val;
     };
   };
-  var mk3 = /* @__PURE__ */ mk(validClass$34app$34);
+  var mk2 = /* @__PURE__ */ mk(validClass$34app$34);
   var tell5 = /* @__PURE__ */ tell(/* @__PURE__ */ monadTellWriterT(monoidArray)(monadIdentity));
-  var docIsSymbol2 = {
+  var docIsSymbol = {
     reflectSymbol: function() {
       return "doc";
     }
   };
-  var slot_3 = /* @__PURE__ */ slot_()(docIsSymbol2)(ordUnit);
+  var slot_3 = /* @__PURE__ */ slot_()(docIsSymbol)(ordUnit);
   var ref3 = /* @__PURE__ */ ref2()();
   var wrap4 = /* @__PURE__ */ wrap();
   var inj$prime3 = /* @__PURE__ */ inj$prime();
@@ -11623,7 +11668,7 @@
   var pure17 = /* @__PURE__ */ pure(applicativeHalogenM);
   var error6 = /* @__PURE__ */ error3()();
   var string4 = /* @__PURE__ */ string()();
-  var pure23 = /* @__PURE__ */ pure(applicativeMaybe);
+  var pure24 = /* @__PURE__ */ pure(applicativeMaybe);
   var inj$primeU3 = /* @__PURE__ */ inj$primeU()({
     reflectSymbol: function() {
       return "code";
@@ -11634,7 +11679,7 @@
   var identity12 = /* @__PURE__ */ identity(categoryFn);
   var fromJsonString3 = /* @__PURE__ */ fromJsonString(/* @__PURE__ */ decodeJsonFix(traversableDoc_)(/* @__PURE__ */ decodeJsonDoc_(decodeJsonJson)));
   var assign3 = /* @__PURE__ */ assign(monadStateHalogenM);
-  var prop$prime5 = /* @__PURE__ */ prop$prime(docIsSymbol2)()()(strongFn);
+  var prop$prime5 = /* @__PURE__ */ prop$prime(docIsSymbol)()()(strongFn);
   var initializeIsSymbol2 = {
     reflectSymbol: function() {
       return "initialize";
@@ -11644,7 +11689,7 @@
   var inj$prime22 = /* @__PURE__ */ inj$prime3(updateIsSymbol);
   var component = /* @__PURE__ */ function() {
     var render = function(v) {
-      return div2([classes([mk3]), style3(tell5(["margin: auto", "max-width: 800px", "display: flex", "flex-direction: column", "gap: 0.5rem"]))])([div2([style3(tell5(["margin-top: 0.5rem", "padding: 0.5rem"]))])([slot_3($$Proxy.value)(unit)(theDocComponent)({
+      return div2([classes([mk2]), style3(tell5(["margin: auto", "max-width: 800px", "display: flex", "flex-direction: column", "gap: 0.5rem"]))])([div2([style3(tell5(["margin-top: 0.5rem", "padding: 0.5rem"]))])([slot_3($$Proxy.value)(unit)(theDocComponent)({
         doc: v.doc,
         viewMode: v.viewMode
       })])]);
@@ -11678,16 +11723,16 @@
                     var v3 = $$decodeURI($70.value0);
                     if (v3 instanceof Nothing) {
                       return pure17(error6({})("decodeURI error")(string4({
-                        style: pure23(inj$primeU3)
+                        style: pure24(inj$primeU3)
                       })("doc_str = " + ('"""' + ($70.value0 + '"""')))));
                     }
                     ;
                     if (v3 instanceof Just) {
                       return pure17(either(function(err) {
                         return error6({})("JsonDecodeError")(section3({})("Errors")([string4({
-                          style: pure23(inj$primeU3)
+                          style: pure24(inj$primeU3)
                         })(intercalate7("\n")(["doc_str = " + ('"""' + (v3.value0 + '"""'))])), string4({
-                          style: pure23(inj$primeU3)
+                          style: pure24(inj$primeU3)
                         })(intercalate7("\n")(["err = " + ('"""' + (printJsonDecodeError(err) + '"""'))]))]));
                       })(identity12)(fromJsonString3(v3.value0)));
                     }
@@ -11706,7 +11751,7 @@
                   var v1 = $$decodeURI($75.value0);
                   if (v1 instanceof Nothing) {
                     return pure17(error6({})("decodeURI error")(string4({
-                      style: pure23(inj$primeU3)
+                      style: pure24(inj$primeU3)
                     })("ref_str = " + ('"""' + ($75.value0 + '"""')))));
                   }
                   ;
@@ -11730,7 +11775,7 @@
         });
       })))(on$prime3(initializeIsSymbol2)($$const(discard10(log5("[App.initialize]"))(function() {
         return bind16(liftEffect9(bind17(windowImpl)(document)))(function(document2) {
-          return discard10($$void9(subscribe2(eventListener2(popstate)(toEventTarget(document2))($$const(pure23(inj$prime22(unit)))))))(function() {
+          return discard10($$void9(subscribe2(eventListener2(popstate)(toEventTarget(document2))($$const(pure24(inj$prime22(unit)))))))(function() {
             return $lazy_handleAction(69)(inj$prime22(unit));
           });
         });
@@ -11741,7 +11786,7 @@
       handleQuery: defaultEval.handleQuery,
       receive: defaultEval.receive,
       finalize: defaultEval.finalize,
-      initialize: pure23(inj$prime3(initializeIsSymbol2)(unit)),
+      initialize: pure24(inj$prime3(initializeIsSymbol2)(unit)),
       handleAction
     });
     return mkComponent({

@@ -12,12 +12,12 @@ import Data.Foldable (fold, intercalate, length)
 import Data.Int as Int
 import Data.Lens ((%=), (%~), (.=))
 import Data.List as List
-import Data.Map as Map
-import Data.Maybe (Maybe(..), fromMaybe', maybe)
+import Data.Maybe (Maybe(..), fromMaybe', maybe, maybe')
 import Data.Newtype (unwrap)
 import Data.String as String
 import Data.Traversable (foldMap, traverse)
-import Effect.Aff (Aff)
+import Effect.Aff (Aff, throwError)
+import Effect.Aff as Aff
 import Effect.Class.Console as Console
 import Halogen as H
 import Halogen.HTML as HH
@@ -25,17 +25,19 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import JSURI (encodeURI, encodeURIComponent)
 import Rybl.Data.Fix (Fix(..))
-import Rybl.Data.Variant (case_, match, on')
+import Rybl.Data.Fix as Fix
+import Rybl.Data.Tree (Tree(..))
+import Rybl.Data.Variant (match)
 import Rybl.Halogen.Style as Style
 import Rybl.Language (Doc, Doc_(..), Resource)
 import Rybl.Language as RL
 import Rybl.Language.Component.Common (Ctx, Env, HTML, next_widget_index, mapAction_ComponentHTML)
-import Rybl.Utility (bug, impossible, prop', (##))
+import Rybl.Utility (bug, impossible, prop')
 import Type.Proxy (Proxy(..))
 
 renderDoc :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m (Array HTML)
 
-renderDoc (Fix (Section _opts args body_)) = do
+renderDoc (Fix (Section opts args body_)) = do
   { section_path } <- ask
   { section_index } <- get
   let section_depth = section_path # length
@@ -44,14 +46,7 @@ renderDoc (Fix (Section _opts args body_)) = do
     local (prop' @"section_path" %~ List.Cons { index: section_index, title: args.title }) do
       prop' @"section_index" .= 0
       body_ # traverse renderDoc # map Array.fold
-  prop' @"section_index" .= section_index + 1
-  let
-    section_id =
-      "section_" <>
-        ( args.title
-            # String.replace (String.Pattern " ") (String.Replacement "_")
-            # encodeURIComponent >>> fromMaybe' impossible
-        )
+  let section_id = opts.id # fromMaybe' \_ -> bug $ "section was not given an id: " <> show args.title
   pure
     [ HH.div
         [ Style.style $ tell [ "padding-top: 1em;", "display: flex", "flex-direction: column", "gap: 0.5em" ]
@@ -149,7 +144,7 @@ renderDoc (Fix (QuoteBlock _opts _args body_)) = do
                   [ "margin: 0 1em"
                   , "padding: 0.5em"
                   , "border-left: 4px solid black"
-                  , "background-color: rgba(0, 0, 0, 0.1)"
+                  , "background-color: color-mix(in hsl, teal, transparent 80%)"
                   , "border-radius: 1em"
                   ]
             ]
@@ -185,7 +180,7 @@ renderDoc (Fix (Image opts args caption__)) = do
             ]
         , resource_ # maybe [] \resource ->
             [ HH.div
-                [ Style.style $ do tell [ "margin: 0 1em", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)" ] ]
+                [ Style.style $ do tell [ "margin: 0 1em", "padding: 0.5em", "background-color: color-mix(in hsl, saddlebrown, transparent 80%)" ] ]
                 [ resource ]
             ]
         ]
@@ -259,12 +254,7 @@ renderDoc (Fix (InternalLink _opts args label_)) = do
         ]
     ]
 
-renderResource
-  :: forall m
-   . MonadReader Ctx m
-  => MonadState Env m
-  => Resource
-  -> m HTML
+renderResource :: forall m. MonadReader Ctx m => MonadState Env m => Resource -> m HTML
 renderResource res = do
   pure
     $ HH.div []
@@ -278,6 +268,38 @@ renderResource res = do
                 }
             )
         ]
+
+renderTableOfContents :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
+renderTableOfContents doc = do
+  let
+    sectionTitleTree :: Tree _
+    sectionTitleTree = doc # Fix.fold case _ of
+      Section opts args body -> Branch { id: opts.id, title: args.title } body
+      _ -> Leaf
+
+    go :: Tree _ -> Array HTML
+    go Leaf = []
+    go (Branch node kids) =
+      let
+        kids' = kids # map go
+      in
+        [ HH.div
+            [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
+            [ HH.div []
+                [ HH.a
+                    ([ node.id # maybe [] \id -> [ HP.href $ "#" <> id ] ] # fold)
+                    [ HH.text node.title ]
+                ]
+            , HH.div
+                [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em", "padding-left: 1em" ] ]
+                (kids' # fold)
+            ]
+        ]
+
+  pure $
+    HH.div
+      []
+      (go sectionTitleTree)
 
 --------------------------------------------------------------------------------
 -- theSidenoteExpanderComponent

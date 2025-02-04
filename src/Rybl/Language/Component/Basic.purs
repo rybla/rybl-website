@@ -3,13 +3,14 @@ module Rybl.Language.Component.Basic where
 import Prelude
 
 import Control.Monad.Reader (runReaderT)
-import Control.Monad.State (class MonadState, evalState, get, modify_, put, runStateT)
+import Control.Monad.State (class MonadState, evalState, get, modify_, put)
 import Control.Monad.Writer (tell)
 import Data.Argonaut (JsonDecodeError)
 import Data.Argonaut.Decode (fromJsonString)
 import Data.Either (Either(..))
 import Data.Either.Nested (type (\/))
-import Data.Lens ((%=), (.=))
+import Data.Foldable (fold)
+import Data.Lens ((%=))
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(..))
@@ -18,7 +19,6 @@ import Data.Set (Set)
 import Data.Set as Set
 import Data.Tuple.Nested (type (/\), (/\))
 import Effect.Aff (Aff)
-import Effect.Aff.Class (class MonadAff, liftAff)
 import Fetch (fetch)
 import Fetch as Fetch
 import Halogen (Component, defaultEval, mkComponent, mkEval) as H
@@ -33,8 +33,9 @@ import Rybl.Halogen.Style as Style
 import Rybl.Language (Doc, Doc_(..), RefId, collectRefIds)
 import Rybl.Language as RL
 import Rybl.Language.Component.Common (Env, Input, State, mapAction_ComponentHTML)
+import Rybl.Language.Component.Doc.Compact as Compact
 import Rybl.Language.Component.Doc.Compact as Rybl.Language.Component.Doc.Compact
-import Rybl.Utility (prop', todo)
+import Rybl.Utility (prop')
 
 --------------------------------------------------------------------------------
 -- theDocComponent
@@ -121,11 +122,18 @@ theDocComponent = H.mkComponent { initialState, eval, render }
 
   render { doc, ctx, env, viewMode: _ } =
     H.div
-      [ HP.classes [ Class.mk @"doc" ]
-      , Style.style $ tell [ "width: 100%" ]
-      ]
-      ( doc
-          # Rybl.Language.Component.Doc.Compact.renderDoc
+      [ Style.style $ tell [ "width: 100%" ] ]
+      ( ( do
+            htmls_doc <- doc # Compact.renderDoc
+            htmls_toc <- doc # Compact.renderTableOfContents
+            pure $ fold
+              [ [ HH.div
+                    [ Style.style do tell [ "padding: 0.5em", "border: 1px solid black" ] ]
+                    [ htmls_toc ]
+                ]
+              , htmls_doc
+              ]
+        )
           # flip runReaderT ctx
           # flip evalState env
       )
