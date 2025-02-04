@@ -33,7 +33,8 @@ derive newtype instance DecodeJson RefId
 type Doc = Fix Doc_
 
 data Doc_ self
-  = Section (Record SectionOpts) { title :: String } (Array self)
+  = Page (Record PageOpts) { title :: String } (Array self)
+  | Section (Record SectionOpts) { title :: String } (Array self)
   | Paragraph (Record ParagraphOpts) {} (Array self)
   | Sentence (Record SentenceOpts) {} (Array self)
   | ExternalLink (Record LinkExternalOpts) { url :: String } self
@@ -89,6 +90,11 @@ type Resource =
 --------------------------------------------------------------------------------
 -- Doc constructors
 --------------------------------------------------------------------------------
+
+type PageOpts = (id :: Maybe String) :: Row Type
+
+page :: forall r r'. Union r PageOpts r' => Nub r' PageOpts => Record r -> String -> Array Doc -> Doc
+page opts title body = Fix.wrap $ Page (opts `R.merge` { id: Nothing @String }) { title } body
 
 type SectionOpts = (id :: Maybe String) :: Row Type
 

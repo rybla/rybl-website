@@ -10,30 +10,42 @@ import Effect.Aff (Aff)
 import JSURI (encodeURIComponent)
 import Rybl.Data.Fix as Fix
 import Rybl.Language (Doc, Doc_(..))
-import Rybl.Utility (bug, impossible, prop', todo)
+import Rybl.Utility (bug, impossible, prop')
 import Web.URL as URL
 
 preprocessDoc :: Doc -> Aff Doc
 preprocessDoc doc = preprocessDoc_ doc # flip evalStateT
-  { section_id_counter: 0
+  { id_counter: 0
   }
 
 type Env =
-  { section_id_counter :: Int
+  { id_counter :: Int
   }
 
 preprocessDoc_ :: Doc -> StateT Env Aff Doc
 preprocessDoc_ = Fix.foldM case _ of
-  Section opts args body -> do
-    { section_id_counter } <- get
-    prop' @"section_id_counter" += 1
+  Page opts args body -> do
+    { id_counter } <- get
+    prop' @"id_counter" += 1
     -- give unique id
     id <- opts.id # case _ of
       Just id -> pure $ pure id
       Nothing -> pure $ pure $
         args.title
           # String.replace (String.Pattern " ") (String.Replacement "_")
-          # (_ <> "__" <> show section_id_counter)
+          # (_ <> "__" <> show id_counter)
+          # encodeURIComponent >>> fromMaybe' impossible
+    pure $ Fix.wrap $ Page opts { id = id } args body
+  Section opts args body -> do
+    { id_counter } <- get
+    prop' @"id_counter" += 1
+    -- give unique id
+    id <- opts.id # case _ of
+      Just id -> pure $ pure id
+      Nothing -> pure $ pure $
+        args.title
+          # String.replace (String.Pattern " ") (String.Replacement "_")
+          # (_ <> "__" <> show id_counter)
           # encodeURIComponent >>> fromMaybe' impossible
     pure $ Fix.wrap $ Section opts { id = id } args body
   ExternalLink opts args label -> do

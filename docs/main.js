@@ -9516,6 +9516,11 @@
       return "title";
     }
   };
+  var PageIsSymbol = {
+    reflectSymbol: function() {
+      return "Page";
+    }
+  };
   var SectionIsSymbol = {
     reflectSymbol: function() {
       return "Section";
@@ -9646,35 +9651,52 @@
   var foldMap2 = /* @__PURE__ */ foldMap(foldableArray);
   var traverse2 = /* @__PURE__ */ traverse(traversableArray);
   var identity11 = /* @__PURE__ */ identity(categoryFn);
-  var decodeRepConstructor2 = /* @__PURE__ */ decodeRepConstructor(SectionIsSymbol);
+  var decodeRepConstructor2 = /* @__PURE__ */ decodeRepConstructor(PageIsSymbol);
   var gDecodeJsonCons2 = /* @__PURE__ */ gDecodeJsonCons(/* @__PURE__ */ decodeFieldMaybe(decodeJsonString));
   var decodeRepArgsProduct2 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons2(gDecodeJsonNil)(idIsSymbol)()())()));
   var gDecodeJsonCons1 = /* @__PURE__ */ gDecodeJsonCons(/* @__PURE__ */ decodeFieldId(decodeJsonString))(gDecodeJsonNil);
   var decodeRepArgsProduct1 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons1(titleIsSymbol)()())()));
-  var decodeRepConstructor1 = /* @__PURE__ */ decodeRepConstructor(ParagraphIsSymbol);
+  var decodeRepConstructor1 = /* @__PURE__ */ decodeRepConstructor(SectionIsSymbol);
+  var decodeRepConstructor22 = /* @__PURE__ */ decodeRepConstructor(ParagraphIsSymbol);
   var decodeRepArgsProduct22 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(gDecodeJsonNil)()));
-  var decodeRepConstructor22 = /* @__PURE__ */ decodeRepConstructor(SentenceIsSymbol);
-  var decodeRepConstructor3 = /* @__PURE__ */ decodeRepConstructor(ExternalLinkIsSymbol);
+  var decodeRepConstructor3 = /* @__PURE__ */ decodeRepConstructor(SentenceIsSymbol);
+  var decodeRepConstructor4 = /* @__PURE__ */ decodeRepConstructor(ExternalLinkIsSymbol);
   var decodeJsonVariant2 = /* @__PURE__ */ decodeJsonVariant();
   var decodeJsonVariantRLCons2 = /* @__PURE__ */ decodeJsonVariantRLCons(decodeJsonVariantRLRowNil);
   var gDecodeJsonCons22 = /* @__PURE__ */ gDecodeJsonCons(/* @__PURE__ */ decodeFieldMaybe(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons2(/* @__PURE__ */ gDecodeJsonCons2(/* @__PURE__ */ gDecodeJsonCons(/* @__PURE__ */ decodeFieldMaybe(/* @__PURE__ */ decodeJsonVariant2(/* @__PURE__ */ decodeJsonVariantRLCons(/* @__PURE__ */ decodeJsonVariantRLCons2(urlIsSymbol)(decodeJsonString)())(miscIsSymbol)(decodeJsonString)())))(gDecodeJsonNil)(sourceIsSymbol)()())(nameIsSymbol)()())(dateIsSymbol)()())()))(gDecodeJsonNil)(sourceIsSymbol)()();
   var decodeRepArgsProduct3 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons2(gDecodeJsonCons22)(favicon_urlIsSymbol)()())()));
   var decodeRepArgsProduct4 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons1(urlIsSymbol)()())()));
-  var decodeRepConstructor4 = /* @__PURE__ */ decodeRepConstructor(InternalLinkIsSymbol);
+  var decodeRepConstructor5 = /* @__PURE__ */ decodeRepConstructor(InternalLinkIsSymbol);
   var decodeRepArgsProduct5 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(gDecodeJsonCons22)()));
-  var decodeRepConstructor5 = /* @__PURE__ */ decodeRepConstructor(SidenoteIsSymbol);
+  var decodeRepConstructor6 = /* @__PURE__ */ decodeRepConstructor(SidenoteIsSymbol);
   var decodeRepArgsArgument2 = /* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons1(valueIsSymbol2)()())());
   var decodeRepSum2 = /* @__PURE__ */ decodeRepSum(/* @__PURE__ */ decodeRepConstructor(StringIsSymbol)(/* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons(/* @__PURE__ */ decodeFieldMaybe(/* @__PURE__ */ decodeJsonVariant2(/* @__PURE__ */ decodeJsonVariantRLCons(/* @__PURE__ */ decodeJsonVariantRLCons2(emphasisIsSymbol)(decodeJsonNull)())(codeIsSymbol)(decodeJsonNull)())))(gDecodeJsonNil)(styleIsSymbol)()())()))(decodeRepArgsArgument2)));
   var decodeRepArgsProduct6 = /* @__PURE__ */ decodeRepArgsProduct5(decodeRepArgsArgument2);
   var decodeRepSum1 = /* @__PURE__ */ decodeRepSum(/* @__PURE__ */ decodeRepConstructor(CodeBlockIsSymbol)(decodeRepArgsProduct6));
-  var decodeRepConstructor6 = /* @__PURE__ */ decodeRepConstructor(QuoteBlockIsSymbol);
+  var decodeRepConstructor7 = /* @__PURE__ */ decodeRepConstructor(QuoteBlockIsSymbol);
   var decodeRepSum22 = /* @__PURE__ */ decodeRepSum(/* @__PURE__ */ decodeRepConstructor(MathBlockIsSymbol)(decodeRepArgsProduct6));
-  var decodeRepConstructor7 = /* @__PURE__ */ decodeRepConstructor(ImageIsSymbol);
-  var decodeRepConstructor8 = /* @__PURE__ */ decodeRepConstructor(ErrorIsSymbol);
+  var decodeRepConstructor8 = /* @__PURE__ */ decodeRepConstructor(ImageIsSymbol);
+  var decodeRepConstructor9 = /* @__PURE__ */ decodeRepConstructor(ErrorIsSymbol);
   var decodeRepArgsProduct7 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons1(labelIsSymbol2)()())()));
   var merge2 = /* @__PURE__ */ merge()();
   var $$void7 = /* @__PURE__ */ $$void(functorST);
   var pure11 = /* @__PURE__ */ pure(applicativeST);
+  var Page = /* @__PURE__ */ function() {
+    function Page2(value0, value1, value22) {
+      this.value0 = value0;
+      this.value1 = value1;
+      this.value2 = value22;
+    }
+    ;
+    Page2.create = function(value0) {
+      return function(value1) {
+        return function(value22) {
+          return new Page2(value0, value1, value22);
+        };
+      };
+    };
+    return Page2;
+  }();
   var Section = /* @__PURE__ */ function() {
     function Section2(value0, value1, value22) {
       this.value0 = value0;
@@ -9880,119 +9902,131 @@
   var genericDoc__ = {
     to: function(x) {
       if (x instanceof Inl) {
-        return new Section(x.value0.value0, x.value0.value1.value0, x.value0.value1.value1);
+        return new Page(x.value0.value0, x.value0.value1.value0, x.value0.value1.value1);
       }
       ;
       if (x instanceof Inr && x.value0 instanceof Inl) {
-        return new Paragraph(x.value0.value0.value0, x.value0.value0.value1.value0, x.value0.value0.value1.value1);
+        return new Section(x.value0.value0.value0, x.value0.value0.value1.value0, x.value0.value0.value1.value1);
       }
       ;
       if (x instanceof Inr && (x.value0 instanceof Inr && x.value0.value0 instanceof Inl)) {
-        return new Sentence(x.value0.value0.value0.value0, x.value0.value0.value0.value1.value0, x.value0.value0.value0.value1.value1);
+        return new Paragraph(x.value0.value0.value0.value0, x.value0.value0.value0.value1.value0, x.value0.value0.value0.value1.value1);
       }
       ;
       if (x instanceof Inr && (x.value0 instanceof Inr && (x.value0.value0 instanceof Inr && x.value0.value0.value0 instanceof Inl))) {
-        return new ExternalLink(x.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value1.value0, x.value0.value0.value0.value0.value1.value1);
+        return new Sentence(x.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value1.value0, x.value0.value0.value0.value0.value1.value1);
       }
       ;
       if (x instanceof Inr && (x.value0 instanceof Inr && (x.value0.value0 instanceof Inr && (x.value0.value0.value0 instanceof Inr && x.value0.value0.value0.value0 instanceof Inl)))) {
-        return new InternalLink(x.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value1.value0, x.value0.value0.value0.value0.value0.value1.value1);
+        return new ExternalLink(x.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value1.value0, x.value0.value0.value0.value0.value0.value1.value1);
       }
       ;
       if (x instanceof Inr && (x.value0 instanceof Inr && (x.value0.value0 instanceof Inr && (x.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0 instanceof Inr && x.value0.value0.value0.value0.value0 instanceof Inl))))) {
-        return new Sidenote(x.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value1.value0, x.value0.value0.value0.value0.value0.value0.value1.value1.value0, x.value0.value0.value0.value0.value0.value0.value1.value1.value1);
+        return new InternalLink(x.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value1.value0, x.value0.value0.value0.value0.value0.value0.value1.value1);
       }
       ;
       if (x instanceof Inr && (x.value0 instanceof Inr && (x.value0.value0 instanceof Inr && (x.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0 instanceof Inr && x.value0.value0.value0.value0.value0.value0 instanceof Inl)))))) {
-        return new Ref2(x.value0.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value0.value1);
+        return new Sidenote(x.value0.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value0.value1.value0, x.value0.value0.value0.value0.value0.value0.value0.value1.value1.value0, x.value0.value0.value0.value0.value0.value0.value0.value1.value1.value1);
       }
       ;
       if (x instanceof Inr && (x.value0 instanceof Inr && (x.value0.value0 instanceof Inr && (x.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0 instanceof Inr && x.value0.value0.value0.value0.value0.value0.value0 instanceof Inl))))))) {
-        return new $$String(x.value0.value0.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value1);
+        return new Ref2(x.value0.value0.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value1);
       }
       ;
       if (x instanceof Inr && (x.value0 instanceof Inr && (x.value0.value0 instanceof Inr && (x.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && x.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inl)))))))) {
-        return new CodeBlock(x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1);
+        return new $$String(x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1);
       }
       ;
       if (x instanceof Inr && (x.value0 instanceof Inr && (x.value0.value0 instanceof Inr && (x.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && x.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inl))))))))) {
-        return new QuoteBlock(x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1.value1);
+        return new CodeBlock(x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1);
       }
       ;
       if (x instanceof Inr && (x.value0 instanceof Inr && (x.value0.value0 instanceof Inr && (x.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inl)))))))))) {
-        return new MathBlock(x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1);
+        return new QuoteBlock(x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1.value1);
       }
       ;
       if (x instanceof Inr && (x.value0 instanceof Inr && (x.value0.value0 instanceof Inr && (x.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inl))))))))))) {
-        return new Image2(x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1.value1);
+        return new MathBlock(x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1);
       }
       ;
-      if (x instanceof Inr && (x.value0 instanceof Inr && (x.value0.value0 instanceof Inr && (x.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr))))))))))) {
-        return new $$Error(x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1.value1);
+      if (x instanceof Inr && (x.value0 instanceof Inr && (x.value0.value0 instanceof Inr && (x.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inl)))))))))))) {
+        return new Image2(x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1.value1);
       }
       ;
-      throw new Error("Failed pattern match at Rybl.Language (line 54, column 1 - line 54, column 38): " + [x.constructor.name]);
+      if (x instanceof Inr && (x.value0 instanceof Inr && (x.value0.value0 instanceof Inr && (x.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && (x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr && x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Inr)))))))))))) {
+        return new $$Error(x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1.value1);
+      }
+      ;
+      throw new Error("Failed pattern match at Rybl.Language (line 52, column 1 - line 52, column 38): " + [x.constructor.name]);
     },
     from: function(x) {
-      if (x instanceof Section) {
+      if (x instanceof Page) {
         return new Inl(new Product(x.value0, new Product(x.value1, x.value2)));
       }
       ;
-      if (x instanceof Paragraph) {
+      if (x instanceof Section) {
         return new Inr(new Inl(new Product(x.value0, new Product(x.value1, x.value2))));
       }
       ;
-      if (x instanceof Sentence) {
+      if (x instanceof Paragraph) {
         return new Inr(new Inr(new Inl(new Product(x.value0, new Product(x.value1, x.value2)))));
       }
       ;
-      if (x instanceof ExternalLink) {
+      if (x instanceof Sentence) {
         return new Inr(new Inr(new Inr(new Inl(new Product(x.value0, new Product(x.value1, x.value2))))));
       }
       ;
-      if (x instanceof InternalLink) {
+      if (x instanceof ExternalLink) {
         return new Inr(new Inr(new Inr(new Inr(new Inl(new Product(x.value0, new Product(x.value1, x.value2)))))));
       }
       ;
+      if (x instanceof InternalLink) {
+        return new Inr(new Inr(new Inr(new Inr(new Inr(new Inl(new Product(x.value0, new Product(x.value1, x.value2))))))));
+      }
+      ;
       if (x instanceof Sidenote) {
-        return new Inr(new Inr(new Inr(new Inr(new Inr(new Inl(new Product(x.value0, new Product(x.value1, new Product(x.value2, x.value3)))))))));
+        return new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inl(new Product(x.value0, new Product(x.value1, new Product(x.value2, x.value3))))))))));
       }
       ;
       if (x instanceof Ref2) {
-        return new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inl(new Product(x.value0, x.value1))))))));
-      }
-      ;
-      if (x instanceof $$String) {
         return new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inl(new Product(x.value0, x.value1)))))))));
       }
       ;
-      if (x instanceof CodeBlock) {
+      if (x instanceof $$String) {
         return new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inl(new Product(x.value0, x.value1))))))))));
       }
       ;
+      if (x instanceof CodeBlock) {
+        return new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inl(new Product(x.value0, x.value1)))))))))));
+      }
+      ;
       if (x instanceof QuoteBlock) {
-        return new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inl(new Product(x.value0, new Product(x.value1, x.value2))))))))))));
+        return new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inl(new Product(x.value0, new Product(x.value1, x.value2)))))))))))));
       }
       ;
       if (x instanceof MathBlock) {
-        return new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inl(new Product(x.value0, x.value1))))))))))));
+        return new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inl(new Product(x.value0, x.value1)))))))))))));
       }
       ;
       if (x instanceof Image2) {
-        return new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inl(new Product(x.value0, new Product(x.value1, x.value2))))))))))))));
+        return new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inl(new Product(x.value0, new Product(x.value1, x.value2)))))))))))))));
       }
       ;
       if (x instanceof $$Error) {
-        return new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Product(x.value0, new Product(x.value1, x.value2))))))))))))));
+        return new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Product(x.value0, new Product(x.value1, x.value2)))))))))))))));
       }
       ;
-      throw new Error("Failed pattern match at Rybl.Language (line 54, column 1 - line 54, column 38): " + [x.constructor.name]);
+      throw new Error("Failed pattern match at Rybl.Language (line 52, column 1 - line 52, column 38): " + [x.constructor.name]);
     }
   };
   var genericDecodeJson2 = /* @__PURE__ */ genericDecodeJson(genericDoc__);
   var functorDoc_ = {
     map: function(f) {
       return function(m) {
+        if (m instanceof Page) {
+          return new Page(m.value0, m.value1, map31(f)(m.value2));
+        }
+        ;
         if (m instanceof Section) {
           return new Section(m.value0, m.value1, map31(f)(m.value2));
         }
@@ -10053,6 +10087,10 @@
     foldl: function(f) {
       return function(z) {
         return function(m) {
+          if (m instanceof Page) {
+            return foldl2(f)(z)(m.value2);
+          }
+          ;
           if (m instanceof Section) {
             return foldl2(f)(z)(m.value2);
           }
@@ -10112,6 +10150,10 @@
     foldr: function(f) {
       return function(z) {
         return function(m) {
+          if (m instanceof Page) {
+            return foldr4(f)(z)(m.value2);
+          }
+          ;
           if (m instanceof Section) {
             return foldr4(f)(z)(m.value2);
           }
@@ -10174,6 +10216,10 @@
       var mempty4 = mempty(dictMonoid);
       return function(f) {
         return function(m) {
+          if (m instanceof Page) {
+            return foldMap12(f)(m.value2);
+          }
+          ;
           if (m instanceof Section) {
             return foldMap12(f)(m.value2);
           }
@@ -10240,6 +10286,12 @@
       var pure18 = pure(dictApplicative);
       return function(f) {
         return function(m) {
+          if (m instanceof Page) {
+            return map114(function(v3) {
+              return new Page(m.value0, m.value1, v3);
+            })(traverse13(f)(m.value2));
+          }
+          ;
           if (m instanceof Section) {
             return map114(function(v3) {
               return new Section(m.value0, m.value1, v3);
@@ -10336,19 +10388,21 @@
   var decodeRepSum3 = /* @__PURE__ */ decodeRepSum(/* @__PURE__ */ decodeRepConstructor(RefIsSymbol)(/* @__PURE__ */ decodeRepArgsProduct22(decodeRepArgsArgument1)));
   var decodeJsonDoc_ = function(dictDecodeJson) {
     var decodeRepArgsArgument22 = decodeRepArgsArgument(decodeArray2(dictDecodeJson));
-    var decodeRepSum4 = decodeRepSum(decodeRepConstructor2(decodeRepArgsProduct2(decodeRepArgsProduct1(decodeRepArgsArgument22))));
-    var decodeRepArgsProduct9 = decodeRepArgsProduct22(decodeRepArgsProduct22(decodeRepArgsArgument22));
+    var decodeRepArgsProduct9 = decodeRepArgsProduct2(decodeRepArgsProduct1(decodeRepArgsArgument22));
+    var decodeRepSum4 = decodeRepSum(decodeRepConstructor2(decodeRepArgsProduct9));
     var decodeRepSum5 = decodeRepSum(decodeRepConstructor1(decodeRepArgsProduct9));
-    var decodeRepSum6 = decodeRepSum(decodeRepConstructor22(decodeRepArgsProduct9));
+    var decodeRepArgsProduct10 = decodeRepArgsProduct22(decodeRepArgsProduct22(decodeRepArgsArgument22));
+    var decodeRepSum6 = decodeRepSum(decodeRepConstructor22(decodeRepArgsProduct10));
+    var decodeRepSum7 = decodeRepSum(decodeRepConstructor3(decodeRepArgsProduct10));
     var decodeRepArgsArgument3 = decodeRepArgsArgument(dictDecodeJson);
-    var decodeRepSum7 = decodeRepSum(decodeRepConstructor3(decodeRepArgsProduct3(decodeRepArgsProduct4(decodeRepArgsArgument3))));
-    var decodeRepSum8 = decodeRepSum(decodeRepConstructor4(decodeRepArgsProduct5(decodeRepArgsProduct8(decodeRepArgsArgument3))));
-    var decodeRepSum9 = decodeRepSum(decodeRepConstructor5(decodeRepArgsProduct22(decodeRepArgsProduct22(decodeRepArgsProduct(decodeRepArgsArgument3)(decodeRepArgsArgument3)))));
-    var decodeRepSum10 = decodeRepSum(decodeRepConstructor6(decodeRepArgsProduct5(decodeRepArgsProduct22(decodeRepArgsArgument3))));
-    var decodeRepConstructor9 = decodeRepConstructor8(decodeRepArgsProduct22(decodeRepArgsProduct7(decodeRepArgsArgument3)));
+    var decodeRepSum8 = decodeRepSum(decodeRepConstructor4(decodeRepArgsProduct3(decodeRepArgsProduct4(decodeRepArgsArgument3))));
+    var decodeRepSum9 = decodeRepSum(decodeRepConstructor5(decodeRepArgsProduct5(decodeRepArgsProduct8(decodeRepArgsArgument3))));
+    var decodeRepSum10 = decodeRepSum(decodeRepConstructor6(decodeRepArgsProduct22(decodeRepArgsProduct22(decodeRepArgsProduct(decodeRepArgsArgument3)(decodeRepArgsArgument3)))));
+    var decodeRepSum11 = decodeRepSum(decodeRepConstructor7(decodeRepArgsProduct5(decodeRepArgsProduct22(decodeRepArgsArgument3))));
+    var decodeRepConstructor10 = decodeRepConstructor9(decodeRepArgsProduct22(decodeRepArgsProduct7(decodeRepArgsArgument3)));
     return {
       decodeJson: function(x) {
-        return genericDecodeJson2(decodeRepSum4(decodeRepSum5(decodeRepSum6(decodeRepSum7(decodeRepSum8(decodeRepSum9(decodeRepSum3(decodeRepSum2(decodeRepSum1(decodeRepSum10(decodeRepSum22(decodeRepSum(decodeRepConstructor7(decodeRepArgsProduct5(decodeRepArgsProduct4(decodeRepArgsArgument(decodeJsonMaybe(decodeJsonFix2(decodeJsonDoc_(decodeJsonJson))))))))(decodeRepConstructor9)))))))))))))(x);
+        return genericDecodeJson2(decodeRepSum4(decodeRepSum5(decodeRepSum6(decodeRepSum7(decodeRepSum8(decodeRepSum9(decodeRepSum10(decodeRepSum3(decodeRepSum2(decodeRepSum1(decodeRepSum11(decodeRepSum22(decodeRepSum(decodeRepConstructor8(decodeRepArgsProduct5(decodeRepArgsProduct4(decodeRepArgsArgument(decodeJsonMaybe(decodeJsonFix2(decodeJsonDoc_(decodeJsonJson))))))))(decodeRepConstructor10))))))))))))))(x);
       }
     };
   };
@@ -11053,8 +11107,11 @@
   var map36 = /* @__PURE__ */ map(functorArray);
   var intercalate6 = /* @__PURE__ */ intercalate(foldableArray)(monoidArray);
   var match2 = /* @__PURE__ */ match()()();
-  var length8 = /* @__PURE__ */ length2(foldableList)(semiringInt);
   var string2 = /* @__PURE__ */ string()();
+  var fold22 = /* @__PURE__ */ fold2(monoidArray);
+  var traverse3 = /* @__PURE__ */ traverse(traversableArray);
+  var show4 = /* @__PURE__ */ show(showString);
+  var length8 = /* @__PURE__ */ length2(foldableList)(semiringInt);
   var prop$prime1 = /* @__PURE__ */ prop$prime({
     reflectSymbol: function() {
       return "section_path";
@@ -11065,9 +11122,6 @@
       return "section_index";
     }
   })()()(strongFn);
-  var fold22 = /* @__PURE__ */ fold2(monoidArray);
-  var traverse3 = /* @__PURE__ */ traverse(traversableArray);
-  var show4 = /* @__PURE__ */ show(showString);
   var show12 = /* @__PURE__ */ show(showNumber);
   var max6 = /* @__PURE__ */ max(ordNumber);
   var intercalate12 = /* @__PURE__ */ intercalate(foldableList)(monoidString);
@@ -11095,8 +11149,8 @@
         return [text5("\u25A1")];
       }();
       return div2([style3(tell3(["display: inline"]))])(fold4([[div2([style3(tell3(["display: inline", "user-select: none", "cursor: pointer", "background-color: rgba(0, 0, 0, 0.1)", "padding-left: 0.3em"])), onClick($$const(new Right(unit)))])(fold4([marker, [text5(" ")], state3.label]))], function() {
-        var $112 = !state3.open;
-        if ($112) {
+        var $113 = !state3.open;
+        if ($113) {
           return [];
         }
         ;
@@ -11121,7 +11175,7 @@
         });
       }
       ;
-      throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 320, column 3 - line 320, column 46): " + [v.constructor.name]);
+      throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 357, column 3 - line 357, column 46): " + [v.constructor.name]);
     };
     var $$eval = mkEval({
       handleQuery: defaultEval.handleQuery,
@@ -11140,7 +11194,14 @@
     var pure18 = pure(dictMonadReader.MonadAsk0().Monad0().Applicative0());
     return function(dictMonadState) {
       return function(doc) {
-        var sectionTitleTree = fold13(function(v) {
+        var tocTree = fold13(function(v) {
+          if (v instanceof Page) {
+            return new Branch({
+              id: v.value0.id,
+              title: v.value1.title
+            }, v.value2);
+          }
+          ;
           if (v instanceof Section) {
             return new Branch({
               id: v.value0.id,
@@ -11162,9 +11223,9 @@
             })(v.value0.id)]))([text5(v.value0.title)])]), div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5em", "padding-left: 1em"]))])(fold4(kids$prime))])];
           }
           ;
-          throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 280, column 5 - line 280, column 31): " + [v.constructor.name]);
+          throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 317, column 5 - line 317, column 31): " + [v.constructor.name]);
         };
-        return pure18(div2([])(go2(sectionTitleTree)));
+        return pure18(div2([])(go2(tocTree)));
       };
     };
   };
@@ -11192,13 +11253,13 @@
     var Monad0 = MonadAsk0.Monad0();
     var Bind1 = Monad0.Bind1();
     var bind18 = bind(Bind1);
-    var ask2 = ask(MonadAsk0);
-    var local2 = local(dictMonadReader);
-    var discard32 = discard8(Bind1);
     var map210 = map(Bind1.Apply0().Functor0());
     var Applicative0 = Monad0.Applicative0();
     var traverse22 = traverse3(Applicative0);
     var pure18 = pure(Applicative0);
+    var ask2 = ask(MonadAsk0);
+    var local2 = local(dictMonadReader);
+    var discard32 = discard8(Bind1);
     var traverse32 = traverse12(Applicative0);
     var renderResource1 = renderResource(dictMonadReader);
     return function(dictMonadState) {
@@ -11207,6 +11268,17 @@
       var next_widget_index2 = next_widget_index(dictMonadState);
       var renderResource2 = renderResource1(dictMonadState);
       return function(v) {
+        if (v.value0 instanceof Page) {
+          return bind18(renderDoc(dictMonadReader)(dictMonadState)(string2({})(v.value0.value1.title)))(function(title3) {
+            return bind18(map210(fold22)(traverse22(renderDoc(dictMonadReader)(dictMonadState))(v.value0.value2)))(function(body4) {
+              var id4 = fromMaybe$prime(function(v1) {
+                return bug("page was not given an id: " + show4(v.value0.value1.title));
+              })(v.value0.value0.id);
+              return pure18([div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5em"])), id3(id4)])([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: space-between", "align-items: flex-start", "gap: 1em", "font-size: 3em"]))])([div2([])([a([href4("#" + id4)])([text5("\xA7")])]), div2([])(title3), div2([])([a([href4("#" + id4)])([text5("\xA7")])])]), div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5em"]))])(body4)])]);
+            });
+          });
+        }
+        ;
         if (v.value0 instanceof Section) {
           return bind18(ask2)(function(v1) {
             return bind18(get4)(function(v2) {
@@ -11218,16 +11290,16 @@
                 })))(discard32(assign4(prop$prime22)(0))(function() {
                   return map210(fold22)(traverse22(renderDoc(dictMonadReader)(dictMonadState))(v.value0.value2));
                 })))(function(body4) {
-                  var section_id = fromMaybe$prime(function(v3) {
+                  var id4 = fromMaybe$prime(function(v3) {
                     return bug("section was not given an id: " + show4(v.value0.value1.title));
                   })(v.value0.value0.id);
-                  return pure18([div2([style3(tell3(["padding-top: 1em;", "display: flex", "flex-direction: column", "gap: 0.5em"])), id3(section_id)])([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: space-between", "align-items: flex-start", "gap: 1em", "font-size: " + (show12(max6(2 - toNumber(section_depth) * 0.2)(1)) + "em"), "box-shadow: 0 1px 0 0 black"]))])([div2([style3(tell3(["flex-grow: 0"]))])(fold4([[a([href4("#" + section_id)])([text5("\xA7")])], title3])), div2([style3(tell3(["flex-shrink: 0", "flex-grow: 1", "text-align: right"]))])([text5(intercalate12(".")(reverse2(map113(function($179) {
+                  return pure18([div2([style3(tell3(["padding-top: 1em;", "display: flex", "flex-direction: column", "gap: 0.5em"])), id3(id4)])([div2([style3(tell3(["display: flex", "flex-direction: row", "justify-content: space-between", "align-items: flex-start", "gap: 1em", "font-size: " + (show12(max6(2 - toNumber(section_depth) * 0.2)(1)) + "em"), "box-shadow: 0 1px 0 0 black"]))])([div2([style3(tell3(["flex-grow: 0"]))])(fold4([[a([href4("#" + id4)])([text5("\xA7")])], title3])), div2([style3(tell3(["flex-shrink: 0", "flex-grow: 1", "text-align: right"]))])([text5(intercalate12(".")(reverse2(map113(function($187) {
                     return show22(function(v3) {
                       return v3 + 1 | 0;
-                    }($179));
+                    }($187));
                   })(new Cons(v2.section_index, map113(function(v3) {
                     return v3.index;
-                  })(v1.section_path)))))), a([href4("#" + section_id)])([text5("\xA7")])])]), div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5em"]))])(body4)])]);
+                  })(v1.section_path)))))), a([href4("#" + id4)])([text5("\xA7")])])]), div2([style3(tell3(["display: flex", "flex-direction: column", "gap: 0.5em"]))])(body4)])]);
                 });
               });
             });
@@ -11317,7 +11389,7 @@
                 return [img([style3(tell3(["height: 0.8em"])), src9(v.value0.value0.favicon_url.value0)]), div_(label5)];
               }
               ;
-              throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 226, column 9 - line 235, column 14): " + [v.value0.value0.favicon_url.constructor.name]);
+              throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 262, column 9 - line 271, column 14): " + [v.value0.value0.favicon_url.constructor.name]);
             }())]);
           });
         }
@@ -11330,7 +11402,7 @@
           });
         }
         ;
-        throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 38, column 1 - line 38, column 86): " + [v.constructor.name]);
+        throw new Error("Failed pattern match at Rybl.Language.Component.Doc.Compact (line 36, column 1 - line 36, column 86): " + [v.constructor.name]);
       };
     };
   };

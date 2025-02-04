@@ -10,14 +10,14 @@ import Data.Newtype (wrap)
 import Data.String as String
 import Data.Tuple (Tuple(..))
 import Rybl.Data.Variant (inj', inj'U)
-import Rybl.Language (Doc, codeBlock, external_link, internal_link, mathBlock, image, paragraph, quoteBlock, ref, section, sentence, sidenote, string)
+import Rybl.Language (Doc, codeBlock, external_link, image, internal_link, mathBlock, page, paragraph, quoteBlock, ref, section, sentence, sidenote, string)
 
 namedDocs :: Map String Doc
 namedDocs = Map.fromFoldable
   [ Tuple "index" $
       ref {} (wrap "full_example_1")
   , Tuple "full_example_1" $
-      section {} "Full Example #1"
+      page {} "Full Example #1"
         [ section {} "String Styles"
             [ paragraph {}
                 [ sentence {}

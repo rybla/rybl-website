@@ -122,7 +122,10 @@ theDocComponent = H.mkComponent { initialState, eval, render }
 
   render { doc, ctx, env, viewMode: _ } =
     H.div
-      [ Style.style $ tell [ "width: 100%" ] ]
+      [ Style.style do
+          tell [ "width: 100%" ]
+          tell [ "display: flex", "flex-direction: column", "gap: 1em" ]
+      ]
       ( ( do
             htmls_doc <- doc # Compact.renderDoc
             htmls_toc <- doc # Compact.renderTableOfContents
