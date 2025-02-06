@@ -36,6 +36,8 @@ namedDocs = Map.fromFoldable
         , section {} "Links"
             [ paragraph {}
                 [ sentence {}
+                    [ string {} "Notice that links are annotated with the favicon of their source website." ]
+                , sentence {}
                     [ string {} "Here is a link to an external page: "
                     , external_link {} (string {} "google") "https://www.google.com/"
                     , string {} "."
@@ -64,7 +66,7 @@ namedDocs = Map.fromFoldable
         , section {} "Codeblocks"
             [ paragraph {}
                 [ sentence {} [ string {} "The following is a pretty narrow code block." ] ]
-            , codeBlock {} $
+            , codeBlock { source: resource { content: inj' @"url" "https://lesharmoniesdelesprit.wordpress.com/wp-content/uploads/2015/11/whiteheadrussell-principiamathematicavolumei.pdf" # pure } "Principia Mathematica" # pure } $
                 """
 merge :: Ord a => [a] -> [a] -> [a]
 merge xs [] = xs

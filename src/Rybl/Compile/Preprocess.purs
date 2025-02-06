@@ -49,6 +49,11 @@ preprocessDoc_ = Fix.foldM case _ of
           # encodeURIComponent >>> fromMaybe' impossible
     pure $ Fix.wrap $ Section opts { id = id } args body
   ExternalLink opts args label -> do
+    -- TODO: do a fetch to make sure that the favicon is actually there
+    -- use this url to get the actual favicon image (its a google api): https://www.google.com/s2/favicons?domain=${domain}&sz=${size}
+    -- example: https://www.google.com/s2/favicons?domain=https://dev.to/derlin/
+    -- since this works, im not totally sure how escaping the string works...
+
     -- compute and query favicon
     favicon_url <- case opts.favicon_url of
       Just favicon_url -> pure favicon_url

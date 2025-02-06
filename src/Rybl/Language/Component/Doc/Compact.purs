@@ -8,9 +8,9 @@ import Control.Monad.Writer (tell)
 import Data.Argonaut.Encode (toJsonString)
 import Data.Array as Array
 import Data.Either (Either(..))
-import Data.Foldable (all, fold, length, null)
+import Data.Foldable (fold, length, null)
 import Data.Int as Int
-import Data.Lens ((%=), (%~), (.=))
+import Data.Lens ((%=), (%~), (+=), (.=))
 import Data.List as List
 import Data.Maybe (Maybe(..), fromMaybe', maybe)
 import Data.Newtype (unwrap)
@@ -81,6 +81,7 @@ renderDoc (Fix (Section opts args body_)) = do
     local (prop' @"section_path" %~ List.Cons { index: section_index, title: args.title }) do
       prop' @"section_index" .= 0
       body_ # traverse renderDoc -- # map Array.fold
+  prop' @"section_index" .= section_index + 1
   pure $
     HH.div
       [ Style.style $ tell [ "padding-top: 1em;", "display: flex", "flex-direction: column", "gap: 1em" ]
@@ -151,69 +152,66 @@ renderDoc (Fix (Ref _opts args)) = do
       [ Style.style do tell [ "background-color: black", "color: white", "padding: 0.5em" ] ]
       [ HH.text $ "Ref " <> show args.refId ]
 
-renderDoc (Fix (CodeBlock _opts args)) = do
-  pure $
-    HH.div
-      [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
-      [ HH.pre
-          [ Style.style do tell [ "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
-          [ HH.text args.value ]
-      ]
+renderDoc (Fix (CodeBlock opts args)) = do
+  source <- opts.source # traverse renderResourceNote
+  pure
+    $ HH.div
+        []
+    $ fold
+        [ [ HH.div
+              [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
+              [ HH.pre
+                  [ Style.style do tell [ "margin: 0", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
+                  [ HH.text args.value ]
+              ]
+          ]
+        , source # maybe [] pure
+        ]
 
 renderDoc (Fix (QuoteBlock opts _args body_)) = do
   body <- body_ # renderDoc
-  resource_ <- opts.source # traverse renderResource
+  source <- opts.source # traverse renderResourceNote
   pure
     $ HH.div
         [ Style.style do tell [ "display: flex", "flex-direction: column" ] ]
     $ fold
         [ [ HH.div
-              [ Style.style do
-                  tell
-                    [ "margin: 0 1em"
-                    , "padding: 0.5em"
-                    , "border-left: 4px solid black"
-                    , "background-color: color-mix(in hsl, teal, transparent 90%)"
-                    , "border-radius: 1em"
-                    ]
+              [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
+              [ HH.div
+                  [ Style.style do
+                      tell
+                        [ "margin: 0 1em"
+                        , "padding: 0.5em"
+                        , "border-left: 4px solid black"
+                        , "background-color: color-mix(in hsl, teal, transparent 90%)"
+                        , "border-radius: 1em"
+                        ]
+                  ]
+                  [ body ]
               ]
-              [ body ]
           ]
-        , resource_ # maybe [] \resource ->
-            [ HH.div
-                [ Style.style $ do
-                    tell
-                      [ "padding-left: 40%"
-                      , "padding-right: 10%"
-                      , "display: flex"
-                      , "flex-direction: column"
-                      , "align-items: flex-end"
-                      ]
-                ]
-                [ HH.div
-                    [ Style.style $ do
-                        tell
-                          [ "padding: 0.5em"
-                          , "background-color: color-mix(in hsl, saddlebrown, transparent 80%)"
-                          ]
-                    ]
-                    [ resource ]
-                ]
-            ]
+        , source # maybe [] pure
         ]
 
-renderDoc (Fix (MathBlock _opts args)) = do
-  pure $
-    HH.div
-      [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
-      [ HH.pre
-          [ Style.style do tell [ "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
-          [ HH.text $ "MATH: " <> args.value ]
-      ]
+renderDoc (Fix (MathBlock opts args)) = do
+  source <- opts.source # traverse renderResourceNote
+  pure
+    $ HH.div
+        []
+    $ fold
+        [ [ HH.div
+              [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
+              [ HH.pre
+                  [ Style.style do tell [ "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
+                  [ HH.text $ "MATH: " <> args.value ]
+              ]
+          ]
+        , source # maybe [] pure
+        ]
 
 renderDoc (Fix (Image opts args caption__)) = do
   caption_ <- caption__ # traverse renderDoc
-  resource_ <- opts.source # traverse renderResource
+  source <- opts.source # traverse renderResourceNote
   pure
     $ HH.div
         [ Style.style do tell [ "width: 100%", "display: flex", "flex-direction: column", "justify-content: center" ] ]
@@ -228,27 +226,7 @@ renderDoc (Fix (Image opts args caption__)) = do
                 [ Style.style $ do tell [ "margin: 0 0.5em", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)" ] ]
                 [ caption ]
             ]
-        , resource_ # maybe [] \resource ->
-            [ HH.div
-                [ Style.style $ do
-                    tell
-                      [ "padding-left: 40%"
-                      , "padding-right: 10%"
-                      , "display: flex"
-                      , "flex-direction: column"
-                      , "align-items: flex-end"
-                      ]
-                ]
-                [ HH.div
-                    [ Style.style $ do
-                        tell
-                          [ "padding: 0.5em"
-                          , "background-color: color-mix(in hsl, saddlebrown, transparent 80%)"
-                          ]
-                    ]
-                    [ resource ]
-                ]
-            ]
+        , source # maybe [] pure
         ]
 
 renderDoc (Fix (String opts args)) = do
@@ -331,13 +309,16 @@ renderResource (Resource opts args) = do
                         [ HP.href url
                         , Style.style do tell [ "word-wrap: word-break" ]
                         ]
-                        [ HH.text url ]
+                        -- [ HH.text url ]
+                        [ HH.text "url" ]
                     ]
                 , misc: \str -> [ HH.text str ]
                 }
             )
         ]
 
+-- TODO: keep track of section section_depth and section_index
+-- TODO: make collapseable (should start collapsed, actually)
 renderTableOfContents :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
 renderTableOfContents doc =
   do
@@ -421,6 +402,30 @@ renderSectionTitle { section_depth, section_index, id, title } =
                 [ HH.text $ "§" ]
             ]
           ]
+      ]
+
+renderResourceNote :: forall m. MonadReader Ctx m => MonadState Env m => Resource -> m HTML
+renderResourceNote resource_ = do
+  resource <- resource_ # renderResource
+  pure $
+    HH.div
+      [ Style.style $ do
+          tell
+            [ "padding-left: 40%"
+            , "padding-right: 10%"
+            , "display: flex"
+            , "flex-direction: column"
+            , "align-items: flex-end"
+            ]
+      ]
+      [ HH.div
+          [ Style.style $ do
+              tell
+                [ "padding: 0.5em"
+                , "background-color: color-mix(in hsl, saddlebrown, transparent 80%)"
+                ]
+          ]
+          [ resource ]
       ]
 
 renderBibliography :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
