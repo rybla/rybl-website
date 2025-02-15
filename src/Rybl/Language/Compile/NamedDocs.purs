@@ -1,19 +1,15 @@
-module Rybl.Compile.NamedDocs where
+module Rybl.Language.Compile.NamedDocs where
 
 import Prelude
+import Rybl.Language.Compile.Common
 
-import Data.Array as Array
-import Data.Foldable (fold)
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Newtype (wrap)
-import Data.String as String
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 import Effect.Aff (Aff)
-import Rybl.Compile.Common (linkExternal, linkInternal, page, paragraph, ref, section, sentence, string)
-import Rybl.Compile.Common as Compile.Common
-import Rybl.Data.Variant (inj', inj'U)
+import Rybl.Data.Variant (inj'U)
 import Rybl.Language (Doc, RefId(..))
 
 namedDocs :: Aff (Map RefId Doc)
@@ -67,7 +63,7 @@ namedDocs =
           ]
     ]
   where
-  item str m = Tuple (RefId str) (Compile.Common.runM str m)
+  item str m = Tuple (RefId str) (runM str m)
 
 -- namedDocs :: Map String Doc
 -- namedDocs = Map.fromFoldable

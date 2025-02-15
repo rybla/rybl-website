@@ -7,7 +7,7 @@ import Data.FoldableWithIndex (traverseWithIndex_)
 import Effect (Effect)
 import Effect.Aff (launchAff_)
 import Effect.Class.Console as Console
-import Rybl.Compile.NamedDocs (namedDocs)
+import Rybl.Language.Compile.NamedDocs (namedDocs)
 import Rybl.Constants (assets_dir, compile_input_dir, compile_output_dir, serve_dir)
 import Rybl.Language (RefId(..))
 import Rybl.Node (writeTextFile)

@@ -1,4 +1,4 @@
-module Rybl.Compile.Common where
+module Rybl.Language.Compile.Common where
 
 import Prelude
 
