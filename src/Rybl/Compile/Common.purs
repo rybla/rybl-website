@@ -6,20 +6,17 @@ import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.Reader (ReaderT, runReaderT)
 import Control.Monad.State (StateT, get, modify_, runStateT)
 import Data.Array as Array
-import Data.Either (Either(..), either, fromRight')
-import Data.Either.Nested (type (\/))
+import Data.Either (either)
 import Data.Maybe (Maybe(..), fromMaybe')
-import Data.Tuple.Nested (type (/\), (/\))
+import Data.Tuple.Nested ((/\))
 import Data.Unfoldable (none)
-import Effect.Aff (Aff)
 import Effect.Aff as Aff
 import Effect.Aff.Class (class MonadAff, liftAff)
-import Prim.Row (class Cons, class Nub, class Union)
+import Prim.Row (class Nub, class Union)
 import Record as R
-import Rybl.Language (CodeBlockOpts, CodeBlockPrms, Doc, ErrorOpts, ErrorPrms, ImagePrms, LinkExternalOpts, LinkExternalPrms, LinkInternalOpts, LinkInternalPrms, MathBlockOpts, MathBlockPrms, PageOpts, PagePrms, ParagraphOpts, ParagraphPrms, QuoteBlockOpts, QuoteBlockPrms, RefId, RefOpts, RefPrms, Resource(..), SectionOpts, SectionPrms, SentenceOpts, SentencePrms, SidenoteOpts, SidenotePrms, StringOpts, StringPrms, StringStyle, ImageOpts)
+import Rybl.Language (CodeBlockOpts, CodeBlockPrms, Doc, ErrorOpts, ErrorPrms, ImageOpts, ImagePrms, LinkExternalOpts, LinkExternalPrms, LinkInternalOpts, LinkInternalPrms, MathBlockOpts, MathBlockPrms, PageOpts, PagePrms, ParagraphOpts, ParagraphPrms, QuoteBlockOpts, QuoteBlockPrms, RefId, RefOpts, RefPrms, Resource, SectionOpts, SectionPrms, SentenceOpts, SentencePrms, SidenoteOpts, SidenotePrms, StringOpts, StringPrms, StringStyle)
 import Rybl.Language as RL
-import Rybl.Utility (bug, encodeURIComponent_nicely, todo)
-import Type.Proxy (Proxy(..))
+import Rybl.Utility (bug, encodeURIComponent_nicely)
 import Web.URL as URL
 
 --------------------------------------------------------------------------------

@@ -101,9 +101,6 @@ type QuoteBlockPrms = () :: Row Type
 type MathBlockOpts = (source :: Maybe Resource)
 type MathBlockPrms = (value :: String)
 
--- type ImageOpts_ r = (source :: Maybe Resource | r)
--- type ImageOpts = ImageOpts_ ()
--- type ImageOpts_input = ImageOpts_ (caption :: Maybe Doc)
 type ImageOpts = (source :: Maybe Resource)
 type ImagePrms = (url :: String)
 
