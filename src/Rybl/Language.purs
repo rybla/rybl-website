@@ -2,7 +2,7 @@ module Rybl.Language where
 
 import Prelude
 
-import Data.Argonaut (class DecodeJson, class EncodeJson, decodeJson)
+import Data.Argonaut (class DecodeJson, class EncodeJson)
 import Data.Argonaut.Decode.Generic (genericDecodeJson)
 import Data.Argonaut.Encode.Generic (genericEncodeJson)
 import Data.Array.ST as ArrayST
@@ -18,7 +18,7 @@ import Record as R
 import Rybl.Data.Fix (Fix)
 import Rybl.Data.Fix as Fix
 import Rybl.Data.Variant (Variant)
-import Rybl.Utility (U, todo)
+import Rybl.Utility (U)
 import Type.Prelude (Proxy(..))
 
 newtype RefId = RefId String
