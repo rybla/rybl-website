@@ -19,7 +19,6 @@ import Rybl.Data.Fix (Fix)
 import Rybl.Data.Fix as Fix
 import Rybl.Data.Variant (Variant)
 import Rybl.Utility (U)
-import Type.Prelude (Proxy(..))
 
 --------------------------------------------------------------------------------
 -- Doc
@@ -79,10 +78,10 @@ type SentenceOpts = () :: Row Type
 type SentencePrms = () :: Row Type
 
 type LinkExternalOpts = (favicon_url :: Maybe String, source :: Maybe Resource, url :: Maybe String)
-type LinkExternalPrms = ()
+type LinkExternalPrms = () :: Row Type
 
 type LinkInternalOpts = (source :: Maybe Resource, refId :: Maybe RefId)
-type LinkInternalPrms = ()
+type LinkInternalPrms = () :: Row Type
 
 type SidenoteOpts = () :: Row Type
 type SidenotePrms = () :: Row Type
@@ -102,9 +101,10 @@ type QuoteBlockPrms = () :: Row Type
 type MathBlockOpts = (source :: Maybe Resource)
 type MathBlockPrms = (value :: String)
 
-type ImageOpts_ r = (source :: Maybe Resource | r)
-type ImageOpts = ImageOpts_ ()
-type ImageOpts_input = ImageOpts_ (caption :: Maybe Doc)
+-- type ImageOpts_ r = (source :: Maybe Resource | r)
+-- type ImageOpts = ImageOpts_ ()
+-- type ImageOpts_input = ImageOpts_ (caption :: Maybe Doc)
+type ImageOpts = (source :: Maybe Resource)
 type ImagePrms = (url :: String)
 
 type ErrorOpts = () :: Row Type
@@ -158,53 +158,54 @@ resource opts name = Resource (opts `R.merge` { date: Nothing @String, content: 
 -- Doc builders
 --------------------------------------------------------------------------------
 
-page :: forall r r'. Union r PageOpts r' => Nub r' PageOpts => Record r -> Record PagePrms -> Array Doc -> Doc
-page opts prms body = Fix.wrap $ Page (opts `R.merge` {}) prms body
+page :: Record PageOpts -> Record PagePrms -> Array Doc -> Doc
+page opts prms body = Fix.wrap $ Page opts prms body
 
-section :: forall r r'. Union r SectionOpts r' => Nub r' SectionOpts => Record r -> Record SectionPrms -> Array Doc -> Doc
-section opts prms body = Fix.wrap $ Section (opts `R.merge` {}) prms body
+section :: Record SectionOpts -> Record SectionPrms -> Array Doc -> Doc
+section opts prms body = Fix.wrap $ Section opts prms body
 
-paragraph :: forall r r'. Union r ParagraphOpts r' => Nub r' ParagraphOpts => Record r -> Record ParagraphPrms -> Array Doc -> Doc
-paragraph opts prms body = Fix.wrap $ Paragraph (opts `R.merge` {}) prms body
+paragraph :: Record ParagraphOpts -> Record ParagraphPrms -> Array Doc -> Doc
+paragraph opts prms body = Fix.wrap $ Paragraph opts prms body
 
-sentence :: forall r r'. Union r SentenceOpts r' => Nub r' SentenceOpts => Record r -> Record SentencePrms -> Array Doc -> Doc
-sentence opts prms body = Fix.wrap $ Sentence (opts `R.merge` {}) prms body
+sentence :: Record SentenceOpts -> Record SentencePrms -> Array Doc -> Doc
+sentence opts prms body = Fix.wrap $ Sentence opts prms body
 
-linkExternal :: forall r r'. Union r LinkExternalOpts r' => Nub r' LinkExternalOpts => Record r -> Record LinkExternalPrms -> Doc -> Doc
+linkExternal :: Record LinkExternalOpts -> Record LinkExternalPrms -> Doc -> Doc
 linkExternal opts prms label = Fix.wrap $ LinkExternal (opts `R.merge` { favicon_url: Nothing @String, source: Nothing @Resource, url: Nothing @String }) prms label
 
-linkInternal :: forall r r'. Union r LinkInternalOpts r' => Nub r' LinkInternalOpts => Record r -> Record LinkInternalPrms -> Doc -> Doc
+linkInternal :: Record LinkInternalOpts -> Record LinkInternalPrms -> Doc -> Doc
 linkInternal opts prms label = Fix.wrap $ LinkInternal (opts `R.merge` { source: Nothing @Resource, refId: Nothing @RefId }) prms label
 
-sidenote :: forall r r'. Union r SidenoteOpts r' => Nub r' SidenoteOpts => Record r -> Record SidenotePrms -> Doc -> Doc -> Doc
-sidenote opts prms label body = Fix.wrap $ Sidenote (opts `R.merge` {}) prms label body
+sidenote :: Record SidenoteOpts -> Record SidenotePrms -> Doc -> Doc -> Doc
+sidenote opts prms label body = Fix.wrap $ Sidenote opts prms label body
 
-ref :: forall r r'. Union r RefOpts r' => Nub r' RefOpts => Record r -> Record RefPrms -> Doc
-ref opts prms = Fix.wrap $ Ref (opts `R.merge` {}) prms
+ref :: Record RefOpts -> Record RefPrms -> Doc
+ref opts prms = Fix.wrap $ Ref opts prms
 
-string :: forall r r'. Union r StringOpts r' => Nub r' StringOpts => Record r -> Record StringPrms -> Doc
-string opts prms = Fix.wrap $ String (opts `R.merge` { style: Nothing @StringStyle }) prms
+string :: Record StringOpts -> Record StringPrms -> Doc
+string opts prms = Fix.wrap $ String opts prms
 
-codeBlock :: forall r r'. Union r CodeBlockOpts r' => Nub r' CodeBlockOpts => Record r -> Record CodeBlockPrms -> Doc
-codeBlock opts prms = Fix.wrap $ CodeBlock (opts `R.merge` { source: Nothing @Resource }) prms
+codeBlock :: Record CodeBlockOpts -> Record CodeBlockPrms -> Doc
+codeBlock opts prms = Fix.wrap $ CodeBlock opts prms
 
-quoteBlock :: forall r r'. Union r QuoteBlockOpts r' => Nub r' QuoteBlockOpts => Record r -> Record QuoteBlockPrms -> Doc -> Doc
-quoteBlock opts prms body = Fix.wrap $ QuoteBlock (R.merge opts { source: Nothing @Resource }) prms body
+quoteBlock :: Record QuoteBlockOpts -> Record QuoteBlockPrms -> Doc -> Doc
+quoteBlock opts prms body = Fix.wrap $ QuoteBlock opts prms body
 
-mathBlock :: forall r r'. Union r MathBlockOpts r' => Nub r' MathBlockOpts => Record r -> Record MathBlockPrms -> Doc
-mathBlock opts prms = Fix.wrap $ MathBlock (opts `R.merge` { source: Nothing @Resource }) prms
+mathBlock :: Record MathBlockOpts -> Record MathBlockPrms -> Doc
+mathBlock opts prms = Fix.wrap $ MathBlock opts prms
 
-image :: forall r r'. Union r ImageOpts_input r' => Nub r' ImageOpts_input => Record r -> Record ImagePrms -> Doc
-image opts prms = Fix.wrap $ Image opts_output prms opts_input.caption
-  where
-  opts_input :: Record (ImageOpts_ (caption :: Maybe Doc))
-  opts_input = opts `R.merge` { source: Nothing @Resource, caption: Nothing @Doc }
+image :: Record ImageOpts -> Record ImagePrms -> Maybe Doc -> Doc
+image opts prms caption = Fix.wrap $ Image opts prms caption
 
-  opts_output :: Record (ImageOpts_ ())
-  opts_output = R.delete (Proxy @"caption") opts_input
+-- where
+-- opts_input :: Record (ImageOpts_ (caption :: Maybe Doc))
+-- opts_input = opts `R.merge` { source: Nothing @Resource, caption: Nothing @Doc }
 
-error :: forall r r'. Union r ErrorOpts r' => Nub r' ErrorOpts => Record r -> Record ErrorPrms -> Doc -> Doc
-error opts prms body = Fix.wrap $ Error (opts `R.merge` {}) prms body
+-- opts_output :: Record (ImageOpts_ ())
+-- opts_output = R.delete (Proxy @"caption") opts_input
+
+error :: Record ErrorOpts -> Record ErrorPrms -> Doc -> Doc
+error opts prms body = Fix.wrap $ Error opts prms body
 
 --------------------------------------------------------------------------------
 
