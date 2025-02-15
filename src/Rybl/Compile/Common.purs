@@ -8,7 +8,7 @@ import Control.Monad.State (StateT, get, modify_, runStateT)
 import Data.Array as Array
 import Data.Either (Either(..), either, fromRight')
 import Data.Either.Nested (type (\/))
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), fromMaybe')
 import Data.Tuple.Nested (type (/\), (/\))
 import Data.Unfoldable (none)
 import Effect.Aff (Aff)
@@ -18,8 +18,9 @@ import Prim.Row (class Cons, class Nub, class Union)
 import Record as R
 import Rybl.Language (CodeBlockOpts, CodeBlockPrms, Doc, ErrorOpts, ErrorPrms, ImagePrms, LinkExternalOpts, LinkExternalPrms, LinkInternalOpts, LinkInternalPrms, MathBlockOpts, MathBlockPrms, PageOpts, PagePrms, ParagraphOpts, ParagraphPrms, QuoteBlockOpts, QuoteBlockPrms, RefId, RefOpts, RefPrms, Resource(..), SectionOpts, SectionPrms, SentenceOpts, SentencePrms, SidenoteOpts, SidenotePrms, StringOpts, StringPrms, StringStyle, ImageOpts)
 import Rybl.Language as RL
-import Rybl.Utility (encodeURIComponent_nicely, todo)
+import Rybl.Utility (bug, encodeURIComponent_nicely, todo)
 import Type.Proxy (Proxy(..))
+import Web.URL as URL
 
 --------------------------------------------------------------------------------
 -- types
@@ -82,32 +83,17 @@ sentence opts prms body = RL.sentence (opts `R.merge` {}) prms <$> body
 type LinkExternalPrmsRequired = () :: Row Type
 
 linkExternal :: forall opts opts' prms m. Union opts LinkExternalOpts opts' => Nub opts' LinkExternalOpts => Union LinkExternalPrmsRequired LinkExternalPrms prms => Nub prms LinkExternalPrms => MonadAff m => Record opts -> Record LinkExternalPrmsRequired -> M m Doc -> M m Doc
-linkExternal opts prms label = RL.linkExternal (opts `R.merge` { favicon_url: Nothing @String, source: Nothing @Resource, url: Nothing @String }) prms <$> label
+linkExternal opts prms label = do
+  let opts' = opts `R.merge` { favicon_url: Nothing @String, source: Nothing @Resource, url: Nothing @String }
+  opts'' <- case opts'.url /\ opts'.favicon_url of
+    Nothing /\ _ -> pure opts'
+    Just _ /\ Just _ -> pure opts'
+    Just url_ /\ Nothing -> do
+      let url = URL.fromAbsolute url_ # fromMaybe' \_ -> bug $ "invalid href: " <> show url_
+      let favicon_url = "https://www.google.com/s2/favicons?domain=" <> (url # URL.protocol) <> "//" <> (url # URL.hostname)
+      pure opts' { favicon_url = Just favicon_url }
+  RL.linkExternal opts'' prms <$> label
 
--- linkExternal
---   :: forall opts opts' opts_tmp opts_tmp_ prms m
---    . Union opts LinkExternalOpts opts'
---   => Nub opts' LinkExternalOpts
---   => Union opts (url :: Maybe String, favicon_url :: Maybe String) opts_tmp
---   => Nub opts_tmp (url :: Maybe String, favicon_url :: Maybe String | opts_tmp_)
---   => Union LinkExternalPrmsRequired LinkExternalPrms prms
---   => Nub prms LinkExternalPrms
---   => MonadAff m
---   => Record opts
---   -> Record LinkExternalPrmsRequired
---   -> M m Doc
---   -> M m Doc
--- linkExternal opts prms label = do
---   -- -- TODO: if url provided, then look for favicon
---   -- let
---   --   opts_tmp_ :: Record (url :: Maybe String, favicon_url :: Maybe String | opts_tmp_)
---   --   opts_tmp_ = opts `R.merge` { url: Nothing @String, favicon_url: Nothing @String }
---   -- favicon_url <- case opts_tmp_.url /\ opts_tmp_.favicon_url of
---   --   Nothing /\ _ -> pure Nothing
---   --   _ /\ Just favicon_url -> pure $ Just favicon_url
---   --   Just url /\ Nothing -> ?a
---   -- RL.linkExternal opts prms <$> label
---   todo ""
 type LinkInternalPrmsRequired = () :: Row Type
 
 linkInternal :: forall opts opts' prms m. Union opts LinkInternalOpts opts' => Nub opts' LinkInternalOpts => Union LinkInternalPrmsRequired LinkInternalPrms prms => Nub prms LinkInternalPrms => MonadAff m => Record opts -> Record LinkInternalPrmsRequired -> M m Doc -> M m Doc

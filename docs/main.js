@@ -1231,24 +1231,24 @@
       return { value: val };
     };
   };
-  var read = function(ref4) {
+  var read = function(ref3) {
     return function() {
-      return ref4.value;
+      return ref3.value;
     };
   };
   var modifyImpl = function(f) {
-    return function(ref4) {
+    return function(ref3) {
       return function() {
-        var t = f(ref4.value);
-        ref4.value = t.state;
+        var t = f(ref3.value);
+        ref3.value = t.state;
         return t.value;
       };
     };
   };
   var write = function(val) {
-    return function(ref4) {
+    return function(ref3) {
       return function() {
-        ref4.value = val;
+        ref3.value = val;
       };
     };
   };
@@ -3746,22 +3746,6 @@
     }())(decodeJArray);
   };
 
-  // output/Record.Unsafe.Union/foreign.js
-  function unsafeUnionFn(r1, r2) {
-    var copy2 = {};
-    for (var k1 in r2) {
-      if ({}.hasOwnProperty.call(r2, k1)) {
-        copy2[k1] = r2[k1];
-      }
-    }
-    for (var k2 in r1) {
-      if ({}.hasOwnProperty.call(r1, k2)) {
-        copy2[k2] = r1[k2];
-      }
-    }
-    return copy2;
-  }
-
   // output/Record/index.js
   var set = function(dictIsSymbol) {
     var reflectSymbol2 = reflectSymbol(dictIsSymbol);
@@ -3773,15 +3757,6 @@
               return unsafeSet(reflectSymbol2(l))(b2)(r);
             };
           };
-        };
-      };
-    };
-  };
-  var merge = function() {
-    return function() {
-      return function(l) {
-        return function(r) {
-          return unsafeUnionFn(l, r);
         };
       };
     };
@@ -4082,30 +4057,30 @@
       fn.tag = tag;
       return fn;
     }
-    function nonCanceler2(error7) {
+    function nonCanceler2(error5) {
       return new Aff2(PURE, void 0);
     }
     function runEff(eff) {
       try {
         eff();
-      } catch (error7) {
+      } catch (error5) {
         setTimeout(function() {
-          throw error7;
+          throw error5;
         }, 0);
       }
     }
     function runSync(left2, right2, eff) {
       try {
         return right2(eff());
-      } catch (error7) {
-        return left2(error7);
+      } catch (error5) {
+        return left2(error5);
       }
     }
     function runAsync(left2, eff, k) {
       try {
         return eff(k)();
-      } catch (error7) {
-        k(left2(error7))();
+      } catch (error5) {
+        k(left2(error5))();
         return nonCanceler2;
       }
     }
@@ -4200,7 +4175,7 @@
             fibers = {};
             fiberId = 0;
             count = 0;
-            return function(error7) {
+            return function(error5) {
               return new Aff2(SYNC, function() {
                 for (var k2 in kills) {
                   if (kills.hasOwnProperty(k2)) {
@@ -4484,7 +4459,7 @@
           };
         };
       }
-      function kill2(error7, cb) {
+      function kill2(error5, cb) {
         return function() {
           if (status2 === COMPLETED) {
             cb(util.right(void 0))();
@@ -4499,18 +4474,18 @@
           })();
           switch (status2) {
             case SUSPENDED:
-              interrupt = util.left(error7);
+              interrupt = util.left(error5);
               status2 = COMPLETED;
               step3 = interrupt;
               run3(runTick);
               break;
             case PENDING:
               if (interrupt === null) {
-                interrupt = util.left(error7);
+                interrupt = util.left(error5);
               }
               if (bracketCount === 0) {
                 if (status2 === PENDING) {
-                  attempts = new Aff2(CONS, new Aff2(FINALIZER, step3(error7)), attempts, interrupt);
+                  attempts = new Aff2(CONS, new Aff2(FINALIZER, step3(error5)), attempts, interrupt);
                 }
                 status2 = RETURN;
                 step3 = null;
@@ -4520,7 +4495,7 @@
               break;
             default:
               if (interrupt === null) {
-                interrupt = util.left(error7);
+                interrupt = util.left(error5);
               }
               if (bracketCount === 0) {
                 status2 = RETURN;
@@ -4571,7 +4546,7 @@
       var early = new Error("[ParAff] Early exit");
       var interrupt = null;
       var root = EMPTY;
-      function kill2(error7, par2, cb2) {
+      function kill2(error5, par2, cb2) {
         var step3 = par2;
         var head3 = null;
         var tail2 = null;
@@ -4584,7 +4559,7 @@
             case FORKED:
               if (step3._3 === EMPTY) {
                 tmp = fibers[step3._1];
-                kills2[count++] = tmp.kill(error7, function(result) {
+                kills2[count++] = tmp.kill(error5, function(result) {
                   return function() {
                     count--;
                     if (count === 0) {
@@ -4816,8 +4791,8 @@
           fibers[fid].run();
         }
       }
-      function cancel(error7, cb2) {
-        interrupt = util.left(error7);
+      function cancel(error5, cb2) {
+        interrupt = util.left(error5);
         var innerKills;
         for (var kid in kills) {
           if (kills.hasOwnProperty(kid)) {
@@ -4830,7 +4805,7 @@
           }
         }
         kills = null;
-        var newKills = kill2(error7, root, cb2);
+        var newKills = kill2(error5, root, cb2);
         return function(killError) {
           return new Aff2(ASYNC, function(killCb) {
             return function() {
@@ -6835,14 +6810,14 @@
               return v2;
             }
             ;
-            var ref4 = $$new(v2.value1)();
+            var ref3 = $$new(v2.value1)();
             var listener = eventListener(function(ev) {
               return function __do2() {
-                var f$prime = read(ref4)();
+                var f$prime = read(ref3)();
                 return mbEmit(f$prime(ev));
               };
             })();
-            pokeMutMap(v2.value0, new Tuple(listener, ref4), events);
+            pokeMutMap(v2.value0, new Tuple(listener, ref3), events);
             addEventListener2(v2.value0, listener, el);
             return v2;
           }
@@ -8314,23 +8289,23 @@
   var foldFree2 = /* @__PURE__ */ foldFree(monadRecAff);
   var alter2 = /* @__PURE__ */ alter(ordString);
   var unsubscribe3 = function(sid) {
-    return function(ref4) {
+    return function(ref3) {
       return function __do2() {
-        var v = read(ref4)();
+        var v = read(ref3)();
         var subs = read(v.subscriptions)();
         return traverse_5(unsubscribe)(bindFlipped5(lookup5(sid))(subs))();
       };
     };
   };
-  var queueOrRun = function(ref4) {
+  var queueOrRun = function(ref3) {
     return function(au) {
-      return bind12(liftEffect4(read(ref4)))(function(v) {
+      return bind12(liftEffect4(read(ref3)))(function(v) {
         if (v instanceof Nothing) {
           return au;
         }
         ;
         if (v instanceof Just) {
-          return liftEffect4(write(new Just(new Cons(au, v.value0)))(ref4));
+          return liftEffect4(write(new Just(new Cons(au, v.value0)))(ref3));
         }
         ;
         throw new Error("Failed pattern match at Halogen.Aff.Driver.Eval (line 188, column 33 - line 190, column 57): " + [v.constructor.name]);
@@ -8357,8 +8332,8 @@
   };
   var handleAff = /* @__PURE__ */ runAff_(/* @__PURE__ */ either(throwException)(/* @__PURE__ */ $$const(/* @__PURE__ */ pure(applicativeEffect)(unit))));
   var fresh = function(f) {
-    return function(ref4) {
-      return bind12(liftEffect4(read(ref4)))(function(v) {
+    return function(ref3) {
+      return bind12(liftEffect4(read(ref3)))(function(v) {
         return liftEffect4(modify$prime(function(i2) {
           return {
             state: i2 + 1 | 0,
@@ -8369,10 +8344,10 @@
     };
   };
   var evalQ = function(render) {
-    return function(ref4) {
+    return function(ref3) {
       return function(q2) {
-        return bind12(liftEffect4(read(ref4)))(function(v) {
-          return evalM(render)(ref4)(v["component"]["eval"](new Query(map24(Just.create)(liftCoyoneda(q2)), $$const(Nothing.value))));
+        return bind12(liftEffect4(read(ref3)))(function(v) {
+          return evalM(render)(ref3)(v["component"]["eval"](new Query(map24(Just.create)(liftCoyoneda(q2)), $$const(Nothing.value))));
         });
       };
     };
@@ -8380,9 +8355,9 @@
   var evalM = function(render) {
     return function(initRef) {
       return function(v) {
-        var evalChildQuery = function(ref4) {
+        var evalChildQuery = function(ref3) {
           return function(cqb) {
-            return bind12(liftEffect4(read(ref4)))(function(v1) {
+            return bind12(liftEffect4(read(ref3)))(function(v1) {
               return unChildQueryBox(function(v2) {
                 var evalChild = function(v3) {
                   return parallel3(bind12(liftEffect4(read(v3)))(function(dsx) {
@@ -8396,10 +8371,10 @@
             });
           };
         };
-        var go2 = function(ref4) {
+        var go2 = function(ref3) {
           return function(v1) {
             if (v1 instanceof State) {
-              return bind12(liftEffect4(read(ref4)))(function(v2) {
+              return bind12(liftEffect4(read(ref3)))(function(v2) {
                 var v3 = v1.value0(v2.state);
                 if (unsafeRefEq(v2.state)(v3.value1)) {
                   return pure7(v3.value0);
@@ -8423,8 +8398,8 @@
                     forks: v2.forks,
                     lifecycleHandlers: v2.lifecycleHandlers,
                     state: v3.value1
-                  })(ref4)))(function() {
-                    return discard1(handleLifecycle(v2.lifecycleHandlers)(render(v2.lifecycleHandlers)(ref4)))(function() {
+                  })(ref3)))(function() {
+                    return discard1(handleLifecycle(v2.lifecycleHandlers)(render(v2.lifecycleHandlers)(ref3)))(function() {
                       return pure7(v3.value0);
                     });
                   });
@@ -8435,11 +8410,11 @@
             }
             ;
             if (v1 instanceof Subscribe) {
-              return bind12(fresh(SubscriptionId)(ref4))(function(sid) {
+              return bind12(fresh(SubscriptionId)(ref3))(function(sid) {
                 return bind12(liftEffect4(subscribe(v1.value0(sid))(function(act) {
-                  return handleAff(evalF(render)(ref4)(new Action(act)));
+                  return handleAff(evalF(render)(ref3)(new Action(act)));
                 })))(function(finalize) {
-                  return bind12(liftEffect4(read(ref4)))(function(v2) {
+                  return bind12(liftEffect4(read(ref3)))(function(v2) {
                     return discard1(liftEffect4(modify_(map25(insert7(sid)(finalize)))(v2.subscriptions)))(function() {
                       return pure7(v1.value1(sid));
                     });
@@ -8449,7 +8424,7 @@
             }
             ;
             if (v1 instanceof Unsubscribe) {
-              return discard1(liftEffect4(unsubscribe3(v1.value0)(ref4)))(function() {
+              return discard1(liftEffect4(unsubscribe3(v1.value0)(ref3)))(function() {
                 return pure7(v1.value1);
               });
             }
@@ -8459,11 +8434,11 @@
             }
             ;
             if (v1 instanceof ChildQuery2) {
-              return evalChildQuery(ref4)(v1.value0);
+              return evalChildQuery(ref3)(v1.value0);
             }
             ;
             if (v1 instanceof Raise) {
-              return bind12(liftEffect4(read(ref4)))(function(v2) {
+              return bind12(liftEffect4(read(ref3)))(function(v2) {
                 return bind12(liftEffect4(read(v2.handlerRef)))(function(handler3) {
                   return discard1(queueOrRun(v2.pendingOuts)(handler3(v1.value0)))(function() {
                     return pure7(v1.value1);
@@ -8474,7 +8449,7 @@
             ;
             if (v1 instanceof Par) {
               return sequential2(retractFreeAp2(hoistFreeAp(function() {
-                var $119 = evalM(render)(ref4);
+                var $119 = evalM(render)(ref3);
                 return function($120) {
                   return parallel3($119($120));
                 };
@@ -8482,13 +8457,13 @@
             }
             ;
             if (v1 instanceof Fork) {
-              return bind12(fresh(ForkId)(ref4))(function(fid) {
-                return bind12(liftEffect4(read(ref4)))(function(v2) {
+              return bind12(fresh(ForkId)(ref3))(function(fid) {
+                return bind12(liftEffect4(read(ref3)))(function(v2) {
                   return bind12(liftEffect4($$new(false)))(function(doneRef) {
                     return bind12(fork3($$finally(liftEffect4(function __do2() {
                       modify_($$delete5(fid))(v2.forks)();
                       return write(true)(doneRef)();
-                    }))(evalM(render)(ref4)(v1.value0))))(function(fiber) {
+                    }))(evalM(render)(ref3)(v1.value0))))(function(fiber) {
                       return discard1(liftEffect4(unlessM2(read(doneRef))(modify_(insert12(fid)(fiber))(v2.forks))))(function() {
                         return pure7(v1.value1(fid));
                       });
@@ -8499,7 +8474,7 @@
             }
             ;
             if (v1 instanceof Join) {
-              return bind12(liftEffect4(read(ref4)))(function(v2) {
+              return bind12(liftEffect4(read(ref3)))(function(v2) {
                 return bind12(liftEffect4(read(v2.forks)))(function(forkMap) {
                   return discard1(traverse_32(joinFiber)(lookup12(v1.value0)(forkMap)))(function() {
                     return pure7(v1.value1);
@@ -8509,7 +8484,7 @@
             }
             ;
             if (v1 instanceof Kill) {
-              return bind12(liftEffect4(read(ref4)))(function(v2) {
+              return bind12(liftEffect4(read(ref3)))(function(v2) {
                 return bind12(liftEffect4(read(v2.forks)))(function(forkMap) {
                   return discard1(traverse_32(killFiber(error("Cancelled")))(lookup12(v1.value0)(forkMap)))(function() {
                     return pure7(v1.value1);
@@ -8519,7 +8494,7 @@
             }
             ;
             if (v1 instanceof GetRef) {
-              return bind12(liftEffect4(read(ref4)))(function(v2) {
+              return bind12(liftEffect4(read(ref3)))(function(v2) {
                 return pure7(v1.value1(lookup22(v1.value0)(v2.refs)));
               });
             }
@@ -8532,10 +8507,10 @@
     };
   };
   var evalF = function(render) {
-    return function(ref4) {
+    return function(ref3) {
       return function(v) {
         if (v instanceof RefUpdate) {
-          return liftEffect4(flip(modify_)(ref4)(mapDriverState(function(st) {
+          return liftEffect4(flip(modify_)(ref3)(mapDriverState(function(st) {
             return {
               component: st.component,
               state: st.state,
@@ -8558,8 +8533,8 @@
         }
         ;
         if (v instanceof Action) {
-          return bind12(liftEffect4(read(ref4)))(function(v1) {
-            return evalM(render)(ref4)(v1["component"]["eval"](new Action2(v.value0, unit)));
+          return bind12(liftEffect4(read(ref3)))(function(v1) {
+            return evalM(render)(ref3)(v1["component"]["eval"](new Action2(v.value0, unit)));
           });
         }
         ;
@@ -8599,10 +8574,10 @@
       finalizers: Nil.value
     });
   }();
-  var handlePending = function(ref4) {
+  var handlePending = function(ref3) {
     return function __do2() {
-      var queue = read(ref4)();
-      write(Nothing.value)(ref4)();
+      var queue = read(ref3)();
+      write(Nothing.value)(ref3)();
       return for_2(queue)(function() {
         var $59 = traverse_6(fork4);
         return function($60) {
@@ -8828,14 +8803,14 @@
           });
         };
         var evalDriver = function(disposed) {
-          return function(ref4) {
+          return function(ref3) {
             return function(q2) {
               return bind13(liftEffect5(read(disposed)))(function(v) {
                 if (v) {
                   return pure12(Nothing.value);
                 }
                 ;
-                return evalQ(render)(ref4)(q2);
+                return evalQ(render)(ref3)(q2);
               });
             };
           };
@@ -9805,7 +9780,6 @@
   var decodeRepArgsProduct22 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons3(urlIsSymbol)()())()));
   var decodeRepConstructor9 = /* @__PURE__ */ decodeRepConstructor(ErrorIsSymbol);
   var decodeRepArgsProduct3 = /* @__PURE__ */ decodeRepArgsProduct(/* @__PURE__ */ decodeRepArgsArgument(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons3(labelIsSymbol2)()())()));
-  var merge2 = /* @__PURE__ */ merge()();
   var pure11 = /* @__PURE__ */ pure(applicativeST);
   var $$void8 = /* @__PURE__ */ $$void(functorST);
   var Resource = /* @__PURE__ */ function() {
@@ -10106,7 +10080,7 @@
         return new $$Error(x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1.value0, x.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0.value1.value1);
       }
       ;
-      throw new Error("Failed pattern match at Rybl.Language (line 48, column 1 - line 48, column 38): " + [x.constructor.name]);
+      throw new Error("Failed pattern match at Rybl.Language (line 47, column 1 - line 47, column 38): " + [x.constructor.name]);
     },
     from: function(x) {
       if (x instanceof Page) {
@@ -10165,7 +10139,7 @@
         return new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Inr(new Product(x.value0, new Product(x.value1, x.value2)))))))))))))));
       }
       ;
-      throw new Error("Failed pattern match at Rybl.Language (line 48, column 1 - line 48, column 38): " + [x.constructor.name]);
+      throw new Error("Failed pattern match at Rybl.Language (line 47, column 1 - line 47, column 38): " + [x.constructor.name]);
     }
   };
   var genericDecodeJson1 = /* @__PURE__ */ genericDecodeJson(genericDoc__);
@@ -10562,45 +10536,27 @@
       }
     };
   };
-  var string = function() {
-    return function() {
-      return function(opts) {
-        return function(prms) {
-          return wrap3(new $$String(merge2(opts)({
-            style: Nothing.value
-          }), prms));
-        };
+  var string = function(opts) {
+    return function(prms) {
+      return wrap3(new $$String(opts, prms));
+    };
+  };
+  var section2 = function(opts) {
+    return function(prms) {
+      return function(body4) {
+        return wrap3(new Section(opts, prms, body4));
       };
     };
   };
-  var section2 = function() {
-    return function() {
-      return function(opts) {
-        return function(prms) {
-          return function(body4) {
-            return wrap3(new Section(merge2(opts)({}), prms, body4));
-          };
-        };
-      };
+  var ref2 = function(opts) {
+    return function(prms) {
+      return wrap3(new Ref2(opts, prms));
     };
   };
-  var ref2 = function() {
-    return function() {
-      return function(opts) {
-        return function(prms) {
-          return wrap3(new Ref2(merge2(opts)({}), prms));
-        };
-      };
-    };
-  };
-  var error3 = function() {
-    return function() {
-      return function(opts) {
-        return function(prms) {
-          return function(body4) {
-            return wrap3(new $$Error(merge2(opts)({}), prms, body4));
-          };
-        };
+  var error3 = function(opts) {
+    return function(prms) {
+      return function(body4) {
+        return wrap3(new $$Error(opts, prms, body4));
       };
     };
   };
@@ -11039,9 +10995,9 @@
   }
 
   // output/Promise.Rejection/foreign.js
-  function _toError(just, nothing, ref4) {
-    if (ref4 instanceof Error) {
-      return just(ref4);
+  function _toError(just, nothing, ref3) {
+    if (ref3 instanceof Error) {
+      return just(ref3);
     }
     return nothing;
   }
@@ -11727,8 +11683,6 @@
   })(toCoreRequestOptionsHelpe)()()));
   var unwrap7 = /* @__PURE__ */ unwrap();
   var insert9 = /* @__PURE__ */ insert2(ordRefId);
-  var error5 = /* @__PURE__ */ error3()();
-  var string2 = /* @__PURE__ */ string()();
   var pure17 = /* @__PURE__ */ pure(applicativeMaybe);
   var inj$primeU2 = /* @__PURE__ */ inj$primeU();
   var inj$primeU1 = /* @__PURE__ */ inj$primeU2({
@@ -11759,8 +11713,8 @@
   var inj$prime1 = /* @__PURE__ */ inj$prime2(initializeIsSymbol);
   var theDocComponent = /* @__PURE__ */ function() {
     var render = function(v) {
-      return mapAction_ComponentHTML(function($155) {
-        return expandCons2(expandCons2($155));
+      return mapAction_ComponentHTML(function($151) {
+        return expandCons2(expandCons2($151));
       })(div2([style3(discard13(tell4(["width: 100%"]))(function() {
         return tell4(["display: flex", "flex-direction: column", "gap: 1em"]);
       }))])([flip(evalState)(v.env)(flip(runReaderT)(v.ctx)(renderDoc2(v.doc)))]));
@@ -11804,11 +11758,11 @@
               return bind11(fetch3("namedDocs/" + (unwrap7(v.value0) + ".json"))({
                 method: GET2.value
               }))(function(response) {
-                var $130 = !response.ok;
-                if ($130) {
-                  return loadRefIds(insert9(v.value0)(error5({})({
+                var $126 = !response.ok;
+                if ($126) {
+                  return loadRefIds(insert9(v.value0)(error3({})({
                     label: "error on fetch"
-                  })(string2({
+                  })(string({
                     style: pure17(inj$primeU1)
                   })({
                     value: response.statusText
@@ -11818,9 +11772,9 @@
                 return bind11(liftAff2(response.text))(function(v1) {
                   var v2 = fromJsonString2(v1);
                   if (v2 instanceof Left) {
-                    return loadRefIds(insert9(v.value0)(error5({})({
+                    return loadRefIds(insert9(v.value0)(error3({})({
                       label: "error on decode"
-                    })(string2({
+                    })(string({
                       style: pure17(inj$primeU1)
                     })({
                       value: show5(v2.value0)
@@ -11844,9 +11798,9 @@
             if (v instanceof Ref2) {
               var v1 = lookup8(v.value1.refId)(namedDocs);
               if (v1 instanceof Nothing) {
-                return pure16(error5({})({
+                return pure16(error3({})({
                   label: "refId not loaded"
-                })(string2({
+                })(string({
                   style: pure17(inj$primeU1)
                 })({
                   value: show13(v.value1.refId)
@@ -11866,8 +11820,8 @@
         var fixpoint = function(namedDocs) {
           return function(doc) {
             return bind11(liftAff2(loadRefIds(empty3)(collectRefIds(doc))))(function(namedDocs$prime) {
-              var $141 = eq4(keys3(namedDocs))(keys3(namedDocs$prime));
-              if ($141) {
+              var $137 = eq4(keys3(namedDocs))(keys3(namedDocs$prime));
+              if ($137) {
                 return pure16(new Tuple(namedDocs, doc));
               }
               ;
@@ -11880,28 +11834,28 @@
         return bind15(get(monadStateHalogenM))(function(v) {
           return bind15(liftAff1(fixpoint(empty3)(v.doc)))(function(v1) {
             return modify_3(function(v2) {
-              var $147 = {};
-              for (var $148 in v2) {
-                if ({}.hasOwnProperty.call(v2, $148)) {
-                  $147[$148] = v2[$148];
+              var $143 = {};
+              for (var $144 in v2) {
+                if ({}.hasOwnProperty.call(v2, $144)) {
+                  $143[$144] = v2[$144];
                 }
                 ;
               }
               ;
-              $147.doc = v1.value1;
-              $147.ctx = function() {
-                var $144 = {};
-                for (var $145 in v2.ctx) {
-                  if ({}.hasOwnProperty.call(v2.ctx, $145)) {
-                    $144[$145] = v2["ctx"][$145];
+              $143.doc = v1.value1;
+              $143.ctx = function() {
+                var $140 = {};
+                for (var $141 in v2.ctx) {
+                  if ({}.hasOwnProperty.call(v2.ctx, $141)) {
+                    $140[$141] = v2["ctx"][$141];
                   }
                   ;
                 }
                 ;
-                $144.namedDocs = v1.value0;
-                return $144;
+                $140.namedDocs = v1.value0;
+                return $140;
               }();
-              return $147;
+              return $143;
             });
           });
         });
@@ -11916,9 +11870,9 @@
       handleQuery: defaultEval.handleQuery,
       finalize: defaultEval.finalize,
       receive: function() {
-        var $156 = inj$prime2(receiveIsSymbol);
-        return function($157) {
-          return pure17($156($157));
+        var $152 = inj$prime2(receiveIsSymbol);
+        return function($153) {
+          return pure17($152($153));
         };
       }(),
       initialize: pure17(inj$primeU2(initializeIsSymbol)),
@@ -11997,7 +11951,6 @@
     }
   };
   var slot_3 = /* @__PURE__ */ slot_()(docIsSymbol)(ordUnit);
-  var ref3 = /* @__PURE__ */ ref2()();
   var wrap4 = /* @__PURE__ */ wrap();
   var inj$prime3 = /* @__PURE__ */ inj$prime();
   var inj$prime12 = /* @__PURE__ */ inj$prime3({
@@ -12018,15 +11971,12 @@
   var liftEffect9 = /* @__PURE__ */ liftEffect(monadEffectHalogenM2);
   var bind17 = /* @__PURE__ */ bind(bindEffect);
   var pure18 = /* @__PURE__ */ pure(applicativeHalogenM);
-  var error6 = /* @__PURE__ */ error3()();
-  var string3 = /* @__PURE__ */ string()();
   var pure24 = /* @__PURE__ */ pure(applicativeMaybe);
   var inj$primeU3 = /* @__PURE__ */ inj$primeU()({
     reflectSymbol: function() {
       return "code";
     }
   });
-  var section3 = /* @__PURE__ */ section2()();
   var intercalate7 = /* @__PURE__ */ intercalate(foldableArray)(monoidString);
   var identity12 = /* @__PURE__ */ identity(categoryFn);
   var fromJsonString3 = /* @__PURE__ */ fromJsonString(/* @__PURE__ */ decodeJsonFix(traversableDoc_)(/* @__PURE__ */ decodeJsonDoc_(decodeJsonJson)));
@@ -12048,7 +11998,7 @@
     };
     var initialState = function(v) {
       return {
-        doc: ref3({})({
+        doc: ref2({})({
           refId: wrap4("index")
         }),
         viewMode: inj$prime12(unit)
@@ -12057,8 +12007,8 @@
     var $lazy_handleAction = $runtime_lazy11("handleAction", "Rybl.App", function() {
       return on$prime3(updateIsSymbol)($$const(discard10(log5("[App.update]"))(function() {
         return bind16(liftEffect9(function __do2() {
-          var $80 = bind17(bind17(windowImpl)(location))(href3)();
-          return fromAbsolute($80);
+          var $72 = bind17(bind17(windowImpl)(location))(href3)();
+          return fromAbsolute($72);
         }))(function(mb_url) {
           return discard10(function() {
             if (mb_url instanceof Nothing) {
@@ -12071,32 +12021,32 @@
                 var v2 = function(v3) {
                   return pure18(unit);
                 };
-                var $70 = get3("doc")(urlSearchParams);
-                if ($70 instanceof Just) {
+                var $62 = get3("doc")(urlSearchParams);
+                if ($62 instanceof Just) {
                   return bind16(function() {
-                    var v3 = $$decodeURI($70.value0);
+                    var v3 = $$decodeURI($62.value0);
                     if (v3 instanceof Nothing) {
-                      return pure18(error6({})({
+                      return pure18(error3({})({
                         label: "decodeURI error"
-                      })(string3({
+                      })(string({
                         style: pure24(inj$primeU3)
                       })({
-                        value: "doc_str = " + ('"""' + ($70.value0 + '"""'))
+                        value: "doc_str = " + ('"""' + ($62.value0 + '"""'))
                       })));
                     }
                     ;
                     if (v3 instanceof Just) {
                       return pure18(either(function(err) {
-                        return error6({})({
+                        return error3({})({
                           label: "JsonDecodeError"
-                        })(section3({})({
+                        })(section2({})({
                           id: "errors",
                           title: "Errors"
-                        })([string3({
+                        })([string({
                           style: pure24(inj$primeU3)
                         })({
                           value: intercalate7("\n")(["doc_str = " + ('"""' + (v3.value0 + '"""'))])
-                        }), string3({
+                        }), string({
                           style: pure24(inj$primeU3)
                         })({
                           value: intercalate7("\n")(["err = " + ('"""' + (printJsonDecodeError(err) + '"""'))])
@@ -12112,22 +12062,22 @@
                 ;
                 return v2(true);
               };
-              var $75 = get3("ref")(urlSearchParams);
-              if ($75 instanceof Just) {
+              var $67 = get3("ref")(urlSearchParams);
+              if ($67 instanceof Just) {
                 return bind16(function() {
-                  var v1 = $$decodeURI($75.value0);
+                  var v1 = $$decodeURI($67.value0);
                   if (v1 instanceof Nothing) {
-                    return pure18(error6({})({
+                    return pure18(error3({})({
                       label: "decodeURI error"
-                    })(string3({
+                    })(string({
                       style: pure24(inj$primeU3)
                     })({
-                      value: "ref_str = " + ('"""' + ($75.value0 + '"""'))
+                      value: "ref_str = " + ('"""' + ($67.value0 + '"""'))
                     })));
                   }
                   ;
                   if (v1 instanceof Just) {
-                    return pure18(ref3({})({
+                    return pure18(ref2({})({
                       refId: wrap4(v1.value0)
                     }));
                   }
