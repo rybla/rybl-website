@@ -6,3 +6,4 @@
   - i want something basically like footnotes, but that are accessible inline
     - on desktop, these could appear to the side of the main content; on mobile these could be tapped in order to be expanded
 - [ ] remove preprocessing step -- the default should just be that a user-defined doc is an `M Aff Doc`, and then any computation necessary happens inside there
+- [ ] tool that converts a parsed Markdown document into my Doc format (for the sake of drafting)

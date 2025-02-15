@@ -102,7 +102,7 @@ resource :: forall r r'. Union r ResourceOpts r' => Nub r' ResourceOpts => Recor
 resource opts name = Resource (opts `R.merge` { date: Nothing @String, content: Nothing @ResourceContent }) { name }
 
 --------------------------------------------------------------------------------
--- Doc constructors
+-- Doc builders
 --------------------------------------------------------------------------------
 
 type PageOpts = (id :: Maybe String) :: Row Type
