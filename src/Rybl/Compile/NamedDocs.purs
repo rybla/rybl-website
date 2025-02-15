@@ -11,7 +11,6 @@ import Data.String as String
 import Data.Tuple (Tuple(..))
 import Rybl.Data.Variant (inj', inj'U)
 import Rybl.Language (Doc, codeBlock, external_link, image, internal_link, mathBlock, page, paragraph, quoteBlock, ref, resource, section, sentence, sidenote, string)
-import Rybl.Utility (todo)
 
 namedDocs :: Map String Doc
 namedDocs = Map.fromFoldable
