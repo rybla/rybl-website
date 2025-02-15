@@ -1,7 +1,6 @@
 module Rybl.Compile.NamedDocs where
 
 import Prelude
-import Rybl.Language
 
 import Data.Array as Array
 import Data.Foldable (fold)
@@ -12,16 +11,63 @@ import Data.String as String
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 import Effect.Aff (Aff)
+import Rybl.Compile.Common (linkExternal, linkInternal, page, paragraph, ref, section, sentence, string)
 import Rybl.Compile.Common as Compile.Common
 import Rybl.Data.Variant (inj', inj'U)
+import Rybl.Language (Doc, RefId(..))
 
 namedDocs :: Aff (Map RefId Doc)
 namedDocs =
   sequence $ Map.fromFoldable
-    [ -- item "index" do ref
+    [ item "index" do ref {} { refId: wrap "full_example_1" }
+    , item "full_example_1" do
+        page {} { title: "Full Example #1" } $ sequence $
+          [ section {} { title: "String Styles" } $ sequence $
+              [ paragraph {} {} $ sequence $
+                  [ sentence {} {} $ sequence $
+                      [ string {} { value: "This is an emphasized string: " }
+                      , string { style: inj'U @"emphasis" # pure } { value: "roar" }
+                      ]
+                  ]
+              , paragraph {} {} $ sequence $
+                  [ sentence {} {} $ sequence $
+                      [ string {} { value: "This is a code string: " }
+                      , string { style: inj'U @"code" # pure } { value: "x&&2 and one Class123 + $" }
+                      ]
+                  ]
+              ]
+          , section {} { title: "Links" } $ sequence $
+              [ paragraph {} {} $ sequence $
+                  [ sentence {} {} $ sequence $
+                      [ string {} { value: "Notice that links are annotated with the favicon of their source website." } ]
+                  , sentence {} {} $ sequence $
+                      [ string {} { value: "Here is a link to an external page: " }
+                      , linkExternal { url: "https://www.google.com/" # pure } {} $ string {} { value: "google" }
+                      , string {} { value: "." }
+                      ]
+                  , sentence {} {} $ sequence $
+                      [ string {} { value: "Here is a nub link to an external page: " }
+                      , linkExternal {} {} $ string {} { value: "cool mars website" }
+                      , string {} { value: "." }
+                      ]
+                  ]
+              , paragraph {} {} $ sequence $
+                  [ sentence {} {} $ sequence $
+                      [ string {} { value: "And now here's a link to an internal page: " }
+                      , linkInternal { refId: wrap "lorem_ipsum" # pure } {} $ string {} { value: "lorem ipsum" }
+                      , string {} { value: "." }
+                      ]
+                  , sentence {} {} $ sequence $
+                      [ string {} { value: "And also here's a nub link to an internal page: " }
+                      , linkInternal {} {} $ string {} { value: "the most awesom stuff" }
+                      , string {} { value: "." }
+                      ]
+                  ]
+              ]
+          ]
     ]
---   where
---   item str m = Tuple (RefId str) (Compile.Common.runM str m)
+  where
+  item str m = Tuple (RefId str) (Compile.Common.runM str m)
 
 -- namedDocs :: Map String Doc
 -- namedDocs = Map.fromFoldable

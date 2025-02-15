@@ -12,7 +12,7 @@ import Data.Foldable (fold, length, null)
 import Data.Int as Int
 import Data.Lens ((%=), (%~), (.=))
 import Data.List as List
-import Data.Maybe (Maybe(..), fromMaybe', maybe)
+import Data.Maybe (Maybe(..), fromMaybe', maybe, maybe')
 import Data.Newtype (unwrap)
 import Data.Traversable (traverse)
 import Data.Unfoldable (none)
@@ -49,14 +49,11 @@ renderDoc doc@(Fix (Page _opts prms body_)) = do
           [ Style.style do tell [ "font-size: 3em", "text-align: center" ] ]
           [ HH.text prms.title ]
       , HH.div
-          [ Style.style do tell [ "border: 1px solid black", "padding: 1em" ] ]
-          [ tableOfContents ]
-      , HH.div
-          [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
-          body
-      , HH.div
-          [ Style.style do tell [ "border: 1px solid black", "padding: 1em" ] ]
-          [ bibliography ]
+          [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 2em" ] ] $ fold $
+          [ [ tableOfContents ]
+          , body
+          , [ bibliography ]
+          ]
       ]
 
 renderDoc (Fix (Section _opts prms body_)) = do
@@ -82,7 +79,7 @@ renderDoc (Fix (Section _opts prms body_)) = do
   prop' @"section_index" .= section_index + 1
   pure $
     HH.div
-      [ Style.style $ tell [ "padding-top: 1em;", "display: flex", "flex-direction: column", "gap: 1em" ]
+      [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 1.5em" ]
       , HP.id prms.id
       ]
       [ title
@@ -117,7 +114,7 @@ renderDoc (Fix (Section _opts prms body_)) = do
       --       ]
       --   ]
       , HH.div
-          [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
+          [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 1em" ] ]
           body
       ]
 
@@ -252,45 +249,66 @@ renderDoc (Fix (Error _opts _prms body_)) = do
 
 renderDoc (Fix (LinkExternal opts prms label_)) = do
   label <- label_ # renderDoc
-  pure $
-    HH.a
-      [ Style.style $ tell
-          [ "display: inline-flex"
-          , "flex-direction: row"
-          , "align-items: baseline"
-          , "gap: 0.2em"
+  let
+    favicon = opts.favicon_url # maybe [] \favicon_url ->
+      [ HH.img
+          [ Style.style $ tell [ "height: 0.8em" ]
+          , HP.src favicon_url
           ]
-      , HP.href prms.url
       ]
-      case opts.favicon_url of
-        Nothing ->
-          [ HH.div_ [ label ] ]
-        Just favicon_src ->
-          [ HH.img
-              [ Style.style $ tell [ "height: 0.8em" ]
-              , HP.src favicon_src
-              ]
-          , HH.div_ [ label ]
-          ]
+    notes = opts.url # flip maybe' (const []) \_ -> [ HH.div [] [ nub ] ]
+  pure
+    $ HH.a
+        ( [ [ Style.style $ tell
+                [ "display: inline-flex"
+                , "flex-direction: row"
+                , "align-items: baseline"
+                , "gap: 0.2em"
+                , "box-shadow: 0 1px 0 0 blue"
+                ]
+            ]
+          , opts.url # maybe [] (HP.href >>> pure)
+          ] # fold
+        )
+    $ fold
+        [ favicon
+        , [ HH.div_ [ label ] ]
+        , notes
+        ]
 
-renderDoc (Fix (LinkInternal _opts prms label_)) = do
+renderDoc (Fix (LinkInternal opts _prms label_)) = do
   label <- label_ # renderDoc
-  pure $
-    HH.a
-      [ Style.style $ tell
-          [ "display: inline-flex"
-          , "flex-direction: row"
-          , "align-items: baseline"
-          , "gap: 0.2em"
-          ]
-      , HP.href $ "/index.html?ref=" <> (prms.refId # unwrap # encodeURI # fromMaybe' \_ -> bug $ "failed: encodeURI " <> show (prms.refId # toJsonString))
-      ]
+  let
+    favicon =
       [ HH.img
           [ Style.style $ tell [ "height: 0.8em" ]
           , HP.src "/favicon.ico"
           ]
-      , HH.div_ [ label ]
       ]
+    notes = opts.refId # flip maybe' (const []) \_ -> [ HH.div [] [ nub ] ]
+  pure
+    $ HH.a
+        ( [ [ Style.style $ tell
+                [ "display: inline-flex"
+                , "flex-direction: row"
+                , "align-items: baseline"
+                , "gap: 0.2em"
+                , "box-shadow: 0 1px 0 0 blue"
+                ]
+            ]
+          , opts.refId # maybe [] \refId -> [ HP.href $ "/index.html?ref=" <> (refId # unwrap # encodeURI # fromMaybe' \_ -> bug $ "failed: encodeURI " <> show (refId # toJsonString)) ]
+          ] # fold
+        )
+    $ fold
+        [ favicon
+        , [ HH.div_ [ label ] ]
+        , notes
+        ]
+
+nub :: HTML
+nub =
+  HH.sup [ Style.style do tell [ "display: inline-block", "color: white", "background-color: red", "padding: 0 0.2em" ] ]
+    [ HH.text "nub" ]
 
 renderResource :: forall m. MonadReader Ctx m => MonadState Env m => Resource -> m HTML
 renderResource (Resource opts prms) = do
@@ -307,7 +325,6 @@ renderResource (Resource opts prms) = do
                         [ HP.href url
                         , Style.style do tell [ "word-wrap: word-break" ]
                         ]
-                        -- [ HH.text url ]
                         [ HH.text "url" ]
                     ]
                 , misc: \str -> [ HH.text str ]
@@ -331,27 +348,24 @@ renderTableOfContents doc =
       prune Leaf = Leaf
       prune (Branch a kids) = Branch a $ kids # map prune # Array.filter (not <<< isLeaf)
 
-    let
+      renderNode node =
+        HH.div_
+          [ HH.a
+              [ HP.href $ "#" <> node.id ]
+              [ HH.text $ "• " <> node.title ]
+          ]
+
       go :: Tree _ -> Array HTML
       go Leaf = []
       go (Branch node kids) | null kids =
-        [ HH.div_
-            [ HH.a
-                [ HP.href $ "#" <> node.id ]
-                [ HH.text node.title ]
-            ]
-        ]
+        [ renderNode node ]
       go (Branch node kids_) =
         let
           kids = kids_ # map go
         in
           [ HH.div
               [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
-              [ HH.div_
-                  [ HH.a
-                      [ HP.href $ "#" <> node.id ]
-                      [ HH.text node.title ]
-                  ]
+              [ renderNode node
               , HH.div
                   [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em", "padding-left: 1em" ] ]
                   (kids # fold)
@@ -360,13 +374,20 @@ renderTableOfContents doc =
 
     pure
       $ HH.div
-          [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
+          [ Style.style do
+              tell [ "padding: 1em", "box-shadow: 0 0 0 1px black" ]
+              tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ]
+          ]
       $ fold
-          [ go $ prune $ tree
-          , [ HH.div_
+          [ [ HH.div
+                [ Style.style do tell [ "font-size: 1.5em" ] ]
+                [ HH.text "Table of Contents" ]
+            ]
+          , go $ prune $ tree
+          , [ HH.div []
                 [ HH.a
                     [ HP.href "#bibliography" ]
-                    [ HH.text "Bibliography" ]
+                    [ HH.text "• Bibliography" ]
                 ]
             ]
           ]
@@ -445,7 +466,9 @@ renderBibliography doc = do
   pure $
     HH.div
       [ HP.id "bibliography"
-      , Style.style do tell [ "display: flex", "flex-direction: column", "gap: 1em" ]
+      , Style.style do
+          tell [ "padding: 1em", "box-shadow: 0 0 0 1px black" ]
+          tell [ "display: flex", "flex-direction: column", "gap: 1em" ]
       ]
       [ title
       , HH.div

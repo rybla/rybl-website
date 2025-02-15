@@ -4,10 +4,12 @@ import Prelude
 
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.Reader (ReaderT, runReaderT)
-import Control.Monad.State (StateT, runStateT)
+import Control.Monad.State (StateT, get, modify_, runStateT)
+import Data.Array as Array
 import Data.Either (Either(..), either, fromRight')
 import Data.Either.Nested (type (\/))
 import Data.Tuple.Nested (type (/\), (/\))
+import Data.Unfoldable (none)
 import Effect.Aff (Aff)
 import Effect.Aff as Aff
 import Effect.Aff.Class (class MonadAff, liftAff)
@@ -15,7 +17,7 @@ import Prim.Row (class Nub, class Union)
 import Record as R
 import Rybl.Language (CodeBlockOpts, CodeBlockPrms, Doc, ErrorOpts, ErrorPrms, ImageOpts_input, ImagePrms, LinkExternalOpts, LinkExternalPrms, LinkInternalOpts, LinkInternalPrms, MathBlockOpts, MathBlockPrms, PageOpts, PagePrms, ParagraphOpts, ParagraphPrms, QuoteBlockOpts, QuoteBlockPrms, RefId, RefOpts, RefPrms, SectionOpts, SectionPrms, SentenceOpts, SentencePrms, SidenoteOpts, SidenotePrms, StringOpts, StringPrms)
 import Rybl.Language as RL
-import Rybl.Utility (todo)
+import Rybl.Utility (encodeURIComponent_nicely, todo)
 
 --------------------------------------------------------------------------------
 -- types
@@ -36,19 +38,16 @@ type Ctx = {}
 initialCtx :: forall m. MonadAff m => m Ctx
 initialCtx = pure {}
 
-type Env = {}
+type Env =
+  { ids :: Array String
+  }
 
 initialEnv :: forall m. MonadAff m => m Env
-initialEnv = pure {}
+initialEnv = pure
+  { ids: none
+  }
 
 type Err = String
-
---------------------------------------------------------------------------------
--- utilities
---------------------------------------------------------------------------------
-
-makeIdFromTitle :: forall m. MonadAff m => String -> M m String
-makeIdFromTitle = todo ""
 
 --------------------------------------------------------------------------------
 -- basic Doc builders
@@ -78,12 +77,12 @@ type SentencePrmsRequired = () :: Row Type
 sentence :: forall opts opts' prms m. Union opts SentenceOpts opts' => Nub opts' SentenceOpts => Union SentencePrmsRequired SentencePrms prms => Nub prms SentencePrms => MonadAff m => Record opts -> Record SentencePrmsRequired -> M m (Array Doc) -> M m Doc
 sentence opts prms body = RL.sentence opts prms <$> body
 
-type LinkExternalPrmsRequired = (url :: String)
+type LinkExternalPrmsRequired = () :: Row Type
 
 linkExternal :: forall opts opts' prms m. Union opts LinkExternalOpts opts' => Nub opts' LinkExternalOpts => Union LinkExternalPrmsRequired LinkExternalPrms prms => Nub prms LinkExternalPrms => MonadAff m => Record opts -> Record LinkExternalPrmsRequired -> M m Doc -> M m Doc
 linkExternal opts prms label = RL.linkExternal opts prms <$> label
 
-type LinkInternalPrmsRequired = (refId :: RefId)
+type LinkInternalPrmsRequired = () :: Row Type
 
 linkInternal :: forall opts opts' prms m. Union opts LinkInternalOpts opts' => Nub opts' LinkInternalOpts => Union LinkInternalPrmsRequired LinkInternalPrms prms => Nub prms LinkInternalPrms => MonadAff m => Record opts -> Record LinkInternalPrmsRequired -> M m Doc -> M m Doc
 linkInternal opts prms label = RL.linkInternal opts prms <$> label
@@ -133,3 +132,18 @@ error opts prms body = RL.error opts prms <$> body
 --------------------------------------------------------------------------------
 
 -- TODO
+
+--------------------------------------------------------------------------------
+-- utilities
+--------------------------------------------------------------------------------
+
+makeIdFromTitle :: forall m. MonadAff m => String -> M m String
+makeIdFromTitle title = do
+  let id = encodeURIComponent_nicely title
+  { ids } <- get
+  let n_overlaps = ids # Array.filter (_ == id) # Array.length
+  modify_ _ { ids = ids `Array.snoc` id }
+  if n_overlaps > 0 then
+    pure $ title <> "__" <> id
+  else
+    pure title

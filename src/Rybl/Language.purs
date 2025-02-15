@@ -78,11 +78,11 @@ type ParagraphPrms = () :: Row Type
 type SentenceOpts = () :: Row Type
 type SentencePrms = () :: Row Type
 
-type LinkExternalOpts = (favicon_url :: Maybe String, source :: Maybe Resource)
-type LinkExternalPrms = (url :: String)
+type LinkExternalOpts = (favicon_url :: Maybe String, source :: Maybe Resource, url :: Maybe String)
+type LinkExternalPrms = ()
 
-type LinkInternalOpts = (source :: Maybe Resource)
-type LinkInternalPrms = (refId :: RefId)
+type LinkInternalOpts = (source :: Maybe Resource, refId :: Maybe RefId)
+type LinkInternalPrms = ()
 
 type SidenoteOpts = () :: Row Type
 type SidenotePrms = () :: Row Type
@@ -171,10 +171,10 @@ sentence :: forall r r'. Union r SentenceOpts r' => Nub r' SentenceOpts => Recor
 sentence opts prms body = Fix.wrap $ Sentence (opts `R.merge` {}) prms body
 
 linkExternal :: forall r r'. Union r LinkExternalOpts r' => Nub r' LinkExternalOpts => Record r -> Record LinkExternalPrms -> Doc -> Doc
-linkExternal opts prms label = Fix.wrap $ LinkExternal (opts `R.merge` { favicon_url: Nothing @String, source: Nothing @Resource }) prms label
+linkExternal opts prms label = Fix.wrap $ LinkExternal (opts `R.merge` { favicon_url: Nothing @String, source: Nothing @Resource, url: Nothing @String }) prms label
 
 linkInternal :: forall r r'. Union r LinkInternalOpts r' => Nub r' LinkInternalOpts => Record r -> Record LinkInternalPrms -> Doc -> Doc
-linkInternal opts prms label = Fix.wrap $ LinkInternal (opts `R.merge` { source: Nothing @Resource }) prms label
+linkInternal opts prms label = Fix.wrap $ LinkInternal (opts `R.merge` { source: Nothing @Resource, refId: Nothing @RefId }) prms label
 
 sidenote :: forall r r'. Union r SidenoteOpts r' => Nub r' SidenoteOpts => Record r -> Record SidenotePrms -> Doc -> Doc -> Doc
 sidenote opts prms label body = Fix.wrap $ Sidenote (opts `R.merge` {}) prms label body

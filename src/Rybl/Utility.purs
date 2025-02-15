@@ -7,9 +7,12 @@ import Data.Foldable (class Foldable)
 import Data.Function (applyFlipped)
 import Data.Lens.Record as Data.Lens.Record
 import Data.List (List, (:))
+import Data.Maybe (fromMaybe')
 import Data.Profunctor.Strong (class Strong)
+import Data.String as String
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Data.Traversable (class Traversable, traverse, traverse_)
+import JSURI (encodeURIComponent)
 import Partial.Unsafe (unsafeCrashWith)
 import Prim.Row (class Cons, class Lacks)
 import Prim.RowList (class RowToList, RowList)
@@ -84,5 +87,9 @@ instance Ord (Literal xs) where
 literal :: forall @x xs_ xs. IsSymbol x => Cons x Unit xs_ xs => Literal xs
 literal = Literal (inj' @x unit)
 
-xxx :: forall a b c m. Monad m => (a -> b -> m c) -> m a -> m b -> m c
-xxx k ma mb = (k <$> ma <*> mb) # join
+encodeURIComponent_nicely :: String -> String
+encodeURIComponent_nicely str =
+  let
+    str' = str # String.replace (String.Pattern " ") (String.Replacement "_")
+  in
+    str' # encodeURIComponent # fromMaybe' \_ -> bug "[encodeURIComponent_nicely] failed to encodeURIComponent: " <> show str
