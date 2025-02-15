@@ -154,6 +154,9 @@ f(x) = \lim_{h \to 0} \frac{A(x+h) - A(x)}{h}
           $ makeSectionTree 2 2
           $ sequence
               [ ref {} { refId: wrap "lorem_ipsum" } ]
+    , item "parse_example_1" do
+        -- (section {} { title: "Page" } $ sequence $ [ (section {} { title: "Subtitle 1" } $ sequence $ [ (section {} { title: "Subtitle 1.1" } $ sequence $ [ (section {} { title: "Subtitle 2" } $ sequence $ []) ]) ]) ])
+        (section {} { title: "Page" } $ sequence $ [ (section {} { title: "Subtitle 1" } $ sequence $ [ (section {} { title: "Subtitle 1.1" } $ sequence $ []) ]), (section {} { title: "Subtitle 2" } $ sequence $ []) ])
     ]
   where
   item str m = Tuple (RefId str) (runM str m)
