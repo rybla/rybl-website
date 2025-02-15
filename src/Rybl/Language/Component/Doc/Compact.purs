@@ -12,7 +12,7 @@ import Data.Foldable (fold, length, null)
 import Data.Int as Int
 import Data.Lens ((%=), (%~), (.=))
 import Data.List as List
-import Data.Maybe (Maybe(..), fromMaybe', maybe, maybe')
+import Data.Maybe (fromMaybe', maybe, maybe')
 import Data.Newtype (unwrap)
 import Data.Traversable (traverse)
 import Data.Unfoldable (none)

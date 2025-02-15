@@ -1,5 +1,6 @@
 # TODO
 
+- [ ] expandable/collapsable table of contents
 - [ ] tool that converts a parsed Markdown document into my Doc format (for the sake of drafting)
 - [x] remove preprocessing step -- the default should just be that a user-defined doc is an `M Aff Doc`, and then any computation necessary happens inside there
 - [x] decide on how to semantically categorize structures (e.g. go down to paragraphs and sentences? or just inline-styled groups of strings)

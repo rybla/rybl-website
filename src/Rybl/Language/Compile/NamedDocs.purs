@@ -19,9 +19,9 @@ import Rybl.Language (Doc, RefId(..), resource)
 namedDocs :: Aff (Map RefId Doc)
 namedDocs =
   sequence $ Map.fromFoldable
-    [ item "index" do ref {} { refId: wrap "full_example_1" }
-    , item "full_example_1" do
-        page {} { title: "Full Example #1" } $ sequence $
+    [ item "index" do ref {} { refId: wrap "demo" }
+    , item "demo" do
+        page {} { title: "Demo" } $ sequence $
           [ section {} { title: "String Styles" } $ sequence $
               [ paragraph {} {} $ sequence $
                   [ sentence {} {} $ sequence $
@@ -78,7 +78,7 @@ namedDocs =
                       , string {} { value: ", but turns out it's a little too long to say right here." }
                       ]
                   , sentence {} {} $ sequence $
-                      [ string {} { value: "And this is another sentence {}." } ]
+                      [ string {} { value: "And this is another sentence that is stretching out a bit in order to show what it looks like when the above sidenote is expanded with some text beneath it, that is taking up space that will be moved around during the expansion." } ]
                   ]
               ]
           , section {} { title: "Codeblocks" } $ sequence $

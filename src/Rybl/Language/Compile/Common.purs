@@ -14,6 +14,7 @@ import Effect.Aff as Aff
 import Effect.Aff.Class (class MonadAff, liftAff)
 import Prim.Row (class Nub, class Union)
 import Record as R
+import Rybl.Data.Variant (inj'U)
 import Rybl.Language (CodeBlockOpts, CodeBlockPrms, Doc, ErrorOpts, ErrorPrms, ImageOpts, ImagePrms, LinkExternalOpts, LinkExternalPrms, LinkInternalOpts, LinkInternalPrms, MathBlockOpts, MathBlockPrms, PageOpts, PagePrms, ParagraphOpts, ParagraphPrms, QuoteBlockOpts, QuoteBlockPrms, RefId, RefOpts, RefPrms, Resource, SectionOpts, SectionPrms, SentenceOpts, SentencePrms, SidenoteOpts, SidenotePrms, StringOpts, StringPrms, StringStyle)
 import Rybl.Language as RL
 import Rybl.Utility (bug, encodeURIComponent_nicely)
@@ -153,6 +154,6 @@ makeIdFromTitle title = do
   let n_overlaps = ids # Array.filter (_ == id) # Array.length
   modify_ _ { ids = ids `Array.snoc` id }
   if n_overlaps > 0 then
-    pure $ title <> "__" <> id
+    pure $ id <> "__" <> id
   else
-    pure title
+    pure id
