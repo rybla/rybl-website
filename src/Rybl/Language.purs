@@ -45,8 +45,8 @@ data Doc_ self
   | CodeBlock (Record CodeBlockOpts) { value :: String }
   | QuoteBlock (Record QuoteBlockOpts) {} self
   | MathBlock (Record MathBlockOpts) { value :: String }
-  | Image (Record ImageOpts) { url :: String } (Maybe Doc)
   -- TODO: other media (videos/models/etc)
+  | Image (Record ImageOpts) { url :: String } (Maybe Doc)
   | Error (Record ErrorOpts) { label :: String } self
 
 derive instance Generic (Doc_ self) _
