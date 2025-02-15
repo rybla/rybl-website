@@ -10,7 +10,7 @@ import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Foldable (fold, length, null)
 import Data.Int as Int
-import Data.Lens ((%=), (%~), (+=), (.=))
+import Data.Lens ((%=), (%~), (.=))
 import Data.List as List
 import Data.Maybe (Maybe(..), fromMaybe', maybe)
 import Data.Newtype (unwrap)
@@ -36,19 +36,18 @@ import Type.Proxy (Proxy(..))
 
 renderDoc :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
 
-renderDoc doc@(Fix (Page opts args body_)) = do
+renderDoc doc@(Fix (Page _opts prms body_)) = do
   body <- body_ # traverse renderDoc
   tableOfContents <- doc # renderTableOfContents
   bibliography <- doc # renderBibliography
-  let id = opts.id # fromMaybe' \_ -> bug $ "page was not given an id: " <> show args.title
   pure $
     HH.div
       [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 1.0em" ]
-      , HP.id id
+      , HP.id prms.id
       ]
       [ HH.div
           [ Style.style do tell [ "font-size: 3em", "text-align: center" ] ]
-          [ HH.text args.title ]
+          [ HH.text prms.title ]
       , HH.div
           [ Style.style do tell [ "border: 1px solid black", "padding: 1em" ] ]
           [ tableOfContents ]
@@ -60,15 +59,14 @@ renderDoc doc@(Fix (Page opts args body_)) = do
           [ bibliography ]
       ]
 
-renderDoc (Fix (Section opts args body_)) = do
+renderDoc (Fix (Section _opts prms body_)) = do
   { section_path } <- ask
   { section_index } <- get
   let section_depth = section_path # length
-  -- title <- RL.string {} args.title # renderDoc
-  let id = opts.id # fromMaybe' \_ -> bug $ "section was not given an id: " <> show args.title
+  -- title <- RL.string {} prms.title # renderDoc
   title <- renderSectionTitle
-    { title: HH.text args.title
-    , id
+    { title: HH.text prms.title
+    , id: prms.id
     , section_depth
     , section_index:
         List.Cons section_index (section_path # map _.index)
@@ -78,14 +76,14 @@ renderDoc (Fix (Section opts args body_)) = do
           # pure
     }
   body <-
-    local (prop' @"section_path" %~ List.Cons { index: section_index, title: args.title }) do
+    local (prop' @"section_path" %~ List.Cons { index: section_index, title: prms.title }) do
       prop' @"section_index" .= 0
       body_ # traverse renderDoc -- # map Array.fold
   prop' @"section_index" .= section_index + 1
   pure $
     HH.div
       [ Style.style $ tell [ "padding-top: 1em;", "display: flex", "flex-direction: column", "gap: 1em" ]
-      , HP.id id
+      , HP.id prms.id
       ]
       [ title
       -- HH.div
@@ -123,20 +121,20 @@ renderDoc (Fix (Section opts args body_)) = do
           body
       ]
 
-renderDoc (Fix (Paragraph _opts _args body_)) = do
+renderDoc (Fix (Paragraph _opts _prms body_)) = do
   bodys <- body_ # traverse renderDoc -- TODO: -- (foldMap \x -> [ x, [ HH.text " " ] ]) # map Array.fold
   let body = bodys # Array.intersperse (HH.text " ")
   pure $ HH.div_
     body
 
-renderDoc (Fix (Sentence _opts _args body_)) = do
+renderDoc (Fix (Sentence _opts _prms body_)) = do
   body <- body_ # traverse renderDoc
   pure $
     HH.div
       [ Style.style $ tell [ "display: inline" ] ]
       body
 
-renderDoc (Fix (Sidenote _opts _args label_ body_)) = do
+renderDoc (Fix (Sidenote _opts _prms label_ body_)) = do
   label <- label_ # renderDoc
   body <- body_ # renderDoc
   widget_index <- next_widget_index
@@ -146,13 +144,13 @@ renderDoc (Fix (Sidenote _opts _args label_ body_)) = do
       , body: body # mapAction_ComponentHTML Left
       }
 
-renderDoc (Fix (Ref _opts args)) = do
+renderDoc (Fix (Ref _opts prms)) = do
   pure $
     HH.div
       [ Style.style do tell [ "background-color: black", "color: white", "padding: 0.5em" ] ]
-      [ HH.text $ "Ref " <> show args.refId ]
+      [ HH.text $ "Ref " <> show prms.refId ]
 
-renderDoc (Fix (CodeBlock opts args)) = do
+renderDoc (Fix (CodeBlock opts prms)) = do
   source <- opts.source # traverse renderResourceNote
   pure
     $ HH.div
@@ -162,13 +160,13 @@ renderDoc (Fix (CodeBlock opts args)) = do
               [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
               [ HH.pre
                   [ Style.style do tell [ "margin: 0", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
-                  [ HH.text args.value ]
+                  [ HH.text prms.value ]
               ]
           ]
         , source # maybe [] pure
         ]
 
-renderDoc (Fix (QuoteBlock opts _args body_)) = do
+renderDoc (Fix (QuoteBlock opts _prms body_)) = do
   body <- body_ # renderDoc
   source <- opts.source # traverse renderResourceNote
   pure
@@ -193,7 +191,7 @@ renderDoc (Fix (QuoteBlock opts _args body_)) = do
         , source # maybe [] pure
         ]
 
-renderDoc (Fix (MathBlock opts args)) = do
+renderDoc (Fix (MathBlock opts prms)) = do
   source <- opts.source # traverse renderResourceNote
   pure
     $ HH.div
@@ -203,13 +201,13 @@ renderDoc (Fix (MathBlock opts args)) = do
               [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
               [ HH.pre
                   [ Style.style do tell [ "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
-                  [ HH.text $ "MATH: " <> args.value ]
+                  [ HH.text $ "MATH: " <> prms.value ]
               ]
           ]
         , source # maybe [] pure
         ]
 
-renderDoc (Fix (Image opts args caption__)) = do
+renderDoc (Fix (Image opts prms caption__)) = do
   caption_ <- caption__ # traverse renderDoc
   source <- opts.source # traverse renderResourceNote
   pure
@@ -218,7 +216,7 @@ renderDoc (Fix (Image opts args caption__)) = do
     $ fold
         [ [ HH.img
               [ Style.style do tell [ "width: 100%" ]
-              , HP.src args.url
+              , HP.src prms.url
               ]
           ]
         , caption_ # maybe [] \caption ->
@@ -229,7 +227,7 @@ renderDoc (Fix (Image opts args caption__)) = do
         , source # maybe [] pure
         ]
 
-renderDoc (Fix (String opts args)) = do
+renderDoc (Fix (String opts prms)) = do
   pure $
     HH.div
       [ Style.style do
@@ -243,16 +241,16 @@ renderDoc (Fix (String opts args)) = do
                 }
             )
       ]
-      [ HH.text args.value ]
+      [ HH.text prms.value ]
 
-renderDoc (Fix (Error _opts _args body_)) = do
+renderDoc (Fix (Error _opts _prms body_)) = do
   e <- body_ # renderDoc
   pure $
     HH.div
       [ Style.style $ tell [ "background-color: #ffcccb" ] ]
       [ e ]
 
-renderDoc (Fix (ExternalLink opts args label_)) = do
+renderDoc (Fix (LinkExternal opts prms label_)) = do
   label <- label_ # renderDoc
   pure $
     HH.a
@@ -262,7 +260,7 @@ renderDoc (Fix (ExternalLink opts args label_)) = do
           , "align-items: baseline"
           , "gap: 0.2em"
           ]
-      , HP.href args.url
+      , HP.href prms.url
       ]
       case opts.favicon_url of
         Nothing ->
@@ -275,7 +273,7 @@ renderDoc (Fix (ExternalLink opts args label_)) = do
           , HH.div_ [ label ]
           ]
 
-renderDoc (Fix (InternalLink _opts args label_)) = do
+renderDoc (Fix (LinkInternal _opts prms label_)) = do
   label <- label_ # renderDoc
   pure $
     HH.a
@@ -285,7 +283,7 @@ renderDoc (Fix (InternalLink _opts args label_)) = do
           , "align-items: baseline"
           , "gap: 0.2em"
           ]
-      , HP.href $ "/index.html?ref=" <> (args.refId # unwrap # encodeURI # fromMaybe' \_ -> bug $ "failed: encodeURI " <> show (args.refId # toJsonString))
+      , HP.href $ "/index.html?ref=" <> (prms.refId # unwrap # encodeURI # fromMaybe' \_ -> bug $ "failed: encodeURI " <> show (prms.refId # toJsonString))
       ]
       [ HH.img
           [ Style.style $ tell [ "height: 0.8em" ]
@@ -295,12 +293,12 @@ renderDoc (Fix (InternalLink _opts args label_)) = do
       ]
 
 renderResource :: forall m. MonadReader Ctx m => MonadState Env m => Resource -> m HTML
-renderResource (Resource opts args) = do
+renderResource (Resource opts prms) = do
   pure
     $ HH.div [ Style.style do tell [ "word-wrap: word-break" ] ]
     $ Array.intersperse (HH.text " • ")
     $ fold
-        [ [ HH.text $ args.name ]
+        [ [ HH.text $ prms.name ]
         , opts.date # maybe [] \date -> [ HH.span_ [ HH.i_ [ HH.text "accessed " ], HH.text $ date ] ]
         , opts.content # maybe []
             ( match
@@ -325,8 +323,8 @@ renderTableOfContents doc =
     let
       tree :: Tree _
       tree = doc # Fix.fold case _ of
-        Page opts args body -> Branch { id: opts.id, title: args.title } body
-        Section opts args body -> Branch { id: opts.id, title: args.title } body
+        Page _opts prms body -> Branch { id: prms.id, title: prms.title } body
+        Section _opts prms body -> Branch { id: prms.id, title: prms.title } body
         _ -> Leaf
 
       prune :: Tree _ -> Tree _
@@ -339,7 +337,7 @@ renderTableOfContents doc =
       go (Branch node kids) | null kids =
         [ HH.div_
             [ HH.a
-                ([ node.id # maybe [] \id -> [ HP.href $ "#" <> id ] ] # fold)
+                [ HP.href $ "#" <> node.id ]
                 [ HH.text node.title ]
             ]
         ]
@@ -351,7 +349,7 @@ renderTableOfContents doc =
               [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
               [ HH.div_
                   [ HH.a
-                      ([ node.id # maybe [] \id -> [ HP.href $ "#" <> id ] ] # fold)
+                      [ HP.href $ "#" <> node.id ]
                       [ HH.text node.title ]
                   ]
               , HH.div

@@ -83,3 +83,6 @@ instance Ord (Literal xs) where
 
 literal :: forall @x xs_ xs. IsSymbol x => Cons x Unit xs_ xs => Literal xs
 literal = Literal (inj' @x unit)
+
+xxx :: forall a b c m. Monad m => (a -> b -> m c) -> m a -> m b -> m c
+xxx k ma mb = (k <$> ma <*> mb) # join

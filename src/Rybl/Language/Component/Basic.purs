@@ -23,7 +23,6 @@ import Fetch as Fetch
 import Halogen (Component, defaultEval, mkComponent, mkEval) as H
 import Halogen (liftAff)
 import Halogen.HTML (div) as H
-import Halogen.HTML as HH
 import Rybl.Data.Fix as Fix
 import Rybl.Data.Variant (case_, expandCons, inj', inj'U, on')
 import Rybl.Halogen.Style as Style
@@ -79,14 +78,14 @@ theDocComponent = H.mkComponent { initialState, eval, render }
                         { method: Fetch.GET }
                     if not response.ok then do
                       loadRefIds
-                        (namedDocs # Map.insert refId (RL.error {} "error on fetch" (RL.string { style: inj'U @"code" # pure } response.statusText)))
+                        (namedDocs # Map.insert refId (RL.error {} { label: "error on fetch" } (RL.string { style: inj'U @"code" # pure } { value: response.statusText })))
                         (refIds # Set.delete refId)
                     else do
                       str :: String <- response.text # liftAff
                       case fromJsonString str :: JsonDecodeError \/ Doc of
                         Left err -> do
                           loadRefIds
-                            (namedDocs # Map.insert refId (RL.error {} "error on decode" (RL.string { style: inj'U @"code" # pure } (show err))))
+                            (namedDocs # Map.insert refId (RL.error {} { label: "error on decode" } (RL.string { style: inj'U @"code" # pure } { value: show err })))
                             (refIds # Set.delete refId)
                         Right doc' -> do
                           loadRefIds
@@ -96,7 +95,7 @@ theDocComponent = H.mkComponent { initialState, eval, render }
                 expandRefs :: Map RefId Doc -> Doc -> Aff Doc
                 expandRefs namedDocs = Fix.foldM case _ of
                   Ref _opts args -> case namedDocs # Map.lookup args.refId of
-                    Nothing -> pure $ RL.error {} "refId not loaded" (RL.string { style: inj'U @"code" # pure } (show args.refId))
+                    Nothing -> pure $ RL.error {} { label: "refId not loaded" } (RL.string { style: inj'U @"code" # pure } { value: show args.refId })
                     Just doc -> pure doc
                   doc -> pure $ Fix.wrap doc
 

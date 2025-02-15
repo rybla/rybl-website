@@ -45,7 +45,7 @@ component :: forall query input output. H.Component query input output Aff
 component = H.mkComponent { initialState, eval, render }
   where
   initialState _ =
-    { doc: RL.ref {} (wrap "index") :: Doc
+    { doc: RL.ref {} { refId: wrap "index" } :: Doc
     , viewMode: inj' @"unknown" unit :: ViewMode
     }
 
@@ -86,32 +86,30 @@ component = H.mkComponent { initialState, eval, render }
                     doc <- case ref_str_ # decodeURI of
                       Nothing ->
                         pure
-                          $ RL.error {} "decodeURI error"
+                          $ RL.error {} { label: "decodeURI error" }
                           $ RL.string { style: inj'U @"code" # pure }
-                          $ "ref_str = " <> "\"\"\"" <> ref_str_ <> "\"\"\""
-                      Just ref_str -> pure $ RL.ref {} (wrap ref_str)
+                              { value: "ref_str = " <> "\"\"\"" <> ref_str_ <> "\"\"\"" }
+                      Just ref_str -> pure $ RL.ref {} { refId: wrap ref_str }
                     prop' @"doc" .= doc
                   _ | Just doc_str_ <- urlSearchParams # Web.URLSearchParams.get "doc" -> do
                     doc <- case doc_str_ # decodeURI of
-                      Nothing -> pure $
-                        RL.error {}
-                          "decodeURI error"
-                          ( RL.string { style: inj'U @"code" # pure } $
-                              "doc_str = " <> "\"\"\"" <> doc_str_ <> "\"\"\""
-                          )
+                      Nothing -> pure
+                        $ RL.error {} { label: "decodeURI error" }
+                        $ RL.string { style: inj'U @"code" # pure }
+                            { value: "doc_str = " <> "\"\"\"" <> doc_str_ <> "\"\"\"" }
+
                       Just doc_str -> do
                         pure $
                           doc_str
                             # fromJsonString
                             # either
                                 ( \err ->
-                                    RL.error {}
-                                      "JsonDecodeError"
-                                      ( RL.section {} "Errors"
-                                          [ RL.string { style: inj'U @"code" # pure } $ intercalate "\n"
-                                              [ "doc_str = " <> "\"\"\"" <> doc_str <> "\"\"\"" ]
-                                          , RL.string { style: inj'U @"code" # pure } $ intercalate "\n"
-                                              [ "err = " <> "\"\"\"" <> printJsonDecodeError err <> "\"\"\"" ]
+                                    RL.error {} { label: "JsonDecodeError" }
+                                      ( RL.section {} { id: "errors", title: "Errors" }
+                                          [ RL.string { style: inj'U @"code" # pure }
+                                              { value: intercalate "\n" [ "doc_str = " <> "\"\"\"" <> doc_str <> "\"\"\"" ] }
+                                          , RL.string { style: inj'U @"code" # pure }
+                                              { value: intercalate "\n" [ "err = " <> "\"\"\"" <> printJsonDecodeError err <> "\"\"\"" ] }
                                           ]
                                       )
                                 )
