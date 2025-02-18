@@ -14,7 +14,7 @@ import Data.Tuple (Tuple(..))
 import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff)
 import Rybl.Data.Variant (inj', inj'U)
-import Rybl.Language (Doc, RefId(..), resource)
+import Rybl.Language (Doc, RefId(..), citation, resource)
 
 namedDocs :: Aff (Map RefId Doc)
 namedDocs =
@@ -84,7 +84,7 @@ namedDocs =
           , section {} { title: "Codeblocks" } $ sequence $
               [ paragraph {} {} $ sequence $
                   [ sentence {} {} $ sequence $ [ string {} { value: "The following is a pretty narrow code block." } ] ]
-              , codeBlock { source: resource { content: inj' @"url" "https://lesharmoniesdelesprit.wordpress.com/wp-content/uploads/2015/11/whiteheadrussell-principiamathematicavolumei.pdf" # pure } "Principia Mathematica" # pure }
+              , codeBlock { citation: citation {} { resource: resource { content: inj' @"url" "https://lesharmoniesdelesprit.wordpress.com/wp-content/uploads/2015/11/whiteheadrussell-principiamathematicavolumei.pdf" # pure } "Principia Mathematica" } # pure }
                   { value:
                       """
 merge :: Ord a => [a] -> [a] -> [a]
@@ -112,7 +112,7 @@ big_list = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2,
                   [ sentence {} {} $ sequence $
                       [ string {} { value: "The following is a quote block." } ]
                   ]
-              , quoteBlock { source: pure $ resource {} "Albert Einstein" } {} $ paragraph {} {} $ sequence $
+              , quoteBlock { citation: citation {} { resource: resource {} "Albert Einstein" } # pure } {} $ paragraph {} {} $ sequence $
                   [ string {} { value: "I certainly believe this: that it is better to be impetuous than cautious, because Fortune is a woman, and if you want to keep her under it is necessary to beat her and force her down. It is clear that she more often allows herself to be won over by impetuous men than by those who proceed coldly. And so, like a woman, Fortune is always the friend of young men, for they are less cautious, more ferocious, and command her with more audacity." } ]
               ]
           , section {} { title: "Mathblocks" } $ sequence $
@@ -131,7 +131,11 @@ f(x) = \lim_{h \to 0} \frac{A(x+h) - A(x)}{h}
               [ paragraph {} {} $ sequence $
                   [ string {} { value: "The following is an image." } ]
               , image
-                  { source: resource { date: pure "Today", content: pure $ inj' @"url" "https://media.4-paws.org/9/c/9/7/9c97c38666efa11b79d94619cc1db56e8c43d430/Molly_006-2829x1886-2726x1886-1920x1328.jpg" } "The Cat Pic" # pure }
+                  { citation:
+                      citation
+                        { time: "today" # pure }
+                        { resource: resource { content: pure $ inj' @"url" "https://media.4-paws.org/9/c/9/7/9c97c38666efa11b79d94619cc1db56e8c43d430/Molly_006-2829x1886-2726x1886-1920x1328.jpg" } "The Cat Pic" } # pure
+                  }
                   { url: "https://media.4-paws.org/9/c/9/7/9c97c38666efa11b79d94619cc1db56e8c43d430/Molly_006-2829x1886-2726x1886-1920x1328.jpg" }
                   $ sequence
                   $ Just (string {} { value: "This is an image of a cute cat. Isn't it so cute? Really, it is." })

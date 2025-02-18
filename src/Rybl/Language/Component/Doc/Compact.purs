@@ -28,10 +28,10 @@ import Rybl.Data.Fix as Fix
 import Rybl.Data.Tree (Tree(..), isLeaf)
 import Rybl.Data.Variant (match)
 import Rybl.Halogen.Style as Style
-import Rybl.Language (Doc, Doc_(..), Resource(..))
+import Rybl.Language (Citation(..), Doc, Doc_(..), Resource(..))
 import Rybl.Language as RL
 import Rybl.Language.Component.Common (Ctx, Env, HTML, mapAction_ComponentHTML, next_widget_index)
-import Rybl.Utility (bug, prop')
+import Rybl.Utility (bug, prop', todo)
 import Type.Proxy (Proxy(..))
 
 renderDoc :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
@@ -148,7 +148,7 @@ renderDoc (Fix (Ref _opts prms)) = do
       [ HH.text $ "Ref " <> show prms.refId ]
 
 renderDoc (Fix (CodeBlock opts prms)) = do
-  source <- opts.source # traverse renderResourceNote
+  source <- opts.citation # traverse renderCitationNote
   pure
     $ HH.div
         []
@@ -165,7 +165,7 @@ renderDoc (Fix (CodeBlock opts prms)) = do
 
 renderDoc (Fix (QuoteBlock opts _prms body_)) = do
   body <- body_ # renderDoc
-  source <- opts.source # traverse renderResourceNote
+  source <- opts.citation # traverse renderCitationNote
   pure
     $ HH.div
         [ Style.style do tell [ "display: flex", "flex-direction: column" ] ]
@@ -189,7 +189,7 @@ renderDoc (Fix (QuoteBlock opts _prms body_)) = do
         ]
 
 renderDoc (Fix (MathBlock opts prms)) = do
-  source <- opts.source # traverse renderResourceNote
+  source <- opts.citation # traverse renderCitationNote
   pure
     $ HH.div
         []
@@ -206,7 +206,7 @@ renderDoc (Fix (MathBlock opts prms)) = do
 
 renderDoc (Fix (Image opts prms caption__)) = do
   caption_ <- caption__ # traverse renderDoc
-  source <- opts.source # traverse renderResourceNote
+  source <- opts.citation # traverse renderCitationNote
   pure
     $ HH.div
         [ Style.style do tell [ "width: 100%", "display: flex", "flex-direction: column", "justify-content: center" ] ]
@@ -310,6 +310,9 @@ nub =
   HH.sup [ Style.style do tell [ "display: inline-block", "color: white", "background-color: red", "padding: 0 0.2em" ] ]
     [ HH.text "nub" ]
 
+renderCitation :: forall m. MonadReader Ctx m => MonadState Env m => Citation -> m HTML
+renderCitation = todo "renderCitation"
+
 renderResource :: forall m. MonadReader Ctx m => MonadState Env m => Resource -> m HTML
 renderResource (Resource opts prms) = do
   pure
@@ -317,7 +320,8 @@ renderResource (Resource opts prms) = do
     $ Array.intersperse (HH.text " • ")
     $ fold
         [ [ HH.text $ prms.name ]
-        , opts.date # maybe [] \date -> [ HH.span_ [ HH.i_ [ HH.text "accessed " ], HH.text $ date ] ]
+        -- TODO: use something like this in renderCitation
+        -- , opts.date # maybe [] \date -> [ HH.span_ [ HH.i_ [ HH.text "accessed " ], HH.text $ date ] ]
         , opts.content # maybe []
             ( match
                 { url: \url ->
@@ -423,9 +427,11 @@ renderSectionTitle { section_depth, section_index, id, title } =
           ]
       ]
 
-renderResourceNote :: forall m. MonadReader Ctx m => MonadState Env m => Resource -> m HTML
-renderResourceNote resource_ = do
-  resource <- resource_ # renderResource
+-- TODO: add something extra about citation.time and citation.note
+-- TODO: this is probably combined with renderCitation
+renderCitationNote :: forall m. MonadReader Ctx m => MonadState Env m => Citation -> m HTML
+renderCitationNote resource_ = do
+  resource <- resource_ # renderCitation
   pure $
     HH.div
       [ Style.style $ do
@@ -449,9 +455,10 @@ renderResourceNote resource_ = do
 
 renderBibliography :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
 renderBibliography doc = do
-  let resources_ = RL.collectResources doc
-  resources <- resources_ # traverse \resource -> do
-    html <- renderResource resource
+  -- TODO: handle citations and resources
+  let citations_ = RL.collectCitations doc
+  citations <- citations_ # traverse \citation -> do
+    html <- renderCitation citation
     pure $
       HH.div
         [ Style.style do tell [ "padding: 0.5em", "background-color: color-mix(in hsl, saddlebrown, transparent 80%)" ] ]
@@ -473,7 +480,7 @@ renderBibliography doc = do
       [ title
       , HH.div
           [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
-          resources
+          citations
       ]
 
 --------------------------------------------------------------------------------

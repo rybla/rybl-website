@@ -15,7 +15,7 @@ import Effect.Aff.Class (class MonadAff, liftAff)
 import Prim.Row (class Nub, class Union)
 import Record as R
 import Rybl.Data.Variant (inj'U)
-import Rybl.Language (CodeBlockOpts, CodeBlockPrms, Doc, ErrorOpts, ErrorPrms, ImageOpts, ImagePrms, LinkExternalOpts, LinkExternalPrms, LinkInternalOpts, LinkInternalPrms, MathBlockOpts, MathBlockPrms, PageOpts, PagePrms, ParagraphOpts, ParagraphPrms, QuoteBlockOpts, QuoteBlockPrms, RefId, RefOpts, RefPrms, Resource, SectionOpts, SectionPrms, SentenceOpts, SentencePrms, SidenoteOpts, SidenotePrms, StringOpts, StringPrms, StringStyle)
+import Rybl.Language (Citation(..), CodeBlockOpts, CodeBlockPrms, Doc, ErrorOpts, ErrorPrms, ImageOpts, ImagePrms, LinkExternalOpts, LinkExternalPrms, LinkInternalOpts, LinkInternalPrms, MathBlockOpts, MathBlockPrms, PageOpts, PagePrms, ParagraphOpts, ParagraphPrms, QuoteBlockOpts, QuoteBlockPrms, RefId, RefOpts, RefPrms, Resource, SectionOpts, SectionPrms, SentenceOpts, SentencePrms, SidenoteOpts, SidenotePrms, StringOpts, StringPrms, StringStyle)
 import Rybl.Language as RL
 import Rybl.Utility (bug, encodeURIComponent_nicely)
 import Web.URL as URL
@@ -82,7 +82,7 @@ type LinkExternalPrmsRequired = () :: Row Type
 
 linkExternal :: forall opts opts' prms m. Union opts LinkExternalOpts opts' => Nub opts' LinkExternalOpts => Union LinkExternalPrmsRequired LinkExternalPrms prms => Nub prms LinkExternalPrms => MonadAff m => Record opts -> Record LinkExternalPrmsRequired -> M m Doc -> M m Doc
 linkExternal opts prms label = do
-  let opts' = opts `R.merge` { favicon_url: Nothing @String, source: Nothing @Resource, url: Nothing @String }
+  let opts' = opts `R.merge` { favicon_url: Nothing @String, citation: Nothing @Citation, url: Nothing @String }
   opts'' <- case opts'.url /\ opts'.favicon_url of
     Nothing /\ _ -> pure opts'
     Just _ /\ Just _ -> pure opts'
@@ -95,7 +95,7 @@ linkExternal opts prms label = do
 type LinkInternalPrmsRequired = () :: Row Type
 
 linkInternal :: forall opts opts' prms m. Union opts LinkInternalOpts opts' => Nub opts' LinkInternalOpts => Union LinkInternalPrmsRequired LinkInternalPrms prms => Nub prms LinkInternalPrms => MonadAff m => Record opts -> Record LinkInternalPrmsRequired -> M m Doc -> M m Doc
-linkInternal opts prms label = RL.linkInternal (opts `R.merge` { source: Nothing @Resource, refId: Nothing @RefId }) prms <$> label
+linkInternal opts prms label = RL.linkInternal (opts `R.merge` { citation: Nothing @Citation, refId: Nothing @RefId }) prms <$> label
 
 type SidenotePrmsRequired = () :: Row Type
 
@@ -115,22 +115,22 @@ string opts prms = RL.string (opts `R.merge` { style: Nothing @StringStyle }) pr
 type CodeBlockPrmsRequired = (value :: String)
 
 codeBlock :: forall opts opts' prms m. Union opts CodeBlockOpts opts' => Nub opts' CodeBlockOpts => Union CodeBlockPrmsRequired CodeBlockPrms prms => Nub prms CodeBlockPrms => MonadAff m => Record opts -> Record CodeBlockPrmsRequired -> M m Doc
-codeBlock opts prms = RL.codeBlock (opts `R.merge` { source: Nothing @Resource }) prms # pure
+codeBlock opts prms = RL.codeBlock (opts `R.merge` { citation: Nothing @Citation }) prms # pure
 
 type QuoteBlockPrmsRequired = () :: Row Type
 
 quoteBlock :: forall opts opts' prms m. Union opts QuoteBlockOpts opts' => Nub opts' QuoteBlockOpts => Union QuoteBlockPrmsRequired QuoteBlockPrms prms => Nub prms QuoteBlockPrms => MonadAff m => Record opts -> Record QuoteBlockPrmsRequired -> M m Doc -> M m Doc
-quoteBlock opts prms body = RL.quoteBlock (opts `R.merge` { source: Nothing @Resource }) prms <$> body
+quoteBlock opts prms body = RL.quoteBlock (opts `R.merge` { citation: Nothing @Citation }) prms <$> body
 
 type MathBlockPrmsRequired = (value :: String)
 
 mathBlock :: forall opts opts' prms m. Union opts MathBlockOpts opts' => Nub opts' MathBlockOpts => Union MathBlockPrmsRequired MathBlockPrms prms => Nub prms MathBlockPrms => MonadAff m => Record opts -> Record MathBlockPrmsRequired -> M m Doc
-mathBlock opts prms = RL.mathBlock (opts `R.merge` { source: Nothing @Resource }) prms # pure
+mathBlock opts prms = RL.mathBlock (opts `R.merge` { citation: Nothing @Citation }) prms # pure
 
 type ImagePrmsRequired = (url :: String)
 
 image :: forall opts opts' prms m. Union opts ImageOpts opts' => Nub opts' ImageOpts => Union ImagePrmsRequired ImagePrms prms => Nub prms ImagePrms => MonadAff m => Record opts -> Record ImagePrmsRequired -> M m (Maybe Doc) -> M m Doc
-image opts prms caption = RL.image (opts `R.merge` { source: Nothing @Resource }) prms <$> caption
+image opts prms caption = RL.image (opts `R.merge` { citation: Nothing @Citation }) prms <$> caption
 
 type ErrorPrmsRequired = (label :: String)
 

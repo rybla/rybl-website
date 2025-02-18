@@ -77,10 +77,10 @@ type ParagraphPrms = () :: Row Type
 type SentenceOpts = () :: Row Type
 type SentencePrms = () :: Row Type
 
-type LinkExternalOpts = (favicon_url :: Maybe String, source :: Maybe Resource, url :: Maybe String)
+type LinkExternalOpts = (favicon_url :: Maybe String, citation :: Maybe Citation, url :: Maybe String)
 type LinkExternalPrms = () :: Row Type
 
-type LinkInternalOpts = (source :: Maybe Resource, refId :: Maybe RefId)
+type LinkInternalOpts = (citation :: Maybe Citation, refId :: Maybe RefId)
 type LinkInternalPrms = () :: Row Type
 
 type SidenoteOpts = () :: Row Type
@@ -92,16 +92,16 @@ type RefPrms = (refId :: RefId)
 type StringOpts = (style :: Maybe StringStyle)
 type StringPrms = (value :: String)
 
-type CodeBlockOpts = (source :: Maybe Resource)
+type CodeBlockOpts = (citation :: Maybe Citation)
 type CodeBlockPrms = (value :: String)
 
-type QuoteBlockOpts = (source :: Maybe Resource)
+type QuoteBlockOpts = (citation :: Maybe Citation)
 type QuoteBlockPrms = () :: Row Type
 
-type MathBlockOpts = (source :: Maybe Resource)
+type MathBlockOpts = (citation :: Maybe Citation)
 type MathBlockPrms = (value :: String)
 
-type ImageOpts = (source :: Maybe Resource)
+type ImageOpts = (citation :: Maybe Citation)
 type ImagePrms = (url :: String)
 
 type ErrorOpts = () :: Row Type
@@ -125,11 +125,35 @@ type StringStyle = Variant
   , code :: U
   )
 
+data Citation = Citation (Record CitationOpts) (Record CitationPrms)
+
+type CitationOpts =
+  ( time :: Maybe String
+  , note :: Maybe String
+  )
+
+type CitationPrms =
+  ( resource :: Resource
+  )
+
+derive instance Generic Citation _
+
+instance Show Citation where
+  show x = genericShow x
+
+instance EncodeJson Citation where
+  encodeJson x = genericEncodeJson x
+
+instance DecodeJson Citation where
+  decodeJson x = genericDecodeJson x
+
+citation :: forall r r'. Union r CitationOpts r' => Nub r' CitationOpts => Record r -> Record CitationPrms -> Citation
+citation opts prms = Citation (opts `R.merge` { time: Nothing @String, note: Nothing @String }) prms
+
 data Resource = Resource (Record ResourceOpts) { name :: String }
 
 type ResourceOpts =
-  ( date :: Maybe String
-  , content :: Maybe ResourceContent
+  ( content :: Maybe ResourceContent
   )
 
 type ResourceContent = Variant
@@ -149,7 +173,7 @@ instance DecodeJson Resource where
   decodeJson x = genericDecodeJson x
 
 resource :: forall r r'. Union r ResourceOpts r' => Nub r' ResourceOpts => Record r -> String -> Resource
-resource opts name = Resource (opts `R.merge` { date: Nothing @String, content: Nothing @ResourceContent }) { name }
+resource opts name = Resource (opts `R.merge` { content: Nothing @ResourceContent }) { name }
 
 --------------------------------------------------------------------------------
 -- Doc builders
@@ -168,10 +192,10 @@ sentence :: Record SentenceOpts -> Record SentencePrms -> Array Doc -> Doc
 sentence opts prms body = Fix.wrap $ Sentence opts prms body
 
 linkExternal :: Record LinkExternalOpts -> Record LinkExternalPrms -> Doc -> Doc
-linkExternal opts prms label = Fix.wrap $ LinkExternal (opts `R.merge` { favicon_url: Nothing @String, source: Nothing @Resource, url: Nothing @String }) prms label
+linkExternal opts prms label = Fix.wrap $ LinkExternal (opts `R.merge` { favicon_url: Nothing @String, citation: Nothing @Citation, url: Nothing @String }) prms label
 
 linkInternal :: Record LinkInternalOpts -> Record LinkInternalPrms -> Doc -> Doc
-linkInternal opts prms label = Fix.wrap $ LinkInternal (opts `R.merge` { source: Nothing @Resource, refId: Nothing @RefId }) prms label
+linkInternal opts prms label = Fix.wrap $ LinkInternal (opts `R.merge` { citation: Nothing @Citation, refId: Nothing @RefId }) prms label
 
 sidenote :: Record SidenoteOpts -> Record SidenotePrms -> Doc -> Doc -> Doc
 sidenote opts prms label body = Fix.wrap $ Sidenote opts prms label body
@@ -196,7 +220,7 @@ image opts prms caption = Fix.wrap $ Image opts prms caption
 
 -- where
 -- opts_input :: Record (ImageOpts_ (caption :: Maybe Doc))
--- opts_input = opts `R.merge` { source: Nothing @Resource, caption: Nothing @Doc }
+-- opts_input = opts `R.merge` { citation: Nothing @Citation, caption: Nothing @Doc }
 
 -- opts_output :: Record (ImageOpts_ ())
 -- opts_output = R.delete (Proxy @"caption") opts_input
@@ -233,20 +257,20 @@ collectRefIds doc0 =
     )
     # Set.fromFoldable
 
-collectResources :: Doc -> Array Resource
-collectResources doc0 =
+collectCitations :: Doc -> Array Citation
+collectCitations doc0 =
   ArrayST.run
     ( do
         xs <- ArrayST.new
         let
-          pushMaybeResource = maybe (pure unit) \source -> xs # ArrayST.push source # void
+          pushMaybe = maybe (pure unit) \cit -> xs # ArrayST.push cit # void
         doc0 # Fix.traverse_upwards_ case _ of
-          LinkExternal opts _ _ -> opts.source # pushMaybeResource
-          LinkInternal opts _ _ -> opts.source # pushMaybeResource
-          CodeBlock opts _ -> opts.source # pushMaybeResource
-          QuoteBlock opts _ _ -> opts.source # pushMaybeResource
-          MathBlock opts _ -> opts.source # pushMaybeResource
-          Image opts _ _ -> opts.source # pushMaybeResource
+          LinkExternal opts _ _ -> opts.citation # pushMaybe
+          LinkInternal opts _ _ -> opts.citation # pushMaybe
+          CodeBlock opts _ -> opts.citation # pushMaybe
+          QuoteBlock opts _ _ -> opts.citation # pushMaybe
+          MathBlock opts _ -> opts.citation # pushMaybe
+          Image opts _ _ -> opts.citation # pushMaybe
           _ -> pure unit
         pure xs
     )
