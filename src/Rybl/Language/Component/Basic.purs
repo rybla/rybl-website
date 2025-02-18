@@ -117,7 +117,7 @@ theDocComponent = H.mkComponent { initialState, eval, render }
 
   render { doc, ctx, env, viewMode: _ } =
     H.div
-      [ Style.style do
+      [ Style.css do
           tell [ "width: 100%" ]
           tell [ "display: flex", "flex-direction: column", "gap: 1em" ]
       ]

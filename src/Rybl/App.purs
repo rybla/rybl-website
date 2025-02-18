@@ -123,27 +123,27 @@ component = H.mkComponent { initialState, eval, render }
   render { doc, viewMode } =
     HH.div
       [ HP.classes [ Class.mk @"app" ]
-      , Style.style $ tell [ "margin: auto", "max-width: 800px", "display: flex", "flex-direction: column", "gap: 0.5rem" ]
+      , Style.css $ tell [ "margin: auto", "max-width: 800px", "display: flex", "flex-direction: column", "gap: 0.5rem" ]
       ]
       -- [ HH.div
-      --     [ Style.style $ tell [ "font-size: 2rem", "padding: 0 1rem" ] ]
+      --     [ Style.css $ tell [ "font-size: 2rem", "padding: 0 1rem" ] ]
       --     [ HH.text "rybl" ]
       -- , HH.div
-      --     [ Style.style $ tell [ "padding: 0 1rem", "display: flex", "flex-flow: row wrap", "gap: 0.5rem", "line-height: 1.5" ] ]
+      --     [ Style.css $ tell [ "padding: 0 1rem", "display: flex", "flex-flow: row wrap", "gap: 0.5rem", "line-height: 1.5" ] ]
       --     let
       --       item_style = tell [ "padding: 0.5em", "border: 1px solid black", "width: 4em" ]
       --     in
-      --       [ HH.div [ Style.style item_style ] [ HH.text "index" ]
-      --       , HH.div [ Style.style item_style ] [ HH.text "about" ]
-      --       , HH.div [ Style.style item_style ] [ HH.text "links" ]
-      --       , HH.div [ Style.style item_style ] [ HH.text "contact" ]
+      --       [ HH.div [ Style.css item_style ] [ HH.text "index" ]
+      --       , HH.div [ Style.css item_style ] [ HH.text "about" ]
+      --       , HH.div [ Style.css item_style ] [ HH.text "links" ]
+      --       , HH.div [ Style.css item_style ] [ HH.text "contact" ]
       --       ]
       -- , HH.div
-      --     [ Style.style $ tell [ "margin-top: 0.5rem", "padding: 0.5rem", "border: 0.5rem solid black", "box-shadow: 0 0 1rem 0 black" ] ]
+      --     [ Style.css $ tell [ "margin-top: 0.5rem", "padding: 0.5rem", "border: 0.5rem solid black", "box-shadow: 0 0 1rem 0 black" ] ]
       --     [ HH.slot_ (Proxy @"doc") unit RyblComponent.theDocComponent { doc, viewMode } ]
       -- ]
       [ HH.div
-          [ Style.style $ tell [ "margin-top: 0.5rem", "padding: 0.5rem" ] ]
+          [ Style.css $ tell [ "margin-top: 0.5rem", "padding: 0.5rem" ] ]
           [ HH.slot_ (Proxy @"doc") unit RC.theDocComponent { doc, viewMode } ]
       ]
 

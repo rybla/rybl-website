@@ -9,19 +9,19 @@ import Halogen.HTML.Properties as HP
 
 type U = Unit
 
-type Style = StyleM U
-type StyleM = Writer (Array String)
+type Css = CssM U
+type CssM = Writer (Array String)
 
-style :: forall r i. Style -> IProp (style :: String | r) i
-style sty = HP.style $ execWriter sty # Array.intercalate "; "
+css :: forall r i. Css -> IProp (style :: String | r) i
+css sty = HP.style $ execWriter sty # Array.intercalate "; "
 
 class Render a where
   render :: a -> String
 
-class RenderStyle a where
-  renderStyle :: a -> Array String
+class RenderCss a where
+  renderCss :: a -> Array String
 
-type RenderStyleF a = a -> Array String
+type RenderCssF a = a -> Array String
 type RenderF a = a -> String
 
 --------------------------------------------------------------------------------

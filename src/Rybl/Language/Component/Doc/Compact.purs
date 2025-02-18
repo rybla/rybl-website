@@ -42,14 +42,14 @@ renderDoc doc@(Fix (Page _opts prms body_)) = do
   bibliography <- doc # renderBibliography
   pure $
     HH.div
-      [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 1.0em" ]
+      [ Style.css $ tell [ "display: flex", "flex-direction: column", "gap: 1.0em" ]
       , HP.id prms.id
       ]
       [ HH.div
-          [ Style.style do tell [ "font-size: 3em", "text-align: center" ] ]
+          [ Style.css do tell [ "font-size: 3em", "text-align: center" ] ]
           [ HH.text prms.title ]
       , HH.div
-          [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 2em" ] ] $ fold $
+          [ Style.css $ tell [ "display: flex", "flex-direction: column", "gap: 2em" ] ] $ fold $
           [ [ tableOfContents ]
           , body
           , [ bibliography ]
@@ -79,12 +79,12 @@ renderDoc (Fix (Section _opts prms body_)) = do
   prop' @"section_index" .= section_index + 1
   pure $
     HH.div
-      [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 1.5em" ]
+      [ Style.css $ tell [ "display: flex", "flex-direction: column", "gap: 1.5em" ]
       , HP.id prms.id
       ]
       [ title
       -- HH.div
-      --   [ Style.style $ tell
+      --   [ Style.css $ tell
       --       [ "display: flex"
       --       , "flex-direction: row"
       --       , "justify-content: space-between"
@@ -95,14 +95,14 @@ renderDoc (Fix (Section _opts prms body_)) = do
       --       ]
       --   ]
       --   [ HH.div
-      --       [ Style.style $ tell [ "flex-grow: 0" ] ] $
+      --       [ Style.css $ tell [ "flex-grow: 0" ] ] $
       --       [ HH.a
       --           [ HP.href $ "#" <> id ]
       --           [ HH.text $ "§" ]
       --       , title
       --       ]
       --   , HH.div
-      --       [ Style.style $ tell [ "flex-shrink: 0", "flex-grow: 1", "text-align: right" ] ]
+      --       [ Style.css $ tell [ "flex-shrink: 0", "flex-grow: 1", "text-align: right" ] ]
       --       [ HH.text
       --           $ List.Cons section_index (section_path # map _.index)
       --               # map ((_ + 1) >>> show)
@@ -114,7 +114,7 @@ renderDoc (Fix (Section _opts prms body_)) = do
       --       ]
       --   ]
       , HH.div
-          [ Style.style $ tell [ "display: flex", "flex-direction: column", "gap: 1em" ] ]
+          [ Style.css $ tell [ "display: flex", "flex-direction: column", "gap: 1em" ] ]
           body
       ]
 
@@ -128,7 +128,7 @@ renderDoc (Fix (Sentence _opts _prms body_)) = do
   body <- body_ # traverse renderDoc
   pure $
     HH.div
-      [ Style.style $ tell [ "display: inline" ] ]
+      [ Style.css $ tell [ "display: inline" ] ]
       body
 
 renderDoc (Fix (Sidenote _opts _prms label_ body_)) = do
@@ -144,19 +144,19 @@ renderDoc (Fix (Sidenote _opts _prms label_ body_)) = do
 renderDoc (Fix (Ref _opts prms)) = do
   pure $
     HH.div
-      [ Style.style do tell [ "background-color: black", "color: white", "padding: 0.5em" ] ]
+      [ Style.css do tell [ "background-color: black", "color: white", "padding: 0.5em" ] ]
       [ HH.text $ "Ref " <> show prms.refId ]
 
 renderDoc (Fix (CodeBlock opts prms)) = do
-  source <- opts.citation # traverse renderCitationNote
+  source <- opts.citation # traverse renderCitation
   pure
     $ HH.div
         []
     $ fold
         [ [ HH.div
-              [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
+              [ Style.css do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
               [ HH.pre
-                  [ Style.style do tell [ "margin: 0", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
+                  [ Style.css do tell [ "margin: 0", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
                   [ HH.text prms.value ]
               ]
           ]
@@ -165,15 +165,15 @@ renderDoc (Fix (CodeBlock opts prms)) = do
 
 renderDoc (Fix (QuoteBlock opts _prms body_)) = do
   body <- body_ # renderDoc
-  source <- opts.citation # traverse renderCitationNote
+  source <- opts.citation # traverse renderCitation
   pure
     $ HH.div
-        [ Style.style do tell [ "display: flex", "flex-direction: column" ] ]
+        [ Style.css do tell [ "display: flex", "flex-direction: column" ] ]
     $ fold
         [ [ HH.div
-              [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
+              [ Style.css do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
               [ HH.div
-                  [ Style.style do
+                  [ Style.css do
                       tell
                         [ "margin: 0 1em"
                         , "padding: 0.5em"
@@ -189,15 +189,15 @@ renderDoc (Fix (QuoteBlock opts _prms body_)) = do
         ]
 
 renderDoc (Fix (MathBlock opts prms)) = do
-  source <- opts.citation # traverse renderCitationNote
+  source <- opts.citation # traverse renderCitation
   pure
     $ HH.div
         []
     $ fold
         [ [ HH.div
-              [ Style.style do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
+              [ Style.css do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
               [ HH.pre
-                  [ Style.style do tell [ "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
+                  [ Style.css do tell [ "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)", "overflow-x: scroll" ] ]
                   [ HH.text $ "MATH: " <> prms.value ]
               ]
           ]
@@ -206,19 +206,19 @@ renderDoc (Fix (MathBlock opts prms)) = do
 
 renderDoc (Fix (Image opts prms caption__)) = do
   caption_ <- caption__ # traverse renderDoc
-  source <- opts.citation # traverse renderCitationNote
+  source <- opts.citation # traverse renderCitation
   pure
     $ HH.div
-        [ Style.style do tell [ "width: 100%", "display: flex", "flex-direction: column", "justify-content: center" ] ]
+        [ Style.css do tell [ "width: 100%", "display: flex", "flex-direction: column", "justify-content: center" ] ]
     $ fold
         [ [ HH.img
-              [ Style.style do tell [ "width: 100%" ]
+              [ Style.css do tell [ "width: 100%" ]
               , HP.src prms.url
               ]
           ]
         , caption_ # maybe [] \caption ->
             [ HH.div
-                [ Style.style $ do tell [ "margin: 0 0.5em", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)" ] ]
+                [ Style.css $ do tell [ "margin: 0 0.5em", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)" ] ]
                 [ caption ]
             ]
         , source # maybe [] pure
@@ -227,7 +227,7 @@ renderDoc (Fix (Image opts prms caption__)) = do
 renderDoc (Fix (String opts prms)) = do
   pure $
     HH.div
-      [ Style.style do
+      [ Style.css do
           tell [ "display: inline" ]
           opts.style # maybe (pure unit)
             ( match
@@ -244,7 +244,7 @@ renderDoc (Fix (Error _opts _prms body_)) = do
   e <- body_ # renderDoc
   pure $
     HH.div
-      [ Style.style $ tell [ "background-color: #ffcccb" ] ]
+      [ Style.css $ tell [ "background-color: #ffcccb" ] ]
       [ e ]
 
 renderDoc (Fix (LinkExternal opts prms label_)) = do
@@ -252,14 +252,14 @@ renderDoc (Fix (LinkExternal opts prms label_)) = do
   let
     favicon = opts.favicon_url # maybe [] \favicon_url ->
       [ HH.img
-          [ Style.style $ tell [ "height: 0.8em" ]
+          [ Style.css $ tell [ "height: 0.8em" ]
           , HP.src favicon_url
           ]
       ]
     notes = opts.url # flip maybe' (const []) \_ -> [ HH.div [] [ nub ] ]
   pure
     $ HH.a
-        ( [ [ Style.style $ tell
+        ( [ [ Style.css $ tell
                 [ "display: inline-flex"
                 , "flex-direction: row"
                 , "align-items: baseline"
@@ -281,14 +281,14 @@ renderDoc (Fix (LinkInternal opts _prms label_)) = do
   let
     favicon =
       [ HH.img
-          [ Style.style $ tell [ "height: 0.8em" ]
+          [ Style.css $ tell [ "height: 0.8em" ]
           , HP.src "/favicon.ico"
           ]
       ]
     notes = opts.refId # flip maybe' (const []) \_ -> [ HH.div [] [ nub ] ]
   pure
     $ HH.a
-        ( [ [ Style.style $ tell
+        ( [ [ Style.css $ tell
                 [ "display: inline-flex"
                 , "flex-direction: row"
                 , "align-items: baseline"
@@ -307,16 +307,13 @@ renderDoc (Fix (LinkInternal opts _prms label_)) = do
 
 nub :: HTML
 nub =
-  HH.sup [ Style.style do tell [ "display: inline-block", "color: white", "background-color: red", "padding: 0 0.2em" ] ]
+  HH.sup [ Style.css do tell [ "display: inline-block", "color: white", "background-color: red", "padding: 0 0.2em" ] ]
     [ HH.text "nub" ]
-
-renderCitation :: forall m. MonadReader Ctx m => MonadState Env m => Citation -> m HTML
-renderCitation = todo "renderCitation"
 
 renderResource :: forall m. MonadReader Ctx m => MonadState Env m => Resource -> m HTML
 renderResource (Resource opts prms) = do
   pure
-    $ HH.div [ Style.style do tell [ "word-wrap: word-break" ] ]
+    $ HH.div [ Style.css do tell [ "word-wrap: word-break" ] ]
     $ Array.intersperse (HH.text " • ")
     $ fold
         [ [ HH.text $ prms.name ]
@@ -327,7 +324,7 @@ renderResource (Resource opts prms) = do
                 { url: \url ->
                     [ HH.a
                         [ HP.href url
-                        , Style.style do tell [ "word-wrap: word-break" ]
+                        , Style.css do tell [ "word-wrap: word-break" ]
                         ]
                         [ HH.text "url" ]
                     ]
@@ -368,23 +365,23 @@ renderTableOfContents doc =
           kids = kids_ # map go
         in
           [ HH.div
-              [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
+              [ Style.css do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
               [ renderNode node
               , HH.div
-                  [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em", "padding-left: 1em" ] ]
+                  [ Style.css do tell [ "display: flex", "flex-direction: column", "gap: 0.5em", "padding-left: 1em" ] ]
                   (kids # fold)
               ]
           ]
 
     pure
       $ HH.div
-          [ Style.style do
+          [ Style.css do
               tell [ "padding: 1em", "box-shadow: 0 0 0 1px black" ]
               tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ]
           ]
       $ fold
           [ [ HH.div
-                [ Style.style do tell [ "font-size: 1.5em" ] ]
+                [ Style.css do tell [ "font-size: 1.5em" ] ]
                 [ HH.text "Table of Contents" ]
             ]
           , go $ prune $ tree
@@ -400,7 +397,7 @@ renderSectionTitle :: forall m. Monad m => _ -> m HTML
 renderSectionTitle { section_depth, section_index, id, title } =
   pure $
     HH.div
-      [ Style.style $ tell
+      [ Style.css $ tell
           [ "display: flex"
           , "flex-direction: row"
           , "justify-content: space-between"
@@ -411,14 +408,14 @@ renderSectionTitle { section_depth, section_index, id, title } =
           ]
       ]
       [ HH.div
-          [ Style.style $ tell [ "flex-grow: 0" ] ] $
+          [ Style.css $ tell [ "flex-grow: 0" ] ] $
           [ HH.a
               [ HP.href $ "#" <> id ]
               [ HH.text $ "§" ]
           , title
           ]
       , HH.div
-          [ Style.style $ tell [ "flex-shrink: 0", "flex-grow: 1", "text-align: right" ] ] $ fold $
+          [ Style.css $ tell [ "flex-shrink: 0", "flex-grow: 1", "text-align: right" ] ] $ fold $
           [ section_index # maybe [] \str -> [ HH.text str ]
           , [ HH.a
                 [ HP.href $ "#" <> id ]
@@ -429,12 +426,12 @@ renderSectionTitle { section_depth, section_index, id, title } =
 
 -- TODO: add something extra about citation.time and citation.note
 -- TODO: this is probably combined with renderCitation
-renderCitationNote :: forall m. MonadReader Ctx m => MonadState Env m => Citation -> m HTML
-renderCitationNote resource_ = do
-  resource <- resource_ # renderCitation
+renderCitation :: forall m. MonadReader Ctx m => MonadState Env m => Citation -> m HTML
+renderCitation citation_ = do
+  citation <- citation_ # renderCitation
   pure $
     HH.div
-      [ Style.style $ do
+      [ Style.css $ do
           tell
             [ "padding-left: 40%"
             , "padding-right: 10%"
@@ -444,13 +441,13 @@ renderCitationNote resource_ = do
             ]
       ]
       [ HH.div
-          [ Style.style $ do
+          [ Style.css $ do
               tell
                 [ "padding: 0.5em"
                 , "background-color: color-mix(in hsl, saddlebrown, transparent 80%)"
                 ]
           ]
-          [ resource ]
+          [ citation ]
       ]
 
 renderBibliography :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
@@ -461,7 +458,7 @@ renderBibliography doc = do
     html <- renderCitation citation
     pure $
       HH.div
-        [ Style.style do tell [ "padding: 0.5em", "background-color: color-mix(in hsl, saddlebrown, transparent 80%)" ] ]
+        [ Style.css do tell [ "padding: 0.5em", "background-color: color-mix(in hsl, saddlebrown, transparent 80%)" ] ]
         [ html ]
   title <-
     renderSectionTitle
@@ -473,13 +470,13 @@ renderBibliography doc = do
   pure $
     HH.div
       [ HP.id "bibliography"
-      , Style.style do
+      , Style.css do
           tell [ "padding: 1em", "box-shadow: 0 0 0 1px black" ]
           tell [ "display: flex", "flex-direction: column", "gap: 1em" ]
       ]
       [ title
       , HH.div
-          [ Style.style do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
+          [ Style.css do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
           citations
       ]
 
@@ -511,9 +508,9 @@ theSidenoteExpanderComponent = H.mkComponent { initialState, eval, render }
       bgcolor = "color-mix(in hsl, indigo, transparent 90%)"
     in
       HH.div
-        [ Style.style $ tell [ "display: inline" ] ] $ fold $
+        [ Style.css $ tell [ "display: inline" ] ] $ fold $
         [ [ HH.div
-              [ Style.style $ tell [ "display: inline", "user-select: none", "cursor: pointer", "background-color: " <> bgcolor, "padding-left: 0.3em" ]
+              [ Style.css $ tell [ "display: inline", "user-select: none", "cursor: pointer", "background-color: " <> bgcolor, "padding-left: 0.3em" ]
               , HE.onClick $ const $ Right unit
               ] $ fold $
               [ marker
@@ -524,7 +521,7 @@ theSidenoteExpanderComponent = H.mkComponent { initialState, eval, render }
         , if not state.open then []
           else
             [ HH.div
-                [ Style.style $ tell
+                [ Style.css $ tell
                     [ "margin: 1.0em"
                     , "padding: 0.5em"
                     -- , "box-shadow: 0 0 0.5em 0 rgba(0, 0, 0, 0.5)" -- shadow
@@ -535,7 +532,7 @@ theSidenoteExpanderComponent = H.mkComponent { initialState, eval, render }
                 [ state.body ]
             ]
         , [ HH.div
-              [ Style.style $ tell
+              [ Style.css $ tell
                   [ "display: inline"
                   , "user-select: none"
                   , "cursor: pointer"
@@ -572,7 +569,7 @@ theSidenoteExpanderComponent = H.mkComponent { initialState, eval, render }
 --   render { sty: _, label, body, is_open } =
 --     HH.div
 --       [ HP.classes [  ]
---       , Style.style $ tell [ "box-shadow: 0 0 0 0.1em black inset", "display: flex", "flex-direction: column", "padding: 0.5em", "gap: 0.5em" ]
+--       , Style.css $ tell [ "box-shadow: 0 0 0 0.1em black inset", "display: flex", "flex-direction: column", "padding: 0.5em", "gap: 0.5em" ]
 --       ]
 --       [ label # mapAction_ComponentHTML (expandCons @"toggle_is_open")
 --       , HH.button
