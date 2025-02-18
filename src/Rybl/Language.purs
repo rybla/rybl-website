@@ -68,44 +68,86 @@ derive instance Traversable Doc_
 type PageOpts = () :: Row Type
 type PagePrms = (id :: String, title :: String)
 
+page :: Record PageOpts -> Record PagePrms -> Array Doc -> Doc
+page opts prms body = Fix.wrap $ Page opts prms body
+
 type SectionOpts = () :: Row Type
 type SectionPrms = (id :: String, title :: String)
+
+section :: Record SectionOpts -> Record SectionPrms -> Array Doc -> Doc
+section opts prms body = Fix.wrap $ Section opts prms body
 
 type ParagraphOpts = () :: Row Type
 type ParagraphPrms = () :: Row Type
 
+paragraph :: Record ParagraphOpts -> Record ParagraphPrms -> Array Doc -> Doc
+paragraph opts prms body = Fix.wrap $ Paragraph opts prms body
+
 type SentenceOpts = () :: Row Type
 type SentencePrms = () :: Row Type
+
+sentence :: Record SentenceOpts -> Record SentencePrms -> Array Doc -> Doc
+sentence opts prms body = Fix.wrap $ Sentence opts prms body
 
 type LinkExternalOpts = (favicon_url :: Maybe String, citation :: Maybe Citation, url :: Maybe String)
 type LinkExternalPrms = () :: Row Type
 
+linkExternal :: Record LinkExternalOpts -> Record LinkExternalPrms -> Doc -> Doc
+linkExternal opts prms label = Fix.wrap $ LinkExternal (opts `R.merge` { favicon_url: Nothing @String, citation: Nothing @Citation, url: Nothing @String }) prms label
+
 type LinkInternalOpts = (citation :: Maybe Citation, refId :: Maybe RefId)
 type LinkInternalPrms = () :: Row Type
+
+linkInternal :: Record LinkInternalOpts -> Record LinkInternalPrms -> Doc -> Doc
+linkInternal opts prms label = Fix.wrap $ LinkInternal (opts `R.merge` { citation: Nothing @Citation, refId: Nothing @RefId }) prms label
 
 type SidenoteOpts = () :: Row Type
 type SidenotePrms = () :: Row Type
 
+sidenote :: Record SidenoteOpts -> Record SidenotePrms -> Doc -> Doc -> Doc
+sidenote opts prms label body = Fix.wrap $ Sidenote opts prms label body
+
 type RefOpts = () :: Row Type
 type RefPrms = (refId :: RefId)
+
+ref :: Record RefOpts -> Record RefPrms -> Doc
+ref opts prms = Fix.wrap $ Ref opts prms
 
 type StringOpts = (style :: Maybe StringStyle)
 type StringPrms = (value :: String)
 
+string :: Record StringOpts -> Record StringPrms -> Doc
+string opts prms = Fix.wrap $ String opts prms
+
 type CodeBlockOpts = (citation :: Maybe Citation)
 type CodeBlockPrms = (value :: String)
+
+codeBlock :: Record CodeBlockOpts -> Record CodeBlockPrms -> Doc
+codeBlock opts prms = Fix.wrap $ CodeBlock opts prms
 
 type QuoteBlockOpts = (citation :: Maybe Citation)
 type QuoteBlockPrms = () :: Row Type
 
+quoteBlock :: Record QuoteBlockOpts -> Record QuoteBlockPrms -> Doc -> Doc
+quoteBlock opts prms body = Fix.wrap $ QuoteBlock opts prms body
+
 type MathBlockOpts = (citation :: Maybe Citation)
 type MathBlockPrms = (value :: String)
+
+mathBlock :: Record MathBlockOpts -> Record MathBlockPrms -> Doc
+mathBlock opts prms = Fix.wrap $ MathBlock opts prms
 
 type ImageOpts = (citation :: Maybe Citation)
 type ImagePrms = (url :: String)
 
+image :: Record ImageOpts -> Record ImagePrms -> Maybe Doc -> Doc
+image opts prms caption = Fix.wrap $ Image opts prms caption
+
 type ErrorOpts = () :: Row Type
 type ErrorPrms = (label :: String)
+
+error :: Record ErrorOpts -> Record ErrorPrms -> Doc -> Doc
+error opts prms body = Fix.wrap $ Error opts prms body
 
 --------------------------------------------------------------------------------
 -- types associated with Doc
@@ -189,74 +231,6 @@ resource :: forall r r'. Union r ResourceOpts r' => Nub r' ResourceOpts => Recor
 resource opts name = Resource (opts `R.merge` { content: Nothing @ResourceContent }) { name }
 
 --------------------------------------------------------------------------------
--- Doc builders
---------------------------------------------------------------------------------
-
-page :: Record PageOpts -> Record PagePrms -> Array Doc -> Doc
-page opts prms body = Fix.wrap $ Page opts prms body
-
-section :: Record SectionOpts -> Record SectionPrms -> Array Doc -> Doc
-section opts prms body = Fix.wrap $ Section opts prms body
-
-paragraph :: Record ParagraphOpts -> Record ParagraphPrms -> Array Doc -> Doc
-paragraph opts prms body = Fix.wrap $ Paragraph opts prms body
-
-sentence :: Record SentenceOpts -> Record SentencePrms -> Array Doc -> Doc
-sentence opts prms body = Fix.wrap $ Sentence opts prms body
-
-linkExternal :: Record LinkExternalOpts -> Record LinkExternalPrms -> Doc -> Doc
-linkExternal opts prms label = Fix.wrap $ LinkExternal (opts `R.merge` { favicon_url: Nothing @String, citation: Nothing @Citation, url: Nothing @String }) prms label
-
-linkInternal :: Record LinkInternalOpts -> Record LinkInternalPrms -> Doc -> Doc
-linkInternal opts prms label = Fix.wrap $ LinkInternal (opts `R.merge` { citation: Nothing @Citation, refId: Nothing @RefId }) prms label
-
-sidenote :: Record SidenoteOpts -> Record SidenotePrms -> Doc -> Doc -> Doc
-sidenote opts prms label body = Fix.wrap $ Sidenote opts prms label body
-
-ref :: Record RefOpts -> Record RefPrms -> Doc
-ref opts prms = Fix.wrap $ Ref opts prms
-
-string :: Record StringOpts -> Record StringPrms -> Doc
-string opts prms = Fix.wrap $ String opts prms
-
-codeBlock :: Record CodeBlockOpts -> Record CodeBlockPrms -> Doc
-codeBlock opts prms = Fix.wrap $ CodeBlock opts prms
-
-quoteBlock :: Record QuoteBlockOpts -> Record QuoteBlockPrms -> Doc -> Doc
-quoteBlock opts prms body = Fix.wrap $ QuoteBlock opts prms body
-
-mathBlock :: Record MathBlockOpts -> Record MathBlockPrms -> Doc
-mathBlock opts prms = Fix.wrap $ MathBlock opts prms
-
-image :: Record ImageOpts -> Record ImagePrms -> Maybe Doc -> Doc
-image opts prms caption = Fix.wrap $ Image opts prms caption
-
--- where
--- opts_input :: Record (ImageOpts_ (caption :: Maybe Doc))
--- opts_input = opts `R.merge` { citation: Nothing @Citation, caption: Nothing @Doc }
-
--- opts_output :: Record (ImageOpts_ ())
--- opts_output = R.delete (Proxy @"caption") opts_input
-
-error :: Record ErrorOpts -> Record ErrorPrms -> Doc -> Doc
-error opts prms body = Fix.wrap $ Error opts prms body
-
---------------------------------------------------------------------------------
-
--- collectSidenotes :: Doc -> Array { id :: Id, label :: Doc, body :: Doc }
--- collectSidenotes d0 =
---   ArrayST.run do
---     sidenotes <- STArray.new
---     let
---       go d = do
---         case d of
---           SidenotesThreshold _ -> pure unit -- stop recursing
---           Sidenote id label body -> do
---             sidenotes # STArray.push { id, label, body } # void
---             label # go
---           _ -> d # linearKids_Doc # traverse_ go
---     go d0
---     pure sidenotes
 
 collectRefIds :: Doc -> Set RefId
 collectRefIds doc0 =

@@ -33,7 +33,7 @@ import Rybl.Halogen.Style as Style
 import Rybl.Language (Citation(..), Doc, Doc_(..), Resource(..))
 import Rybl.Language as RL
 import Rybl.Language.Component.Common (Ctx, Env, HTML, mapAction_ComponentHTML, next_widget_index)
-import Rybl.Utility (bug, prop', todo)
+import Rybl.Utility (bug, prop')
 import Type.Proxy (Proxy(..))
 
 renderDoc :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
