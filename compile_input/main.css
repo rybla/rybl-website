@@ -1,5 +1,6 @@
 html {
   scroll-behavior: smooth;
+  background-color: #ffc8a6;
 }
 
 html,
@@ -21,8 +22,13 @@ a {
   /* color: red !important; */
   /* outline: 0.2em solid blue; */
   /* outline: 0.5em ridge rgba(170, 50, 220, .6); */
+
   outline: 0.5em outset rgba(170, 50, 220, .6);
   transition-property: outline;
   transition-duration: 0.5s;
-  /* border-radius: 2rem; */
+
+  /* border: 0.5em solid transparent;
+  border-image: linear-gradient(to bottom right, #b827fc 0%, #2c90fc 25%, #b8fd33 50%, #fec837 75%, #fd1892 100%);
+  border-image-slice: 1;
+  box-sizing: border-box; */
 }
