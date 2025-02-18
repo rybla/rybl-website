@@ -2,11 +2,15 @@ module Rybl.Language where
 
 import Prelude
 
+import Control.Monad.State (execState, modify_)
 import Data.Argonaut (class DecodeJson, class EncodeJson)
 import Data.Argonaut.Decode.Generic (genericDecodeJson)
 import Data.Argonaut.Encode.Generic (genericEncodeJson)
 import Data.Array.ST as ArrayST
 import Data.Generic.Rep (class Generic)
+import Data.List (List)
+import Data.Map (Map)
+import Data.Map as Map
 import Data.Maybe (Maybe(..), maybe)
 import Data.Newtype (class Newtype)
 import Data.Set (Set)
@@ -30,10 +34,12 @@ type Doc = Fix Doc_
 data Doc_ self
   = Page (Record PageOpts) (Record PagePrms) (Array self)
   | Section (Record SectionOpts) (Record SectionPrms) (Array self)
+  -- TODO: List
   | Paragraph (Record ParagraphOpts) (Record ParagraphPrms) (Array self)
   | Sentence (Record SentenceOpts) (Record SentencePrms) (Array self)
   | LinkExternal (Record LinkExternalOpts) (Record LinkExternalPrms) self
   | LinkInternal (Record LinkInternalOpts) (Record LinkInternalPrms) self
+  | LinkSection (Record LinkSectionOpts) (Record LinkSectionPrms)
   | Sidenote (Record SidenoteOpts) (Record SidenotePrms) self self
   | Ref (Record RefOpts) (Record RefPrms)
   | String (Record StringOpts) (Record StringPrms)
@@ -72,7 +78,7 @@ page :: Record PageOpts -> Record PagePrms -> Array Doc -> Doc
 page opts prms body = Fix.wrap $ Page opts prms body
 
 type SectionOpts = () :: Row Type
-type SectionPrms = (id :: String, title :: String)
+type SectionPrms = (id :: String, title :: String, path :: List String)
 
 section :: Record SectionOpts -> Record SectionPrms -> Array Doc -> Doc
 section opts prms body = Fix.wrap $ Section opts prms body
@@ -93,13 +99,19 @@ type LinkExternalOpts = (favicon_url :: Maybe String, citation :: Maybe Citation
 type LinkExternalPrms = () :: Row Type
 
 linkExternal :: Record LinkExternalOpts -> Record LinkExternalPrms -> Doc -> Doc
-linkExternal opts prms label = Fix.wrap $ LinkExternal (opts `R.merge` { favicon_url: Nothing @String, citation: Nothing @Citation, url: Nothing @String }) prms label
+linkExternal opts prms label = Fix.wrap $ LinkExternal opts prms label
 
 type LinkInternalOpts = (citation :: Maybe Citation, refId :: Maybe RefId)
 type LinkInternalPrms = () :: Row Type
 
 linkInternal :: Record LinkInternalOpts -> Record LinkInternalPrms -> Doc -> Doc
-linkInternal opts prms label = Fix.wrap $ LinkInternal (opts `R.merge` { citation: Nothing @Citation, refId: Nothing @RefId }) prms label
+linkInternal opts prms label = Fix.wrap $ LinkInternal opts prms label
+
+type LinkSectionOpts = (style :: Variant (short :: Unit, long :: Unit))
+type LinkSectionPrms = (title :: String)
+
+linkSection :: Record LinkSectionOpts -> Record LinkSectionPrms -> Doc
+linkSection opts prms = Fix.wrap $ LinkSection opts prms
 
 type SidenoteOpts = () :: Row Type
 type SidenotePrms = () :: Row Type
@@ -191,7 +203,7 @@ instance EncodeJson Citation where
 instance DecodeJson Citation where
   decodeJson x = genericDecodeJson x
 
-citation :: forall r r'. Union r CitationOpts r' => Nub r' CitationOpts => Record r -> Record CitationPrms -> Citation
+citation :: Record CitationOpts -> Record CitationPrms -> Citation
 citation opts prms = Citation (opts `R.merge` { time: Nothing @String, note: Nothing @String }) prms
 
 data Resource = Resource (Record ResourceOpts) (Record ResourcePrms)
@@ -262,3 +274,8 @@ collectCitations doc0 =
         pure xs
     )
 
+collect_section_title_to_id_and_path :: Doc -> Map String { id :: String, path :: List String }
+collect_section_title_to_id_and_path doc = doc # Fix.foldM k # flip execState Map.empty
+  where
+  k (Section _ prms _) = modify_ $ Map.insert prms.title { id: prms.id, path: prms.path }
+  k _ = pure unit

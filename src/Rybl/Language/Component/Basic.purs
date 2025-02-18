@@ -26,7 +26,7 @@ import Halogen.HTML (div) as H
 import Rybl.Data.Fix as Fix
 import Rybl.Data.Variant (case_, expandCons, inj', inj'U, on')
 import Rybl.Halogen.Style as Style
-import Rybl.Language (Doc, Doc_(..), RefId, collectRefIds)
+import Rybl.Language (Doc, Doc_(..), RefId, collectRefIds, collect_section_title_to_id_and_path)
 import Rybl.Language as RL
 import Rybl.Language.Component.Common (Env, Input, State, mapAction_ComponentHTML)
 import Rybl.Language.Component.Doc.Compact as Compact
@@ -45,6 +45,7 @@ theDocComponent = H.mkComponent { initialState, eval, render }
     , ctx:
         { namedDocs: Map.empty :: Map RefId _
         , section_path: mempty
+        , section_title_to_id_and_path: collect_section_title_to_id_and_path doc
         }
     , env:
         { widget_index: 0

@@ -39,6 +39,7 @@ type State =
 type Ctx =
   { namedDocs :: Map RefId Doc
   , section_path :: List { index :: Int, title :: String }
+  , section_title_to_id_and_path :: Map String { id :: String, path :: List String }
   }
 
 type WidgetIndex = Int

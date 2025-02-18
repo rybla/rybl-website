@@ -18,7 +18,7 @@ import Prim.Row (class Nub, class Union)
 import Record as R
 import Rybl.Language (Citation(..), CitationOpts, CitationPrms, CodeBlockOpts, CodeBlockPrms, Doc, ErrorOpts, ErrorPrms, ImageOpts, ImagePrms, LinkExternalOpts, LinkExternalPrms, LinkInternalOpts, LinkInternalPrms, MathBlockOpts, MathBlockPrms, PageOpts, PagePrms, ParagraphOpts, ParagraphPrms, QuoteBlockOpts, QuoteBlockPrms, RefId, RefOpts, RefPrms, Resource, SectionOpts, SectionPrms, SentenceOpts, SentencePrms, SidenoteOpts, SidenotePrms, StringOpts, StringPrms, StringStyle)
 import Rybl.Language as RL
-import Rybl.Utility (bug, encodeURIComponent_nicely, prop')
+import Rybl.Utility (bug, encodeURIComponent_nicely, prop', todo)
 import Web.URL as URL
 
 --------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ type SectionPrmsRequired = (title :: String)
 section :: forall opts opts' prms m. Union opts SectionOpts opts' => Nub opts' SectionOpts => Union SectionPrmsRequired SectionPrms prms => Nub prms SectionPrms => MonadAff m => Record opts -> Record SectionPrmsRequired -> M m (Array Doc) -> M m Doc
 section opts prms body = do
   id <- makeIdFromTitle prms.title
-  RL.section (opts `R.merge` {}) (prms `R.merge` { id }) <$> body
+  RL.section (opts `R.merge` {}) (prms `R.merge` { id, path: todo "I need to calculate section path in Doc-building monad" }) <$> body
 
 type ParagraphPrmsRequired = () :: Row Type
 

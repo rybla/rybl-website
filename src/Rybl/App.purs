@@ -8,8 +8,10 @@ import Data.Argonaut.Decode.Error (printJsonDecodeError)
 import Data.Either (either)
 import Data.Foldable (intercalate)
 import Data.Lens ((.=))
+import Data.List as List
 import Data.Maybe (Maybe(..))
 import Data.Newtype (wrap)
+import Data.Unfoldable (none)
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Class.Console as Console
@@ -105,7 +107,7 @@ component = H.mkComponent { initialState, eval, render }
                             # either
                                 ( \err ->
                                     RL.error {} { label: "JsonDecodeError" }
-                                      ( RL.section {} { id: "errors", title: "Errors" }
+                                      ( RL.section {} { title: "Errors", id: "errors", path: List.fromFoldable [ "errors" ] }
                                           [ RL.string { style: inj'U @"code" # pure }
                                               { value: intercalate "\n" [ "doc_str = " <> "\"\"\"" <> doc_str <> "\"\"\"" ] }
                                           , RL.string { style: inj'U @"code" # pure }

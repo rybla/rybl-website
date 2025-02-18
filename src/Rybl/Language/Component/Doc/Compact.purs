@@ -8,12 +8,12 @@ import Control.Monad.Writer (tell)
 import Data.Argonaut.Encode (toJsonString)
 import Data.Array as Array
 import Data.Either (Either(..))
-import Data.Foldable (fold, length, null)
+import Data.Foldable (fold, intercalate, length, null)
 import Data.Int as Int
 import Data.Lens ((%=), (%~), (.=))
 import Data.List as List
 import Data.Map as Map
-import Data.Maybe (fromMaybe', maybe, maybe')
+import Data.Maybe (Maybe(..), fromMaybe', maybe, maybe')
 import Data.Newtype (unwrap)
 import Data.Traversable (traverse)
 import Data.Tuple.Nested ((/\))
@@ -318,6 +318,43 @@ renderDoc (Fix (LinkInternal opts _prms label_)) = do
         , [ HH.div_ [ label ] ]
         , notes
         ]
+
+renderDoc (Fix (LinkSection opts prms)) = do
+  { section_title_to_id_and_path } <- ask
+  section_title_to_id_and_path # Map.lookup prms.title # case _ of
+    Nothing -> pure $
+      HH.a
+        [ Style.css do tell [ "background-color: red" ]
+        , HP.classes [ HH.ClassName "LinkSection" ]
+        ]
+        [ HH.text $ prms.title ]
+    Just { id, path } -> opts.style # match
+      { short: \_ -> pure $
+          HH.a
+            [ Style.css do tell []
+            , HP.href id
+            , HP.classes [ HH.ClassName "LinkSection" ]
+            ]
+            [ HH.text $ "§" <> (path # List.reverse # intercalate ".") ]
+      , long: \_ -> pure $
+          HH.a
+            [ Style.css do tell []
+            , HP.href id
+            , HP.classes [ HH.ClassName "LinkSection" ]
+            ]
+            [ HH.text $ "§ " <> prms.title ]
+      }
+
+-- pure $
+--   HH.a
+--     ( [ mb_id_and_path # maybe [] \{ id } -> [ HP.href id ]
+--       ] # fold
+--     )
+--     [ opts.style # match
+--         { short: \_ -> HH.text $ todo ""
+--         , long: \_ -> HH.text $ todo ""
+--         }
+--     ]
 
 nub :: HTML
 nub =
