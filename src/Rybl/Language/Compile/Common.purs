@@ -7,17 +7,18 @@ import Control.Monad.Reader (ReaderT, runReaderT)
 import Control.Monad.State (StateT, get, modify_, runStateT)
 import Data.Array as Array
 import Data.Either (either)
+import Data.Lens ((+=))
 import Data.Maybe (Maybe(..), fromMaybe')
+import Data.Traversable (sequence, traverse)
 import Data.Tuple.Nested ((/\))
 import Data.Unfoldable (none)
 import Effect.Aff as Aff
 import Effect.Aff.Class (class MonadAff, liftAff)
 import Prim.Row (class Nub, class Union)
 import Record as R
-import Rybl.Data.Variant (inj'U)
-import Rybl.Language (Citation(..), CodeBlockOpts, CodeBlockPrms, Doc, ErrorOpts, ErrorPrms, ImageOpts, ImagePrms, LinkExternalOpts, LinkExternalPrms, LinkInternalOpts, LinkInternalPrms, MathBlockOpts, MathBlockPrms, PageOpts, PagePrms, ParagraphOpts, ParagraphPrms, QuoteBlockOpts, QuoteBlockPrms, RefId, RefOpts, RefPrms, Resource, SectionOpts, SectionPrms, SentenceOpts, SentencePrms, SidenoteOpts, SidenotePrms, StringOpts, StringPrms, StringStyle)
+import Rybl.Language (Citation(..), CitationOpts, CitationPrms, CodeBlockOpts, CodeBlockPrms, Doc, ErrorOpts, ErrorPrms, ImageOpts, ImagePrms, LinkExternalOpts, LinkExternalPrms, LinkInternalOpts, LinkInternalPrms, MathBlockOpts, MathBlockPrms, PageOpts, PagePrms, ParagraphOpts, ParagraphPrms, QuoteBlockOpts, QuoteBlockPrms, RefId, RefOpts, RefPrms, Resource, SectionOpts, SectionPrms, SentenceOpts, SentencePrms, SidenoteOpts, SidenotePrms, StringOpts, StringPrms, StringStyle)
 import Rybl.Language as RL
-import Rybl.Utility (bug, encodeURIComponent_nicely)
+import Rybl.Utility (bug, encodeURIComponent_nicely, prop')
 import Web.URL as URL
 
 --------------------------------------------------------------------------------
@@ -41,14 +42,30 @@ initialCtx = pure {}
 
 type Env =
   { ids :: Array String
+  , citations_count :: Int
   }
 
 initialEnv :: forall m. MonadAff m => m Env
 initialEnv = pure
   { ids: none
+  , citations_count: 0
   }
 
 type Err = String
+
+--------------------------------------------------------------------------------
+-- basic Citation and Resource builders
+--------------------------------------------------------------------------------
+
+type CitationPrmsRequired =
+  ( resources :: Array Resource
+  )
+
+citation :: forall opts opts' prms m. Union opts CitationOpts opts' => Nub opts' CitationOpts => Union CitationPrmsRequired CitationPrms prms => Nub prms CitationPrms => MonadAff m => Record opts -> Record CitationPrmsRequired -> M m Citation
+citation opts prms = do
+  { citations_count: index } <- get
+  prop' @"citations_count" += 1
+  pure $ Citation (opts `R.merge` { time: Nothing @String, note: Nothing @String }) (prms `R.merge` { id: "citation_" <> show index, index })
 
 --------------------------------------------------------------------------------
 -- basic Doc builders
@@ -87,6 +104,7 @@ linkExternal opts prms label = do
     Nothing /\ _ -> pure opts'
     Just _ /\ Just _ -> pure opts'
     Just url_ /\ Nothing -> do
+      -- TODO: actually, need to download this file locally in order to serve it (think CORS)
       let url = URL.fromAbsolute url_ # fromMaybe' \_ -> bug $ "invalid href: " <> show url_
       let favicon_url = "https://www.google.com/s2/favicons?domain=" <> (url # URL.protocol) <> "//" <> (url # URL.hostname)
       pure opts' { favicon_url = Just favicon_url }
@@ -114,23 +132,31 @@ string opts prms = RL.string (opts `R.merge` { style: Nothing @StringStyle }) pr
 
 type CodeBlockPrmsRequired = (value :: String)
 
-codeBlock :: forall opts opts' prms m. Union opts CodeBlockOpts opts' => Nub opts' CodeBlockOpts => Union CodeBlockPrmsRequired CodeBlockPrms prms => Nub prms CodeBlockPrms => MonadAff m => Record opts -> Record CodeBlockPrmsRequired -> M m Doc
-codeBlock opts prms = RL.codeBlock (opts `R.merge` { citation: Nothing @Citation }) prms # pure
+codeBlock :: forall opts opts' prms m. Union opts CodeBlockOpts opts' => Nub opts' CodeBlockOpts => Union CodeBlockPrmsRequired CodeBlockPrms prms => Nub prms CodeBlockPrms => MonadAff m => Record opts -> Record CodeBlockPrmsRequired -> M m (Maybe Citation) -> M m Doc
+codeBlock opts prms citation = do
+  citation <- citation
+  RL.codeBlock (opts `R.merge` { citation } `R.merge` { citation: Nothing @Citation }) prms # pure
 
 type QuoteBlockPrmsRequired = () :: Row Type
 
-quoteBlock :: forall opts opts' prms m. Union opts QuoteBlockOpts opts' => Nub opts' QuoteBlockOpts => Union QuoteBlockPrmsRequired QuoteBlockPrms prms => Nub prms QuoteBlockPrms => MonadAff m => Record opts -> Record QuoteBlockPrmsRequired -> M m Doc -> M m Doc
-quoteBlock opts prms body = RL.quoteBlock (opts `R.merge` { citation: Nothing @Citation }) prms <$> body
+quoteBlock :: forall opts opts' prms m. Union opts QuoteBlockOpts opts' => Nub opts' QuoteBlockOpts => Union QuoteBlockPrmsRequired QuoteBlockPrms prms => Nub prms QuoteBlockPrms => MonadAff m => Record opts -> Record QuoteBlockPrmsRequired -> M m (Maybe Citation) -> M m Doc -> M m Doc
+quoteBlock opts prms citation body = do
+  citation <- citation
+  RL.quoteBlock (opts `R.merge` { citation } `R.merge` { citation: Nothing @Citation }) prms <$> body
 
 type MathBlockPrmsRequired = (value :: String)
 
-mathBlock :: forall opts opts' prms m. Union opts MathBlockOpts opts' => Nub opts' MathBlockOpts => Union MathBlockPrmsRequired MathBlockPrms prms => Nub prms MathBlockPrms => MonadAff m => Record opts -> Record MathBlockPrmsRequired -> M m Doc
-mathBlock opts prms = RL.mathBlock (opts `R.merge` { citation: Nothing @Citation }) prms # pure
+mathBlock :: forall opts opts' prms m. Union opts MathBlockOpts opts' => Nub opts' MathBlockOpts => Union MathBlockPrmsRequired MathBlockPrms prms => Nub prms MathBlockPrms => MonadAff m => Record opts -> Record MathBlockPrmsRequired -> M m (Maybe Citation) -> M m Doc
+mathBlock opts prms citation = do
+  citation <- citation
+  RL.mathBlock (opts `R.merge` { citation } `R.merge` { citation: Nothing @Citation }) prms # pure
 
 type ImagePrmsRequired = (url :: String)
 
-image :: forall opts opts' prms m. Union opts ImageOpts opts' => Nub opts' ImageOpts => Union ImagePrmsRequired ImagePrms prms => Nub prms ImagePrms => MonadAff m => Record opts -> Record ImagePrmsRequired -> M m (Maybe Doc) -> M m Doc
-image opts prms caption = RL.image (opts `R.merge` { citation: Nothing @Citation }) prms <$> caption
+image :: forall opts opts' prms m. Union opts ImageOpts opts' => Nub opts' ImageOpts => Union ImagePrmsRequired ImagePrms prms => Nub prms ImagePrms => MonadAff m => Record opts -> Record ImagePrmsRequired -> M m (Maybe Citation) -> M m (Maybe Doc) -> M m Doc
+image opts prms citation caption = do
+  citation <- citation
+  RL.image (opts `R.merge` { citation } `R.merge` { citation: Nothing @Citation }) prms <$> caption
 
 type ErrorPrmsRequired = (label :: String)
 

@@ -133,7 +133,9 @@ type CitationOpts =
   )
 
 type CitationPrms =
-  ( resource :: Resource
+  ( id :: String
+  , index :: Int
+  , resources :: Array Resource
   )
 
 derive instance Generic Citation _
@@ -150,7 +152,7 @@ instance DecodeJson Citation where
 citation :: forall r r'. Union r CitationOpts r' => Nub r' CitationOpts => Record r -> Record CitationPrms -> Citation
 citation opts prms = Citation (opts `R.merge` { time: Nothing @String, note: Nothing @String }) prms
 
-data Resource = Resource (Record ResourceOpts) { name :: String }
+data Resource = Resource (Record ResourceOpts) (Record ResourcePrms)
 
 type ResourceOpts =
   ( content :: Maybe ResourceContent
@@ -161,10 +163,21 @@ type ResourceContent = Variant
   , misc :: String
   )
 
+type ResourcePrms =
+  ( name :: String
+  )
+
 derive instance Generic Resource _
 
 instance Show Resource where
   show x = genericShow x
+
+-- Resources are identified by their name
+instance Eq Resource where
+  eq (Resource _ { name: x1 }) (Resource _ { name: x2 }) = x1 == x2
+
+instance Ord Resource where
+  compare (Resource _ { name: x1 }) (Resource _ { name: x2 }) = compare x1 x2
 
 instance EncodeJson Resource where
   encodeJson x = genericEncodeJson x

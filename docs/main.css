@@ -1,11 +1,28 @@
-.group {}
+html {
+  scroll-behavior: smooth;
+}
 
-.group_column {}
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
 
-.group_column>* {}
+a {
+  color: rgb(0, 0, 169);
+}
 
-.group_row {}
+.LinkExternal:hover,
+.LinkInternal:hover {
+  background-color: color-mix(in hsl, black, transparent 80%);
+}
 
-.group_row>* {}
-
-.group_flow {}
+*:target {
+  /* color: red !important; */
+  /* outline: 0.2em solid blue; */
+  /* outline: 0.5em ridge rgba(170, 50, 220, .6); */
+  outline: 0.5em outset rgba(170, 50, 220, .6);
+  transition-property: outline;
+  transition-duration: 0.5s;
+  /* border-radius: 2rem; */
+}

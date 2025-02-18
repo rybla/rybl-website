@@ -12,9 +12,11 @@ import Data.Foldable (fold, length, null)
 import Data.Int as Int
 import Data.Lens ((%=), (%~), (.=))
 import Data.List as List
+import Data.Map as Map
 import Data.Maybe (fromMaybe', maybe, maybe')
 import Data.Newtype (unwrap)
 import Data.Traversable (traverse)
+import Data.Tuple.Nested ((/\))
 import Data.Unfoldable (none)
 import Effect.Aff (Aff)
 import Effect.Class.Console as Console
@@ -148,10 +150,12 @@ renderDoc (Fix (Ref _opts prms)) = do
       [ HH.text $ "Ref " <> show prms.refId ]
 
 renderDoc (Fix (CodeBlock opts prms)) = do
-  source <- opts.citation # traverse renderCitation
+  source <- opts.citation # traverse renderCitationBox
   pure
     $ HH.div
-        []
+        ( [ opts.citation # maybe [] \(Citation _ { id }) -> [ HP.id id ]
+          ] # fold
+        )
     $ fold
         [ [ HH.div
               [ Style.css do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
@@ -165,10 +169,13 @@ renderDoc (Fix (CodeBlock opts prms)) = do
 
 renderDoc (Fix (QuoteBlock opts _prms body_)) = do
   body <- body_ # renderDoc
-  source <- opts.citation # traverse renderCitation
+  source <- opts.citation # traverse renderCitationBox
   pure
     $ HH.div
-        [ Style.css do tell [ "display: flex", "flex-direction: column" ] ]
+        ( [ [ Style.css do tell [ "display: flex", "flex-direction: column" ] ]
+          , opts.citation # maybe [] \(Citation _ { id }) -> [ HP.id id ]
+          ] # fold
+        )
     $ fold
         [ [ HH.div
               [ Style.css do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
@@ -189,10 +196,12 @@ renderDoc (Fix (QuoteBlock opts _prms body_)) = do
         ]
 
 renderDoc (Fix (MathBlock opts prms)) = do
-  source <- opts.citation # traverse renderCitation
+  source <- opts.citation # traverse renderCitationBox
   pure
     $ HH.div
-        []
+        ( [ opts.citation # maybe [] \(Citation _ { id }) -> [ HP.id id ]
+          ] # fold
+        )
     $ fold
         [ [ HH.div
               [ Style.css do tell [ "display: flex", "flex-direction: row", "justify-content: center" ] ]
@@ -206,10 +215,13 @@ renderDoc (Fix (MathBlock opts prms)) = do
 
 renderDoc (Fix (Image opts prms caption__)) = do
   caption_ <- caption__ # traverse renderDoc
-  source <- opts.citation # traverse renderCitation
+  source <- opts.citation # traverse renderCitationBox
   pure
     $ HH.div
-        [ Style.css do tell [ "width: 100%", "display: flex", "flex-direction: column", "justify-content: center" ] ]
+        ( [ [ Style.css do tell [ "width: 100%", "display: flex", "flex-direction: column", "justify-content: center" ] ]
+          , opts.citation # maybe [] \(Citation _ { id }) -> [ HP.id id ]
+          ] # fold
+        )
     $ fold
         [ [ HH.img
               [ Style.css do tell [ "width: 100%" ]
@@ -218,7 +230,7 @@ renderDoc (Fix (Image opts prms caption__)) = do
           ]
         , caption_ # maybe [] \caption ->
             [ HH.div
-                [ Style.css $ do tell [ "margin: 0 0.5em", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)" ] ]
+                [ Style.css do tell [ "margin: 0 0.5em", "padding: 0.5em", "background-color: rgba(0, 0, 0, 0.1)" ] ]
                 [ caption ]
             ]
         , source # maybe [] pure
@@ -266,6 +278,7 @@ renderDoc (Fix (LinkExternal opts prms label_)) = do
                 , "gap: 0.2em"
                 , "box-shadow: 0 1px 0 0 blue"
                 ]
+            , HP.classes [ HH.ClassName "LinkExternal" ]
             ]
           , opts.url # maybe [] (HP.href >>> pure)
           ] # fold
@@ -295,6 +308,7 @@ renderDoc (Fix (LinkInternal opts _prms label_)) = do
                 , "gap: 0.2em"
                 , "box-shadow: 0 1px 0 0 blue"
                 ]
+            , HP.classes [ HH.ClassName "LinkInternal" ]
             ]
           , opts.refId # maybe [] \refId -> [ HP.href $ "/index.html?ref=" <> (refId # unwrap # encodeURI # fromMaybe' \_ -> bug $ "failed: encodeURI " <> show (refId # toJsonString)) ]
           ] # fold
@@ -317,7 +331,7 @@ renderResource (Resource opts prms) = do
     $ Array.intersperse (HH.text " • ")
     $ fold
         [ [ HH.text $ prms.name ]
-        -- TODO: use something like this in renderCitation
+        -- TODO: use something like this in renderCitationBox
         -- , opts.date # maybe [] \date -> [ HH.span_ [ HH.i_ [ HH.text "accessed " ], HH.text $ date ] ]
         , opts.content # maybe []
             ( match
@@ -424,14 +438,37 @@ renderSectionTitle { section_depth, section_index, id, title } =
           ]
       ]
 
--- TODO: add something extra about citation.time and citation.note
--- TODO: this is probably combined with renderCitation
 renderCitation :: forall m. MonadReader Ctx m => MonadState Env m => Citation -> m HTML
-renderCitation citation_ = do
-  citation <- citation_ # renderCitation
+renderCitation (Citation opts prms) = do
+  pure
+    $ HH.div
+        [ Style.css do
+            tell [ "display: inline-flex", "flex-direction: row", "gap: 0.5em" ]
+        ]
+    $ fold
+        [ [ HH.div
+              [ Style.css do tell [ "font-weight: bold" ] ]
+              [ HH.text $ "[" <> show prms.index <> "]" ]
+          ]
+        , opts.time # maybe [] \time ->
+            [ HH.div
+                [ Style.css do tell [ "font-style: italic" ] ]
+                [ HH.text $ "Accessed " <> time <> "." ]
+            ]
+        , opts.note # maybe [] \note ->
+            [ HH.div
+                []
+                [ HH.text $ note ]
+            ]
+        ]
+
+renderCitationBox :: forall m. MonadReader Ctx m => MonadState Env m => Citation -> m HTML
+renderCitationBox cit@(Citation opts prms) = do
+  html_cit <- cit # renderCitation
+  htmls_resources <- prms.resources # traverse renderResource
   pure $
     HH.div
-      [ Style.css $ do
+      [ Style.css do
           tell
             [ "padding-left: 40%"
             , "padding-right: 10%"
@@ -441,25 +478,59 @@ renderCitation citation_ = do
             ]
       ]
       [ HH.div
-          [ Style.css $ do
-              tell
-                [ "padding: 0.5em"
-                , "background-color: color-mix(in hsl, saddlebrown, transparent 80%)"
-                ]
+          [ Style.css do
+              tell [ "padding: 0.5em" ]
+              tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ]
+              tell [ "background-color: color-mix(in hsl, saddlebrown, transparent 80%)" ]
           ]
-          [ citation ]
+          [ html_cit
+          , HH.div
+              [ Style.css do
+                  tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ]
+              ]
+              htmls_resources
+          ]
       ]
 
 renderBibliography :: forall m. MonadReader Ctx m => MonadState Env m => Doc -> m HTML
 renderBibliography doc = do
-  -- TODO: handle citations and resources
-  let citations_ = RL.collectCitations doc
-  citations <- citations_ # traverse \citation -> do
-    html <- renderCitation citation
-    pure $
-      HH.div
-        [ Style.css do tell [ "padding: 0.5em", "background-color: color-mix(in hsl, saddlebrown, transparent 80%)" ] ]
-        [ html ]
+  let
+    citations_ = RL.collectCitations doc
+    resource_to_citations =
+      citations_
+        # Array.foldr
+            ( \cit@(Citation _ { resources }) -> \m ->
+                resources
+                  # Array.foldr (\res -> Map.insertWith append res [ cit ]) m
+            )
+            Map.empty
+  resources <-
+    resource_to_citations
+      # (Map.toUnfoldable :: _ -> Array _)
+      # traverse \(res /\ cits) -> do
+          html_res <- res # renderResource
+          htmls_cits <- cits # traverse \cit@(Citation _ prms) -> do
+            html_cit <- cit # renderCitation
+            pure $
+              HH.div
+                [ Style.css do tell [ "display: flex", "flex-direction: row", "gap: 0.5em" ] ]
+                [ HH.a
+                    [ HP.href $ "#" <> prms.id ]
+                    [ HH.text "↩" ]
+                , html_cit
+                ]
+          pure $
+            HH.div
+              [ Style.css do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
+              [ html_res
+              , HH.div
+                  [ Style.css do
+                      tell [ "padding-left: 1em" ]
+                      tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ]
+                  ]
+                  htmls_cits
+              ]
+
   title <-
     renderSectionTitle
       { section_depth: 0
@@ -467,6 +538,7 @@ renderBibliography doc = do
       , title: HH.text "Bibliography"
       , id: "bibliography"
       }
+
   pure $
     HH.div
       [ HP.id "bibliography"
@@ -477,7 +549,7 @@ renderBibliography doc = do
       [ title
       , HH.div
           [ Style.css do tell [ "display: flex", "flex-direction: column", "gap: 0.5em" ] ]
-          citations
+          resources
       ]
 
 --------------------------------------------------------------------------------
@@ -588,3 +660,8 @@ theSidenoteExpanderComponent = H.mkComponent { initialState, eval, render }
 -- Misc
 --------------------------------------------------------------------------------
 
+--------------------------------------------------------------------------------
+-- color scheme 1
+--------------------------------------------------------------------------------
+
+-- TODO
